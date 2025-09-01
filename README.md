@@ -9,9 +9,9 @@ A modular simulation platform for aircraft dynamics, control algorithms, and fli
 
 ## 📋 Features
 
-<div style="display: flex; align-items: flex-start;">
-
-<div style="flex: 1;">
+<div style="margin-left: 20px;">
+  <img align="right" src="docs/images/flight.gif" width="35%" />
+</div>
 
 - 🛫 **6-DOF**: Realistic 6DOF flight dynamics  
 - 🎮 **Control System**: Control system design & testing environment  
@@ -23,14 +23,6 @@ A modular simulation platform for aircraft dynamics, control algorithms, and fli
 - 🖥️ **Visualization**: Integration with FlightGear for 3D visualization  
 - 🎥 **Recording**: Aircraft Video/ GIF recording for animations  
 - 🧩 **Clean**: Clean project structure for easy development  
-
-</div>
-
-<div style="margin-left: 20px;">
-  <img src="docs/images/flight.gif" width="400" />
-</div>
-
-</div>
 
 
 ## 📊 Example Output
