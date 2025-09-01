@@ -33,7 +33,7 @@ A modular simulation platform for aircraft dynamics, control algorithms, and fli
 - 3D animation/ trajectory visualization  
 
 <p align="center">
-  <img src="docs/images/plots.png" width="600" />
+  <img src="docs/images/plot.png" width="600" />
 </p>
 
 
