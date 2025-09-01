@@ -8,9 +8,10 @@
 A modular simulation platform for aircraft dynamics, control algorithms, and flight visualization.  Written in C.
 
 ## 📋 Features
-<table>
-<tr>
-<td>
+
+<div style="display: flex; align-items: flex-start;">
+
+<div style="flex: 1;">
 
 - 🛫 **6-DOF**: Realistic 6DOF flight dynamics  
 - 🎮 **Control System**: Control system design & testing environment  
@@ -23,12 +24,13 @@ A modular simulation platform for aircraft dynamics, control algorithms, and fli
 - 🎥 **Recording**: Aircraft Video/ GIF recording for animations  
 - 🧩 **Clean**: Clean project structure for easy development  
 
-</td>
-<td>
+</div>
+
+<div style="margin-left: 20px;">
   <img src="docs/images/flight.gif" width="400" />
-</td>
-</tr>
-</table>
+</div>
+
+</div>
 
 
 ## 📊 Example Output
