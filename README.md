@@ -27,8 +27,8 @@ A modular simulation platform for aircraft dynamics, control algorithms, and fli
 
 ## 📊 Example Output
 
-- Complete data log timeseries (position, velocity, attitude, rate, alpha, etc.)  
-- Control surface deflections and actuator responses  
+- Complete data log timeseries (position, velocity, attitude, rates, alpha, etc.)  
+- Control surface deflection commands and actuator responses  
 - Sensor output logs (accelerometer, gyro, etc.)
 - 3D animation/ trajectory visualization  
 
@@ -48,28 +48,63 @@ cd FlightLab
 make
 
 # Run simulation
-./flightlab.exe --config examples/projectile.cfg
+.\build\flightlab.exe --config examples/basic_aricraft.cfg
 ```
 
-
 ## 🔄 Simulation Flow  
+
+<div style="display: flex; gap: 20px;">
+
+<div style="flex: 1;">
+
 1. **Initialization**  
    - Load aircraft parameters, I.C. state vector, and control inputs  
    - Initialize sensors and actuators  
 
 2. **Main Loop** (per time step `dt`)  
-   - Read and process sensor data
-   - Compute flight controls (U_cmd)
+   - Read and process sensor data  
+   - Compute flight controls (U_cmd)  
    - Actuate flight controls (servo dynamics)  
    - Compute aerodynamic forces & moments  
-   - Compute state derivative (6-DOF dynamics EOM)
-   - Integrate state derivative
+   - Compute state derivative (6-DOF dynamics EOM)  
+   - Integrate state derivative  
    - Log outputs  
 
 3. **Post-Processing**  
    - Results stored in `output/data_log.csv`  
-   - Python plotting scripts visualize important timeseries parameters
+   - Python plotting scripts visualize important timeseries parameters  
 
+</div>
+
+<div style="flex: 1;">
+
+```c
+while(simTime_s < tFinal_s){
+    // [1] Read sensors
+    readSensors(&X, &sensors);
+
+    // [2] Compute and actuate flight controls
+    computeFlightControls(&sensors, &U, &acParams);
+    actuateFlightControls(&U, &flightControls, dt_s);
+
+    // [3] Compute Forces and Moments
+    computeForcesAndMoments(&X, &flightControls, &acParams, &F_tot, &M_tot);
+    
+    // [4] Compute state derivative from EOM
+    computeStateDerivative(&X, &acParams, &F_tot, &M_tot, Xdot);
+
+    // [5] Integrate one step   
+    integrateEulerStep(&X, Xdot, dt_s);
+
+    // [6] Log and display results
+    loggerLogState(&logger, simTime_s, &X);
+    
+    // [7] Step time
+    simTime_s += dt_s;
+}
+```
+</div>
+</div>
 ---
 
 ## 📂 Project Structure  
