@@ -13,5 +13,3 @@ typedef struct {
     double phi, theta, psi; // Euler angles [NED frame]
     double x, y, z;         // Position [NED frame]
 } StateVector;
-
-StateVector loadInitState(void);
