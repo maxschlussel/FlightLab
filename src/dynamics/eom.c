@@ -38,7 +38,6 @@ void computeStateDerivative(const StateVector* X, AircraftParams* acParams,
     // Define useful params
     Vector3 w_b = {X->p, X->q, X->r}; // Angular rates in body frame - omega_b
     Vector3 V_b = {X->u, X->v, X->w}; // Velocities in body frame - V_b
-    
     double phi = X->phi, theta = X->theta, psi = X->psi;
 
     // Translationsal EOM:
@@ -60,10 +59,12 @@ void computeStateDerivative(const StateVector* X, AircraftParams* acParams,
     };
     Vector3 euler_dot = mat3_mult_vec3(H, w_b);
 
-    // Earth to body rotation
-    double R[3][3];
-    getRotationMatrix(psi, theta, phi, R);
-    Vector3 dPos = mat3_mult_vec3(R, V_b);
+    // Body to Earth rotation
+    double R_e2b[3][3];
+    getRotationMatrix(psi, theta, phi, R_e2b);
+    double R_b2e[3][3];
+    mat3_inv(R_e2b, R_b2e);
+    Vector3 dPos = mat3_mult_vec3(R_b2e, V_b);
     
     // Fill derivatives vector
     Xdot[0] = Vdot_b.x;
