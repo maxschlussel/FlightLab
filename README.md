@@ -53,39 +53,19 @@ make
 
 ## 🔄 Simulation Flow  
 
-<div style="display: flex; gap: 20px;">
-
-<div style="flex: 1;">
-
 1. **Initialization**  
-   - Load aircraft parameters, I.C. state vector, and control inputs  
+   - Load aircraft parameters, I.C. state vector, control vector, etc.
    - Initialize sensors and actuators  
 
 2. **Main Loop** (per time step `dt`)  
-   - Read and process sensor data  
-   - Compute flight controls (U_cmd)  
-   - Actuate flight controls (servo dynamics)  
-   - Compute aerodynamic forces & moments  
-   - Compute state derivative (6-DOF dynamics EOM)  
-   - Integrate state derivative  
-   - Log outputs  
-
-3. **Post-Processing**  
-   - Results stored in `output/data_log.csv`  
-   - Python plotting scripts visualize important timeseries parameters  
-
-</div>
-
-<div style="flex: 1;">
-
 ```c
 while(simTime_s < tFinal_s){
     // [1] Read sensors
     readSensors(&X, &sensors);
 
     // [2] Compute and actuate flight controls
-    computeFlightControls(&sensors, &U, &acParams);
-    actuateFlightControls(&U, &flightControls, dt_s);
+    computeFlightControls(&sensors, &U_cmd, &acParams);
+    actuateFlightControls(&U_cmd, &flightControls, dt_s);
 
     // [3] Compute Forces and Moments
     computeForcesAndMoments(&X, &flightControls, &acParams, &F_tot, &M_tot);
@@ -103,9 +83,11 @@ while(simTime_s < tFinal_s){
     simTime_s += dt_s;
 }
 ```
-</div>
-</div>
----
+
+3. **Post-Processing**  
+   - Results stored in `output/data_log.csv`  
+   - Python plotting scripts visualize important timeseries parameters  
+
 
 ## 📂 Project Structure  
 ```
@@ -195,8 +177,8 @@ FlighLab/
 - [x] Create basic logging and plotting pipeline
 - [x] Create core data structures (StateVectos, ControlVector, Vec3, AircraftParams, etc.)
 - [x] Integrate basic aircraft model (aerodynamics parameters and coefficient equations)
+- [x] Add control surface modeling  
 - [x] Develop basic actuator and sensor models
-- [ ] Add control surface modeling  
 - [ ] Design autopilot & control laws (PID, ML etc.) 
 - [ ] Connect with FlightGear for 3D visualization
 - [ ] Increase fidelity (arodynamics, sensors, environment, mass, etc.)
