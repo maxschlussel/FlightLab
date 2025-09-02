@@ -32,6 +32,7 @@
 
 #include "src/aircrafts/boeing_737.h"
 #include "src/actuators/flight_controls.h"
+#include "src/controllers/basic_PID.h"
 #include "src/core/aircraft_params.h"
 #include "src/core/constants.h"
 #include "src/core/control_vector.h"
@@ -64,7 +65,7 @@ int main(void){
 
     StateVector X = initStateVectorBasicCruise();
 
-    ControlVector U = {0.0};
+    ControlVector U = initControlVectorlBasic();
 
     Sensors sensors = initSensors();
 
@@ -77,7 +78,7 @@ int main(void){
         readSensors(&X, &sensors);
 
         // [2] Compute and actuate flight controls
-        // computeFlightControls(&X, &U, &acParams);
+        computeFlightControls(&sensors, &U, &acParams);
         actuateFlightControls(&U, &flightControls, dt_s);
 
         // [3] Compute Forces and Moments

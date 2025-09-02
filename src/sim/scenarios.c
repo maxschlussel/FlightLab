@@ -1,6 +1,22 @@
 #include "src/sim/scenarios.h"
 #include "src/core/state_vector.h"
 
+
+
+/**
+* @brief Load the initial conditions of the aircraft control vector.
+*/
+ControlVector initControlVectorlBasic(void){
+    ControlVector U = {
+        .da = 0.0,
+        .de = 3.0,
+        .dr = 0.0,
+        .dt[0] = 0.0,
+        .dt[1] = 0.0
+    };
+    return U;
+}
+
 /**
 * @brief Load the initial conditions of the aircraft state.
 */
@@ -17,7 +33,7 @@ StateVector initStateVectorBasicCruise(void){
         .psi    = 0.0,
         .x = 0.0,
         .y = 0.0,
-        .z = -1000.0
+        .z = 1000.0
     };
     return X;
 }
