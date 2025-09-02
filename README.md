@@ -9,10 +9,6 @@ A modular simulation platform for aircraft dynamics, control algorithms, and fli
 
 ## 📋 Features
 
-<div style="margin-left: 20px;">
-  <img align="right" src="docs/images/flight.gif" width="35%" />
-</div>
-
 - 🛫 **6-DOF**: Realistic 6DOF flight dynamics  
 - 🎮 **Control System**: Control system design & testing environment  
 - 🔧 **Modular:** Modular, scalable, and extensible C-based simulation core  
@@ -185,6 +181,3 @@ FlighLab/
 - [ ] Monte-Carlo simulation for robustness studies  
 - [ ] Real-time simulator mode  
 - [ ] Expand aircraft database  
-
-## 📜 License  
-This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for details.  
