@@ -77,12 +77,8 @@ void computeAerodynamicForces(StateVector* X, ControlVector* U, AircraftParams* 
 
     Vector3 M_body = vec3_add(M_ac_body, M_cg_body);
 
-    F->x = F_body.x;
-    F->y = F_body.y;
-    F->z = F_body.z;
-    M->x = M_body.x;
-    M->y = M_body.y;
-    M->z = M_body.z;
+    *F = F_body;
+    *M = M_body;
 }
 
 double computeCL(AircraftParams* acParams, ControlVector* U, double alpha){

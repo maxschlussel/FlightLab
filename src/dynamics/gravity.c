@@ -28,9 +28,5 @@ void computeGravityForces(StateVector* X, AircraftParams* ac_params, Vector3* F)
     double R[3][3];
     getRotationMatrix(X->psi, X->theta, X->phi, R);
 
-    Vector3 F_grav = mat3_mult_vec3(R, Fgrav_inertial);
-
-    F->x = F_grav.x;
-    F->y = F_grav.y;
-    F->z = F_grav.z;
+    *F = mat3_mult_vec3(R, Fgrav_inertial);
 }
