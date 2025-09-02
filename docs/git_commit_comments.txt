@@ -1,0 +1,15 @@
+🔑 Common types:
+
+feat → new feature
+
+fix → bug fix
+
+docs → documentation changes
+
+style → formatting (no code logic change)
+
+refactor → restructuring code without changing behavior
+
+test → adding/fixing tests
+
+config → maintenance, configs, build scripts
