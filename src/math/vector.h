@@ -91,6 +91,14 @@ static inline void mat3_scale(const double m[3][3], double s, double mout[3][3])
 }
 
 
+/** Transpose a 3x3 matrix. */
+static inline void mat3_transpose(const double m[3][3], double m_transpose[3][3]){
+    for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++)
+            m_transpose[i][j] = m[j][i];
+}
+
+
 /** Compute inverse of a 3x3 matrix. Returns False if does not exist. */
 static inline bool mat3_inv(const double M[3][3], double M_inv[3][3]){
     double det =
