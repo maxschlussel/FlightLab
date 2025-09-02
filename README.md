@@ -9,16 +9,16 @@ A modular simulation platform for aircraft dynamics, control algorithms, and fli
 
 ## 📋 Features
 
-- 🛫 **6-DOF**: Realistic 6DOF flight dynamics  
-- 🎮 **Control System**: Control system design & testing environment  
-- 🔧 **Modular:** Modular, scalable, and extensible C-based simulation core  
-- 🚀 **Models**: Extensible framework for new models and aircraft types  
-- 🎲 **Monte Carlo**: Monte Carlo simulation for robustness and uncertainty analysis  
-- 🌍 **Environment**: Wind, gusts, and atmospheric modeling  
-- 📊 **Data**: Automatic data logging & plotting  
-- 🖥️ **Visualization**: Integration with FlightGear for 3D visualization  
-- 🎥 **Recording**: Aircraft Video/ GIF recording for animations  
-- 🧩 **Clean**: Clean project structure for easy development  
+- **6-DOF**: Realistic 6DOF flight dynamics  
+- **Control System**: Control system design & testing environment  
+- **Modular:** Modular, scalable, and extensible C-based simulation core  
+- **Models**: Extensible framework for new models and aircraft types  
+- **Monte Carlo**: Monte Carlo simulation for robustness and uncertainty analysis  
+- **Environment**: Wind, gusts, and atmospheric modeling  
+- **Data**: Automatic data logging & plotting  
+- **Visualization**: Integration with FlightGear for 3D visualization  
+- **Recording**: Aircraft Video/ GIF recording for animations  
+- **Clean**: Clean project structure for easy development  
 
 
 ## 📊 Example Output
