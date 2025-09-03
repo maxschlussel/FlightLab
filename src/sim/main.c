@@ -42,6 +42,7 @@
 #include "src/dynamics/forces.h"
 #include "src/dynamics/gravity.h"
 #include "src/dynamics/integrators/euler_integrator.h"
+#include "src/dynamics/integrators/rk4.h"
 #include "src/dynamics/propulsion.h"
 #include "src/io/logger.h"
 #include "src/sensors/sensors.h"
@@ -88,7 +89,7 @@ int main(void){
         computeStateDerivative(&X, &acParams, &F_tot, &M_tot, Xdot);
 
         // [5] Integrate one step   
-        integrateEulerStep(&X, Xdot, dt_s);
+        integrateRK4Step(&X, &U, &acParams, Xdot, dt_s);  // integrateEulerStep(&X, Xdot, dt_s);
 
         // [6] Log and display results
         loggerLogState(&logger, simTime_s, &X);

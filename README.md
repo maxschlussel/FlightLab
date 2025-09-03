@@ -70,7 +70,7 @@ while(simTime_s < tFinal_s){
     computeStateDerivative(&X, &acParams, &F_tot, &M_tot, Xdot);
 
     // [5] Integrate one step   
-    integrateEulerStep(&X, Xdot, dt_s);
+    integrateRK4Step(&X, &U, &acParams, Xdot, dt_s);
 
     // [6] Log and display results
     loggerLogState(&logger, simTime_s, &X);
@@ -172,9 +172,10 @@ FlighLab/
 - [x] Implement state integrator models
 - [x] Create basic logging and plotting pipeline
 - [x] Create core data structures (StateVectos, ControlVector, Vec3, AircraftParams, etc.)
-- [x] Integrate basic aircraft model (aerodynamics parameters and coefficient equations)
+- [x] Implement basic aircraft model (aerodynamics parameters and coefficient equations)
 - [x] Add control surface modeling  
 - [x] Develop basic actuator and sensor models
+- [x] Implement RK4 integration model
 - [ ] Design autopilot & control laws (PID, ML etc.) 
 - [ ] Connect with FlightGear for 3D visualization
 - [ ] Increase fidelity (arodynamics, sensors, environment, mass, etc.)
