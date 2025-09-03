@@ -83,8 +83,8 @@ void integrateRK4Step(StateVector* X, ControlVector* U, AircraftParams* acParams
     computeForcesAndMoments(&X4, U, acParams, &F, &M);
     computeStateDerivative(&X4, acParams, &F, &M, k4);
 
+    // X += (dt_s / 6) * (k1 + 2*k2 + 2*k3 + k4);
     double k_tot[12];
     for(int i = 0; i < 12; i++) k_tot[i] = k1[i] + 2*k2[i] + 2*k3[i] + k4[i];
     integrateEulerStep(X, k_tot, dt_s/6);
-    // X += (dt_s / 6) * (k1 + 2*k2 + 2*k3 + k4);
 }
