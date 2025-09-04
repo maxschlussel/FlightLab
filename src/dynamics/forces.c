@@ -3,6 +3,8 @@
 #include "src/dynamics/gravity.h"
 #include "src/dynamics/propulsion.h"
 
+#include "src/io/logger.h"
+
 
 /**
  * @brief Compute the total forces and moments acting on the aircraft.
@@ -33,4 +35,11 @@ void computeForcesAndMoments(StateVector* X, ControlVector* U, AircraftParams* a
     // Sum forces
     *F_tot = vec3_add(F_aero, vec3_add(F_prop, F_grav) );
     *M_tot = vec3_add(M_aero, M_prop);
+
+    logger.data[LOG_FORCES_F_TOT_X] = F_tot->x;
+    logger.data[LOG_FORCES_F_TOT_Y] = F_tot->y;
+    logger.data[LOG_FORCES_F_TOT_Z] = F_tot->z;
+    logger.data[LOG_MOMENTS_M_TOT_X] = M_tot->x;
+    logger.data[LOG_MOMENTS_M_TOT_Y] = M_tot->y;
+    logger.data[LOG_MOMENTS_M_TOT_Z] = M_tot->z;
 }

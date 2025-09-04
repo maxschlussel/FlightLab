@@ -4,9 +4,15 @@
 #include "src/math/utils.h"
 #include "src/sensors/gps.h"
 
+#include "src/io/logger.h"
+
 
 void readGPS(const StateVector* X, GPS* gps){
     gps->pos.x = X->x + randNoise(10);
     gps->pos.y = X->y + randNoise(10);
     gps->pos.z = X->z + randNoise(10);
+
+    logger.data[LOG_SNS_GPS_POS_X] = gps->pos.x;
+    logger.data[LOG_SNS_GPS_POS_Y] = gps->pos.y;
+    logger.data[LOG_SNS_GPS_POS_Z] = gps->pos.z;
 }

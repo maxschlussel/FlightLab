@@ -4,6 +4,9 @@
 #include "src/core/constants.h"
 #include "src/math/dcm.h"
 
+#include "src/io/logger.h"
+
+
 /**
  * Goal: compute aerodynamic forces and moments
  * 
@@ -79,7 +82,24 @@ void computeAerodynamicForces(StateVector* X, ControlVector* U, AircraftParams* 
 
     *F = F_body;
     *M = M_body;
+
+    logger.data[LOG_QINF] = Q;
+    logger.data[LOG_ALPHA] = alpha;
+    logger.data[LOG_BETA] = beta;
+    logger.data[LOG_AERO_COEF_CL] = CL;
+    logger.data[LOG_AERO_COEF_CD] = Cd;
+    logger.data[LOG_AERO_COEF_CY] = Cy;
+    logger.data[LOG_AERO_COEF_Cl] = CM_aero.x;
+    logger.data[LOG_AERO_COEF_Cm] = CM_aero.y;
+    logger.data[LOG_AERO_COEF_Cn] = CM_aero.z;
+    logger.data[LOG_FORCES_F_AERO_X] = F->x;
+    logger.data[LOG_FORCES_F_AERO_Y] = F->y;
+    logger.data[LOG_FORCES_F_AERO_Z] = F->z;
+    logger.data[LOG_MOMENTS_M_AERO_X] = M->x;
+    logger.data[LOG_MOMENTS_M_AERO_Y] = M->y;
+    logger.data[LOG_MOMENTS_M_AERO_Z] = M->z;
 }
+
 
 double computeCL(AircraftParams* acParams, ControlVector* U, double alpha){
     double CL_wingbody = computeCL_wingbody(acParams, alpha);

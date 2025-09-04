@@ -15,5 +15,5 @@ void actuateServo(ServoActuator* servo, double U_cmd, double dt){
     servo->pos += step;
 
     // Check saturation
-    servo->pos = clamp(servo->pos, servo->minPosLim, servo->maxPosLim);    
+    servo->pos = clamp(servo->pos, servo->minPosLim, servo->maxPosLim);
 }

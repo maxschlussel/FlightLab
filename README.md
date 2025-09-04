@@ -170,12 +170,12 @@ FlighLab/
 
 - [x] Implement fundamental 6DOF dynamic EOM
 - [x] Implement state integrator models
-- [x] Create basic logging and plotting pipeline
 - [x] Create core data structures (StateVectos, ControlVector, Vec3, AircraftParams, etc.)
 - [x] Implement basic aircraft model (aerodynamics parameters and coefficient equations)
 - [x] Add control surface modeling  
 - [x] Develop basic actuator and sensor models
 - [x] Implement RK4 integration model
+- [x] Develop robust data logging pipeline and plotting toolset
 - [ ] Design autopilot & control laws (PID, ML etc.) 
 - [ ] Connect with FlightGear for 3D visualization
 - [ ] Increase fidelity (arodynamics, sensors, environment, mass, etc.)

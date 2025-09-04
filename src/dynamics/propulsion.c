@@ -1,5 +1,8 @@
 #include "src/dynamics/propulsion.h"
 
+#include "src/io/logger.h"
+
+
 void computePropulsionForces(StateVector* X, ControlVector* U, AircraftParams* acParams, 
         Vector3* F, Vector3* M){
 
@@ -15,4 +18,11 @@ void computePropulsionForces(StateVector* X, ControlVector* U, AircraftParams* a
     Vector3 MomentEngineTwo_b = vec3_cross(acParams->r_engineOne2cg, FengineTwo);
 
     *M = vec3_add(MomentEngineOne_b, MomentEngineTwo_b);
+
+    logger.data[LOG_FORCES_F_PROP_X] = F->x;
+    logger.data[LOG_FORCES_F_PROP_Y] = F->y;
+    logger.data[LOG_FORCES_F_PROP_Z] = F->z;
+    logger.data[LOG_MOMENTS_M_PROP_X] = F->x;
+    logger.data[LOG_MOMENTS_M_PROP_Y] = F->y;
+    logger.data[LOG_MOMENTS_M_PROP_Z] = F->z;
 }

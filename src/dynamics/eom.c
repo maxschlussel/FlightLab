@@ -4,6 +4,9 @@
 #include "src/dynamics/eom.h"
 #include "src/math/dcm.h"
 
+#include "src/io/logger.h"
+
+
 /**
  * @brief Computes the time derivatives of the state vector (6-DOF EOM).
  *
@@ -79,4 +82,17 @@ void computeStateDerivative(const StateVector* X, AircraftParams* acParams,
     Xdot[9]  = dPos.x;
     Xdot[10] = dPos.y;
     Xdot[11] = dPos.z;
+
+    logger.data[LOG_XDOT_U] = Xdot[0];
+    logger.data[LOG_XDOT_V] = Xdot[1];
+    logger.data[LOG_XDOT_W] = Xdot[2];
+    logger.data[LOG_XDOT_P] = Xdot[3];
+    logger.data[LOG_XDOT_Q] = Xdot[4];
+    logger.data[LOG_XDOT_R] = Xdot[5];
+    logger.data[LOG_XDOT_PHI]   = Xdot[6];
+    logger.data[LOG_XDOT_THETA] = Xdot[7];
+    logger.data[LOG_XDOT_PSI]   = Xdot[8];
+    logger.data[LOG_XDOT_X] = Xdot[9];
+    logger.data[LOG_XDOT_Y] = Xdot[10];
+    logger.data[LOG_XDOT_Z] = Xdot[11];
 }

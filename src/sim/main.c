@@ -52,7 +52,7 @@
 
 
 int main(void){
-    Logger logger = loggerInit("output/data_log.csv");
+    loggerInit("output/data_log.csv");
 
     // Global sim variables
     double simTime_s = 0.0;    // [s]
@@ -75,6 +75,8 @@ int main(void){
     double Xdot[12] = {0.0};
 
     while(simTime_s < tFinal_s){
+        loggerClear();
+
         // [1] Read sensors
         readSensors(&X, &sensors);
 
@@ -88,17 +90,17 @@ int main(void){
         // [4] Compute state derivative from EOM
         computeStateDerivative(&X, &acParams, &F_tot, &M_tot, Xdot);
 
-        // [5] Integrate one step   
+        // [5] Log step
+        loggerLogStep(simTime_s);
+
+        // [6] Integrate one step   
         integrateRK4Step(&X, &U, &acParams, Xdot, dt_s);  // integrateEulerStep(&X, Xdot, dt_s);
 
-        // [6] Log and display results
-        loggerLogState(&logger, simTime_s, &X);
-        
         // [7] Step time
         simTime_s += dt_s;
     }
 
-    loggerClose(&logger);
+    loggerClose();
 
     printf("Completed sim!\n");
     return 0;
