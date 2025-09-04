@@ -5,7 +5,7 @@
 
 
 typedef struct {
-    Vector3 vel;
+    double vel;
 } PitotTube;
 
 void readPitotTube(const StateVector* X, PitotTube* pitotTube);

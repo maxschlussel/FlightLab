@@ -1,5 +1,6 @@
 #pragma once
 
+#include "src/core/state_vector.h"
 #include "src/sensors/altimeter.h"
 #include "src/sensors/gps.h"
 #include "src/sensors/imu.h"

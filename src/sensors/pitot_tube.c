@@ -9,11 +9,10 @@
 
 
 void readPitotTube(const StateVector* X, PitotTube* pitotTube){
-    pitotTube->vel.x = X->u + randNoise(0.001);
-    pitotTube->vel.y = X->v + randNoise(0.001);
-    pitotTube->vel.z = X->w + randNoise(0.001);
+    Vector3 V_b = {X->u, X->v, X->w}; // Velocities in body frame - V_b
+    double velocity = vec3_norm(V_b);
 
-    logger.data[LOG_SNS_PITOT_VEL_X] = pitotTube->vel.x;
-    logger.data[LOG_SNS_PITOT_VEL_Y] = pitotTube->vel.y;
-    logger.data[LOG_SNS_PITOT_VEL_Z] = pitotTube->vel.z;
+    pitotTube->vel = velocity + randNoise(0.1);
+
+    logger.data[LOG_SNS_PITOT_VEL] = pitotTube->vel;
 }
