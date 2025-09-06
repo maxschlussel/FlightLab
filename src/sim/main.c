@@ -26,9 +26,9 @@
  *      3. Flat Earth EOM
 */
 
-
 #include <math.h>
 #include <stdio.h>
+#include <time.h>
 
 #include "src/aircrafts/boeing_737.h"
 #include "src/actuators/flight_controls.h"
@@ -56,8 +56,8 @@ int main(void){
 
     // Global sim variables
     double simTime_s = 0.0;    // [s]
-    double dt_s = 0.01;  // timestep [s]
-    double tFinal_s = 100.0;  // [s]
+    double dt_s = 0.05;  // timestep [s]
+    double tFinal_s = 500.0;  // [s]
 
     Vector3 F_tot = {0.0}, M_tot = {0.0};
 
@@ -73,6 +73,9 @@ int main(void){
     FlightControls flightControls = initFlightControls(&U);
 
     double Xdot[12] = {0.0};
+
+    // Timer
+    clock_t start_time = clock();
 
     while(simTime_s < tFinal_s){
         loggerClear();
@@ -102,6 +105,8 @@ int main(void){
 
     loggerClose();
 
-    printf("Completed sim!\n");
+    double elapsed_seconds = (double)((clock() - start_time)) / CLOCKS_PER_SEC;
+
+    printf("Completed sim in %.3f seconds\n", elapsed_seconds);
     return 0;
 }
