@@ -2,9 +2,9 @@
 
 feat → new feature
 
-fix → bug fix
+bug → bug fix
 
-docs → documentation changes
+doc → documentation changes
 
 style → formatting (no code logic change)
 
