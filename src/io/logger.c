@@ -121,11 +121,11 @@ void loggerLogStep(double simTime_s){
     if (!logger.fp) return;
 
     // Log time
-    fprintf(logger.fp, "%.3f", simTime_s);
+    fprintf(logger.fp, "%.6f", simTime_s);
 
     // Log all data
     for (int i = 0; i < LOG_COUNT; i++){
-        fprintf(logger.fp, ", %.3f", logger.data[i]);
+        fprintf(logger.fp, ", %.6f", logger.data[i]);
     }
 
     fprintf(logger.fp, "\n");
