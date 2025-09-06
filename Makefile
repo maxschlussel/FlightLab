@@ -9,7 +9,7 @@ PYTHON = .\.venv\Scripts\python.exe
 all:
 	$(CC) $(CFLAGS) $(SRC) -o $(EXE)
 	.\$(EXE)
-	$(PYTHON) scripts/plot.py
+	$(PYTHON) scripts/plot.py  --data_log output/data_log.csv
 
 build:
 	$(CC) $(CFLAGS) $(SRC) -o $(EXE)
