@@ -31,7 +31,7 @@ Sensors initSensors(void){
         .gps.pos = {0.0},
         .imuSensor.accel = {0.0},
         .imuSensor.gyro = {0.0},
-        .pitotTube.vel = {0.0}
+        .pitotTube.vel = 0.0
     };
     return sensors;
 }
