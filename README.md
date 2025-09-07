@@ -169,7 +169,7 @@ FlighLab/
 ## 🗺️ Roadmap  
 
 - [x] Implement fundamental 6DOF dynamic EOM
-- [x] Implement state integrator models
+- [x] Implement simple Euler state integrator model
 - [x] Create core data structures (StateVectos, ControlVector, Vec3, AircraftParams, etc.)
 - [x] Implement basic aircraft model (aerodynamics parameters and coefficient equations)
 - [x] Add control surface modeling  
