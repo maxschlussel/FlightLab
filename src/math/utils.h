@@ -55,5 +55,5 @@ static inline double clamp(double x, double min, double max){
 
 
 static inline double randNoise(double stddev) {
-    return stddev * (double)rand() / RAND_MAX - 0.5;
+    return stddev * ((double)rand() / RAND_MAX - 0.5);
 }
