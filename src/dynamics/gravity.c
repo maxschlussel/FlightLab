@@ -2,6 +2,8 @@
 #include "src/dynamics/gravity.h"
 #include "src/math/dcm.h"
 
+#include "src/io/logger.h"
+
 
 /**
  * @brief Compute the gravitational force acting on the aircraft in the body frame.
@@ -29,4 +31,8 @@ void computeGravityForces(StateVector* X, AircraftParams* ac_params, Vector3* F)
     getRotationMatrix(X->psi, X->theta, X->phi, R);
 
     *F = mat3_mult_vec3(R, Fgrav_inertial);
+
+    logger.data[LOG_FORCES_F_GRAV_X] = F->x;
+    logger.data[LOG_FORCES_F_GRAV_Y] = F->y;
+    logger.data[LOG_FORCES_F_GRAV_Z] = F->z;
 }
