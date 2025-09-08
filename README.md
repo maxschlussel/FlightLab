@@ -90,8 +90,8 @@ while(simTime_s < tFinal_s){
 FlighLab/
 ├─ src/                         # All code (headers colocated with sources)
 │  ├─ core/                     # Core data structures/ types / parameters used everywhere
-│  │  ├─ state.h/.c             # StateVector (u,v,w,p,q,r,φ,θ,ψ,x,y,z), helpers
-│  │  ├─ controls.h/.c          # ControlVector (δa,δe,δr, throttles), limits, mapping
+│  │  ├─ state_vector.h/.c      # StateVector (u,v,w,p,q,r,φ,θ,ψ,x,y,z), helpers
+│  │  ├─ control_vector.h/.c    # ControlVector (δa,δe,δr, throttles), limits, mapping
 │  │  ├─ constants.h/.c         # Physical constants, sim constants (G, R, rho0, eps)
 │  │  ├─ aircraft_params.h/.c   # Struct of mass/inertia/geometry/refs (public)
 │  │  └─ config.h/.c            # Run config: dt, sim length, feature flags
