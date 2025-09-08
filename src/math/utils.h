@@ -5,55 +5,10 @@
 #include "src/core/constants.h"
 
 
-/**
- * @brief Convert an array of angles from degrees to radians.
- *
- * @param[in]  deg      Input array of angles in degrees (length N).
- * @param[out] rad      Output array of angles in radians (can be same pointer as deg
- *                      for in-place conversion) (length N).
- * @param[in]  length   Number of elements in the array (N).
- */
-static inline void deg2rad_array(const double* deg, double* rad, double length){
-    for (int i = 0; i < length; i++){
-        rad[i] = deg[i] * deg2rad;
-    }
-}
+void deg2rad_array(const double* deg, double* rad, double length);
 
+void rad2deg_array(const double* rad, double* deg, double length);
 
-/**
- * @brief Convert an array of angles from radians to degrees.
- *
- * @param[in]  rad      Input array of angles in radians (length N).
- * @param[out] deg      Output array of angles in degrees (can be same as pointer as rad
- *                      for in-place conversion) (length N).
- * @param[in]  length   Number of elements in the array (N).
- */
-static inline void rad2deg_array(const double* rad, double* deg, double length){
-    for (int i = 0; i < length; i++){
-        deg[i] = rad[i] * rad2deg;
-    }
-}
+double clamp(double x, double min, double max);
 
-
-/**
- * @brief Clamp a value to a given range.
- *
- * Returns @p min if @p x is less than @p min ,  
- * @p max if @p x is greater than @p max , 
- * otherwise returns @p x unchanged.
- *
- * @param[in]  x    Input value
- * @param[in]  min  Lower bound
- * @param[in]  max  Upper bound
- * @return     Clamped value
- */
-static inline double clamp(double x, double min, double max){
-    if (x < min) return min;
-    else if (x > max) return max;
-    else return x;
-}
-
-
-static inline double randNoise(double stddev) {
-    return stddev * ((double)rand() / RAND_MAX - 0.5);
-}
+double randNoise(double stddev) ;

@@ -2,6 +2,8 @@
 
 #include "src/aircrafts/boeing_737.h"
 #include "src/core/constants.h"
+#include "src/math/matrix.h"
+
 
 /**
  * @brief Load and initialize the aircraft parameters.

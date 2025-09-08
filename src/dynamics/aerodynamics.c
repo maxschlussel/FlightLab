@@ -3,6 +3,7 @@
 #include "src/dynamics/aerodynamics.h"
 #include "src/core/constants.h"
 #include "src/math/dcm.h"
+#include "src/math/matrix.h"
 
 #include "src/io/logger.h"
 

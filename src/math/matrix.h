@@ -1,0 +1,16 @@
+#pragma once
+
+#include <stdbool.h>
+
+#include "src/math/vector.h"
+
+
+Vector3 mat3_mult_vec3(const double M[3][3], Vector3 v);
+
+void mat3_mult(const double A[3][3], const double B[3][3], double C[3][3]);
+
+void mat3_scale(const double m[3][3], double s, double mout[3][3]);
+
+void mat3_transpose(const double m[3][3], double m_transpose[3][3]);
+
+bool mat3_inv(const double M[3][3], double M_inv[3][3]);
