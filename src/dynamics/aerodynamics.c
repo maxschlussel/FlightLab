@@ -170,8 +170,8 @@ Vector3 computeCM(AircraftParams* acParams, double alpha, double beta, double ve
     Vector3 term3 = mat3_mult_vec3(dcm_du, *U_123);
 
     double Cl_ac = eta[0] + term2.x + term3.x;
-    double Cm_ac = eta[1] + term2.y + term3.x;
-    double Cn_ac = eta[2] + term2.z + term3.x;
+    double Cm_ac = eta[1] + term2.y + term3.y;
+    double Cn_ac = eta[2] + term2.z + term3.z;
     
     Vector3 CM = {Cl_ac, Cm_ac, Cn_ac};
     return CM;
