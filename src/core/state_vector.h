@@ -8,8 +8,8 @@
  * primary state container for simulations and control algorithms.
 */
 typedef struct {
-    double u, v, w;         // Velocity [body frame]
-    double p, q, r;         // Angular rates [body frame]
-    double phi, theta, psi; // Euler angles [NED frame]
+    double u, v, w;         // Velocity [X-Y-Z body frame]
+    double p, q, r;         // Angular rates [roll-pitch-yaw rates body frame]
+    double phi, theta, psi; // Euler angles [roll-pitch-yaw NED frame]
     double x, y, z;         // Position [NED frame]
 } StateVector;
