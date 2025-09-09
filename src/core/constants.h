@@ -1,5 +1,7 @@
 #pragma once
 
+#define EPS 1e-8
+
 // Global constants in metric
 extern const double pi;
 extern const double deg2rad;

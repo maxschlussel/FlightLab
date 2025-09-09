@@ -51,13 +51,13 @@
 #include "src/math/vector.h"
 
 
-int main(void){
-    loggerInit("output/data_log.csv");
+int main(int argc, char* argv[]){   
+    loggerInit(argv[1]);
 
     // Global sim variables
-    double simTime_s = 0.0;    // [s]
-    double dt_s = 0.05;  // timestep [s]
-    double tFinal_s = 500.0;  // [s]
+    double simTime_s = 0.0;   // [s]
+    double dt_s = 0.05;       // timestep [s]
+    double tFinal_s = 200.0;  // [s]
 
     Vector3 F_tot = {0.0}, M_tot = {0.0};
 
@@ -77,7 +77,7 @@ int main(void){
     // Timer
     clock_t start_time = clock();
 
-    while(simTime_s < tFinal_s){
+    while(simTime_s <= tFinal_s + EPS){
         loggerClear();
 
         // [1] Read sensors
@@ -105,8 +105,8 @@ int main(void){
 
     loggerClose();
 
-    double elapsed_seconds = (double)((clock() - start_time)) / CLOCKS_PER_SEC;
+    double runTime = (double)((clock() - start_time)) / CLOCKS_PER_SEC;
 
-    printf("Completed sim in %.3f seconds\n", elapsed_seconds);
+    printf("Completed sim in %.3f seconds\n", runTime);
     return 0;
 }
