@@ -6,22 +6,22 @@
 
 FlightControls initFlightControls(ControlVector* U){
     FlightControls flightControls = {
-        .aileronServo  = { .pos = 0.0, 
+        .aileronServo  = { .pos = U->da, 
                            .maxPosLim =  25 * deg2rad, 
                            .minPosLim = -25 * deg2rad, 
                            .rateLim = 25.0, 
                            .tau = 0.05 },
-        .elevatorServo = { .pos = 0.0, 
+        .elevatorServo = { .pos = U->de, 
                            .maxPosLim =  10 * deg2rad, 
                            .minPosLim = -25 * deg2rad, 
                            .rateLim = 15.0, 
                            .tau = 0.05 },
-        .rudderServo   = { .pos = 0.0, 
+        .rudderServo   = { .pos = U->dr, 
                            .maxPosLim =  30 * deg2rad, 
                            .minPosLim = -30 * deg2rad, 
                            .rateLim = 25.0, 
                            .tau = 0.05 },
-        .throttle = {0.0}
+        .throttle = {U->dt[0], U->dt[1]}
     };
     return flightControls;
 }
