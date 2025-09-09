@@ -101,7 +101,7 @@ typedef struct {
 // Global logger instance
 extern Logger logger;
 
-extern const char* LogSignalNames[LOG_COUNT];
+extern const char* logSignalNames[LOG_COUNT];
 
 void loggerInit(const char* filename);
 

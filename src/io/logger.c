@@ -1,6 +1,5 @@
 #include <stdlib.h>
 
-#include "src/core/constants.h"
 #include "src/io/logger.h"
 
 
@@ -8,7 +7,7 @@
 Logger logger;
 
 
-const char* LogSignalNames[LOG_COUNT] = {
+const char* logSignalNames[LOG_COUNT] = {
     "sns_alt",
     "sns_gps_pos_x",
     "sns_gps_pos_y",
@@ -110,7 +109,7 @@ void loggerLogHeader(void){
     fprintf(logger.fp, "time");
 
     for (int i = 0; i < LOG_COUNT; i++) {
-        fprintf(logger.fp, ", %s", LogSignalNames[i]);
+        fprintf(logger.fp, ", %s", logSignalNames[i]);
     }
 
     fprintf(logger.fp, "\n");    
