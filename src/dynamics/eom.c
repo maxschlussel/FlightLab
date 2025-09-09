@@ -4,6 +4,7 @@
 #include "src/dynamics/eom.h"
 #include "src/math/dcm.h"
 #include "src/math/matrix.h"
+#include "src/math/quat.h"
 
 #include "src/io/logger.h"
 
@@ -65,7 +66,7 @@ void computeStateDerivative(const StateVector* X, AircraftParams* acParams,
 
     // Body to Earth rotation
     double R_e2b[3][3];
-    getRotationMatrix(psi, theta, phi, R_e2b);
+    getRotationMatrix(phi, theta, psi, R_e2b);
     double R_b2e[3][3];
     mat3_transpose(R_e2b, R_b2e);
     Vector3 dPos = mat3_mult_vec3(R_b2e, V_b);

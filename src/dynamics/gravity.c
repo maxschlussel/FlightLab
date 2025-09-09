@@ -29,7 +29,7 @@ void computeGravityForces(StateVector* X, AircraftParams* ac_params, Vector3* F)
     
     // Earth to body rotation matrix
     double R[3][3];
-    getRotationMatrix(X->psi, X->theta, X->phi, R);
+    getRotationMatrix(X->phi, X->theta, X->psi, R);
 
     *F = mat3_mult_vec3(R, Fgrav_inertial);
 

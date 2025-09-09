@@ -24,7 +24,7 @@
  * @endcode
  */
 
-void getRotationMatrix(double psi, double theta, double phi, double R[3][3]){
+void getRotationMatrix(double phi, double theta, double psi, double R[3][3]){
     // Calculate trigenometric constants
     double cosPhi   = cos(phi), sinPhi = sin(phi);
     double cosTheta = cos(theta), sinTheta = sin(theta);

@@ -1,3 +1,3 @@
 #pragma once
 
-void getRotationMatrix(double psi, double theta, double phi, double R[3][3]);
+void getRotationMatrix(double phi, double theta, double psi, double R[3][3]);
