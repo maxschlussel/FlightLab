@@ -17,11 +17,14 @@ import math
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+import numpy as np
 
 
 def plot_csv_with_paging(csv_file: str, nrows: int = 3, ncols: int = 3):
-    df = pd.read_csv('output/data_log.csv', skipinitialspace=True)
+    df = pd.read_csv(csv_file, skipinitialspace=True)
     
+    df = df.replace('-nan(ind)', np.nan)
+    df = df.astype(float)
     df["u_da"] *= 180/math.pi
     df["u_de"] *= 180/math.pi
     df["u_dr"] *= 180/math.pi
@@ -177,7 +180,7 @@ from scipy.spatial.transform import Rotation as R
 
 def show_rot(csv_file: str):
 
-    df = pd.read_csv('output/data_log.csv', skipinitialspace=True)
+    df = pd.read_csv(csv_file, skipinitialspace=True)
 
     phi = df["X_phi"] * 180/math.pi
     theta = df["X_theta"] * 180/math.pi
@@ -224,7 +227,7 @@ if __name__ == "__main__":
     parser.add_argument("--data_log", type=str, required=True, help="Path to CSV data log file")
     parser.add_argument("--rows", type=int, default=3, help="rows per page")
     parser.add_argument("--cols", type=int, default=3, help="cols per page")
-    # args = parser.parse_args()
+    args = parser.parse_args()
 
-    show_rot("t")
-    plot_csv_with_paging("t")#args.data_log, nrows=args.rows, ncols=args.cols)
+    show_rot(args.data_log)
+    plot_csv_with_paging(args.data_log, nrows=args.rows, ncols=args.cols)
