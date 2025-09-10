@@ -15,10 +15,7 @@ void quat_scale(Quat* q, double s){
 //**  Normalize quaternion. */
 void quat_normalize(Quat* q) {
     double norm = sqrt(q->w*q->w + q->x*q->x + q->y*q->y + q->z*q->z);
-    q->w /= norm;
-    q->x /= norm;
-    q->y /= norm;
-    q->z /= norm;
+    quat_scale(q, 1/norm);
 }
 
 
