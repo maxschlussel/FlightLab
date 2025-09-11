@@ -1,3 +1,4 @@
 .vscode/
 .venv/
 todo
+**/__pycache__/
