@@ -32,7 +32,7 @@
 
 #include "src/aircrafts/boeing_737.h"
 #include "src/actuators/flight_controls.h"
-#include "src/controllers/basic_PID.h"
+#include "src/controllers/PID.h"
 #include "src/core/aircraft_params.h"
 #include "src/core/constants.h"
 #include "src/core/control_vector.h"
@@ -68,9 +68,9 @@ int main(int argc, char* argv[]){
 
     ControlVector U = initControlVectorlBasic();
 
-    Sensors sensors = initSensors();
-
     FlightControls flightControls = initFlightControls(&U);
+    
+    Sensors sensors = initSensors();
 
     double Xdot[12] = {0.0};
 
