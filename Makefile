@@ -1,21 +1,23 @@
+.PHONY: all build clean run
+
 CC = gcc
-CFLAGS = -Wall -O0 -g \
--I. -I./src
+CFLAGS = -Wall -O0 -g -I. -I./src
 SRC = $(wildcard src/*/*/*/*.c) $(wildcard src/*/*/*.c) $(wildcard src/*/*.c) $(wildcard *.c)
+
 LOG_PATH = output/data_log.csv
+EXE = build/flightlab.exe
+PYTHON = .venv/Scripts/python.exe
 
-EXE = build\flightlab.exe
-PYTHON = .\.venv\Scripts\python.exe
-
-all:
-	$(CC) $(CFLAGS) $(SRC) -o $(EXE)
-	.\$(EXE) $(LOG_PATH)
-	$(PYTHON) scripts/run_post_proc.py  --data_log $(LOG_PATH) --plot_csv
-
+all: build run
+	
 build:
 	$(CC) $(CFLAGS) $(SRC) -o $(EXE)
+
+run:
+	.\$(EXE) $(LOG_PATH)
+	$(PYTHON) scripts/run_post_proc.py  --data_log $(LOG_PATH) --plot_csv
 
 clean:
 	del $(EXE)
 	del *.o
-	del -$(LOG_PATH)
+	del $(LOG_PATH)
