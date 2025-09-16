@@ -39,9 +39,9 @@ AircraftParams loadBoeing737AircraftParams(void){
     
     // Set I
     double I[3][3] = {
-        {40.7,    0,  -2.0923},
-        {0,      64,        0},
-        {-2.0923, 0,    99.92}
+        {40.7, 0.0,   0.0},
+        {0.0,  64.0,  0.0},
+        {0.0,  0.0,   99.92}
     };
     
     double I_scaled[3][3];
