@@ -6,6 +6,7 @@ SRC = $(wildcard src/*/*/*/*.c) $(wildcard src/*/*/*.c) $(wildcard src/*/*.c) $(
 
 LOG_PATH = output/data_log.csv
 EXE = build/flightlab.exe
+SIM_CONFIG = examples/basic_aricraft.cfg
 PYTHON = .venv/Scripts/python.exe
 
 all: build run
@@ -14,7 +15,7 @@ build:
 	$(CC) $(CFLAGS) $(SRC) -o $(EXE)
 
 run:
-	.\$(EXE) $(LOG_PATH)
+	$(EXE) --data_log $(LOG_PATH) --config $(SIM_CONFIG)
 	$(PYTHON) scripts/run_post_proc.py  --data_log $(LOG_PATH) --plot_csv
 
 clean:

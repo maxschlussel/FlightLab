@@ -40,11 +40,24 @@ A modular simulation platform for aircraft dynamics, control algorithms, and fli
 git clone https://github.com/maxschlussel/FlightLab.git
 cd FlightLab
 
-# Build
-make
+# Install required Python packages (venv recommended)
+pip install -r requirements.txt
+
+# Build, run, and plot results
+make build run
+```
+
+... Or chose a config from the provided examples:
+
+```bash
+# Build project
+make build
 
 # Run simulation
-.\build\flightlab.exe --config examples/basic_aricraft.cfg
+build/flightlab.exe --data_log output/data_log.csv --config examples/basic_aricraft.cfg
+
+# Plot results
+python scripts/run_post_proc.py --data_log output/data_log.csv --plot_csv --simple_rot_vis
 ```
 
 ## 🔄 Simulation Flow  

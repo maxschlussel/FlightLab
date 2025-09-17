@@ -32,7 +32,7 @@
 int main(int argc, char* argv[]){   
     // ---- Timer & logger ----
     clock_t start_time = clock();
-    loggerInit(argv[1]);
+    loggerInit(argv[2]);
 
     // ---- Global sim variables ----
     double simTime_s = 0.0;   // [s]
