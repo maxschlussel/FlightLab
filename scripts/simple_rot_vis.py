@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 
 from matplotlib.animation import FuncAnimation
-from scipy.spatial.transform import Rotation as R
 
 
 def show_rot(csv_file: str = 'output/data_log.csv'):
