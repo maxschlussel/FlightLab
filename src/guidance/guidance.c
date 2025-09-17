@@ -38,6 +38,7 @@ GuidanceRefs initGuidanceNone(void){
     GuidanceRefs g = {
         .mode = GUIDANCE_NONE
     };
+    return g;
 }
 
 
