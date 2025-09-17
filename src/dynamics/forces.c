@@ -14,21 +14,21 @@
  * and moment vectors expressed in the body frame.
  *
  * @param[in]  X         Pointer to the aircraft state vector.
- * @param[in]  U         Pointer to the control vector.
+ * @param[in]  U_cmd         Pointer to the control vector.
  * @param[in]  acParams  Pointer to the aircraft parameter struct.
  * @param[out] F_tot     Pointer to the total force vector in the body frame.
  * @param[out] M_tot     Pointer to the total moment vector in the body frame.
  */
-void computeForcesAndMoments(StateVector* X, ControlVector* U, AircraftParams* acParams,
+void computeForcesAndMoments(StateVector* X, ControlVector* U_cmd, AircraftParams* acParams,
     Vector3* F_tot, Vector3* M_tot){
     
     Vector3 F_aero = {0.0}, M_aero = {0.0};
     Vector3 F_prop = {0.0}, M_prop = {0.0};
     Vector3 F_grav = {0.0};
     
-    computeAerodynamicForces(X, U, acParams, &F_aero, &M_aero);
+    computeAerodynamicForces(X, U_cmd, acParams, &F_aero, &M_aero);
 
-    computePropulsionForces(X, U, acParams, &F_prop, &M_prop);
+    computePropulsionForces(X, U_cmd, acParams, &F_prop, &M_prop);
     
     computeGravityForces(X, acParams, &F_grav);
     

@@ -10,6 +10,6 @@ typedef struct {
     double throttle[2];
 } FlightControls;
 
-FlightControls initFlightControls(ControlVector* U);
+FlightControls initFlightControls(ControlVector* U_cmd);
 
-void actuateFlightControls(ControlVector* U, FlightControls* flightControls, double dt);
+void actuateFlightControls(ControlVector* U_cmd, FlightControls* flightControls, double dt);

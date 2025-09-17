@@ -20,9 +20,9 @@ def plot_csv(csv_file: str = 'output/data_log.csv', nrows: int = 3, ncols: int =
 
     df = df.replace('-nan(ind)', np.nan).astype(float)
     
-    df["u_da"] *= 180/math.pi
-    df["u_de"] *= 180/math.pi
-    df["u_dr"] *= 180/math.pi
+    df["u_cmd_da"] *= 180/math.pi
+    df["u_cmd_de"] *= 180/math.pi
+    df["u_cmd_dr"] *= 180/math.pi
     df["srvo_aileron_pos"] *= 180/math.pi
     df["srvo_elevator_pos"] *= 180/math.pi
     df["srvo_rudder_pos"] *= 180/math.pi
@@ -40,8 +40,8 @@ def plot_csv(csv_file: str = 'output/data_log.csv', nrows: int = 3, ncols: int =
     df["X_phi"] *= 180/math.pi
     df["X_theta"] *= 180/math.pi
     df["X_psi"] *= 180/math.pi
-    df["u_dthr1"] *= 180/math.pi
-    df["u_dthr2"] *= 180/math.pi
+    df["u_cmd_dthr1"] *= 180/math.pi
+    df["u_cmd_dthr2"] *= 180/math.pi
 
     time = df.iloc[:, 0]
     headers = list(df.columns[1:])  # everything except time
