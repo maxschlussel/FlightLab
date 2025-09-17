@@ -5,4 +5,4 @@
 #include "src/sensors/sensors.h"
 
 
-void computeFlightControls(Sensors* sensors, ControlVector* U,AircraftParams* acParams);
+void computeFlightControlCmd(StateVector* X_est, GuidanceRefs* guidanceRefs, AircraftParams* acParams, ControlVector* U_cmd);
