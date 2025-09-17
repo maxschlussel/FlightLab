@@ -59,23 +59,29 @@ while(simTime_s < tFinal_s){
     // [1] Read sensors
     readSensors(&X, &sensors);
 
-    // [2] Compute and actuate flight controls
-    computeFlightControls(&sensors, &U_cmd, &acParams);
+    // [2] State estimation
+    estimateState(&sensors, &X_est);
+
+    // [3] Guidance references
+    updateGuidanceRefs(&guidanceRefs);
+
+    // [4] Compute and actuate flight controls
+    computeFlightControlCmd(&X_est, &guidanceRefs, &acParams, &U_cmd);
     actuateFlightControls(&U_cmd, &flightControls, dt_s);
 
-    // [3] Compute Forces and Moments
+    // [5] Compute Forces and Moments
     computeForcesAndMoments(&X, &flightControls, &acParams, &F_tot, &M_tot);
     
-    // [4] Compute state derivative from EOM
+    // [6] Compute state derivative from EOM
     computeStateDerivative(&X, &acParams, &F_tot, &M_tot, Xdot);
 
-    // [5] Integrate one step   
-    integrateRK4Step(&X, &U, &acParams, Xdot, dt_s);
+    // [7] Log step
+    loggerLogStep(simTime_s);
 
-    // [6] Log and display results
-    loggerLogState(&logger, simTime_s, &X);
-    
-    // [7] Step time
+    // [8] Integrate one step   
+    integrateRK4Step(&X, &U_cmd, &acParams, Xdot, dt_s);
+
+    // [9] Step time
     simTime_s += dt_s;
 }
 ```
@@ -175,9 +181,13 @@ FlighLab/
 - [x] Add control surface modeling  
 - [x] Develop basic actuator and sensor models
 - [x] Implement RK4 integration model
+- [x] Implement quaternions
 - [x] Develop robust data logging pipeline and plotting toolset
+- [x] Connect with FlightGear for 3D visualization
+- [ ] Develop complementary filter estimator
 - [ ] Design autopilot & control laws (PID, ML etc.) 
-- [ ] Connect with FlightGear for 3D visualization
+- [ ] Develop guidance algorithms
+- [ ] Develop Extended Kalmon Filter
 - [ ] Increase fidelity (arodynamics, sensors, environment, mass, etc.)
 - [ ] Monte-Carlo simulation for robustness studies  
 - [ ] Real-time simulator mode  
