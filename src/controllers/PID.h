@@ -2,6 +2,7 @@
 
 #include "src/core/aircraft_params.h"
 #include "src/core/control_vector.h"
+#include "src/guidance/guidance.h"
 #include "src/sensors/sensors.h"
 
 

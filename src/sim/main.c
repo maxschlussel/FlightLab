@@ -71,11 +71,11 @@ int main(int argc, char* argv[]){
         updateGuidanceRefs(&guidanceRefs);
 
         // [4] Compute and actuate flight controls
-        computeFlightControlCmd(&X_est, &guidanceRefs, &acParams, &U_cmd);
+        computeFlightControlCmd(&X, &guidanceRefs, &acParams, &U_cmd);  // X_est
         actuateFlightControls(&U_cmd, &flightControls, dt_s);
 
         // [5] Compute Forces and Moments
-        computeForcesAndMoments(&X, &U_cmd, &acParams, &F_tot, &M_tot);
+        computeForcesAndMoments(&X, &U_cmd, &acParams, &F_tot, &M_tot);  // flightControls
         
         // [6] Compute state derivative from EOM
         computeStateDerivative(&X, &acParams, &F_tot, &M_tot, Xdot);
@@ -84,7 +84,7 @@ int main(int argc, char* argv[]){
         loggerLogStep(simTime_s);
 
         // [8] Integrate one step   
-        integrateRK4Step(&X, &U_cmd, &acParams, Xdot, dt_s);
+        integrateRK4Step(&X, &U_cmd, &acParams, Xdot, dt_s);  // flightControls
         // integrateEulerStep(&X, Xdot, dt_s);
 
         // [9] Step time
