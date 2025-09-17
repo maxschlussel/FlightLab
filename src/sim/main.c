@@ -1,29 +1,5 @@
 /**
- * Objective:
- *     Propogate 6DOF motion of an aircraft
- * 
- * Input:
- *      1. Aircraft params
- *      2. Initial condition state
- *      3. Control inputs
- * 
- * Output:
- *     1. Propogated State timeseries
- *     2. Propogated velocity/rates timeseries
- * 
- * Steps:
- *     1. Declare sim variables and initialize sim models
- *     2. Begin main sim loop:
- *        2.1 Compute Forces and Moments
- *        2.2 Compute state derivative from EOM
- *        2.3 Integrate one step (Euler, RK4, etc.) & step time
- *        2.4 Log and display results
- *        2.5 Step time
- * 
- * Assumptions:
- *      1. Constant Mass and Inertia
- *      2. Constant alt density and gravity
- *      3. Flat Earth EOM
+* Main script for the flight simulation and core loop.
 */
 
 #include <math.h>
@@ -44,6 +20,8 @@
 #include "src/dynamics/integrators/euler_integrator.h"
 #include "src/dynamics/integrators/rk4.h"
 #include "src/dynamics/propulsion.h"
+#include "src/estimators/complementary_filter.h"
+#include "src/guidance/guidance.h"
 #include "src/io/logger.h"
 #include "src/sensors/sensors.h"
 #include "src/sim/scenarios.h"
@@ -52,54 +30,64 @@
 
 
 int main(int argc, char* argv[]){   
+    // ---- Timer & logger ----
+    clock_t start_time = clock();
     loggerInit(argv[1]);
 
-    // Global sim variables
+    // ---- Global sim variables ----
     double simTime_s = 0.0;   // [s]
-    double dt_s = 0.05;       // timestep [s]
+    double dt_s = 0.05;       // delta timestep [s]
     double tFinal_s = 200.0;  // [s]
 
-    Vector3 F_tot = {0.0}, M_tot = {0.0};
-
-    // Initialize models
+    // ---- Initialize models ----
     AircraftParams acParams = loadBoeing737AircraftParams();
-
+    
     StateVector X = initStateVectorBasicCruise();
-
-    ControlVector U = initControlVectorlBasic();
-
-    FlightControls flightControls = initFlightControls(&U);
+    StateVector X_est;
+    
+    ControlVector U_cmd = initControlVectorlBasic();
+    
+    FlightControls flightControls = initFlightControls(&U_cmd);
+    
+    GuidanceRefs guidanceRefs = initGuidanceNone();
     
     Sensors sensors = initSensors();
+    
+    Vector3 F_tot = {0.0}, M_tot = {0.0};
 
     double Xdot[12] = {0.0};
 
-    // Timer
-    clock_t start_time = clock();
-
+    // ---- Main loop ----
     while(simTime_s <= tFinal_s + EPS){
         loggerClear();
 
         // [1] Read sensors
         readSensors(&X, &sensors);
 
-        // [2] Compute and actuate flight controls
-        computeFlightControls(&sensors, &U, &acParams);
-        actuateFlightControls(&U, &flightControls, dt_s);
+        // [2] State estimation
+        estimateState(&sensors, &X_est);
 
-        // [3] Compute Forces and Moments
-        computeForcesAndMoments(&X, &U, &acParams, &F_tot, &M_tot);
+        // [3] Guidance references
+        updateGuidanceRefs(&guidanceRefs);
+
+        // [4] Compute and actuate flight controls
+        computeFlightControlCmd(&X_est, &guidanceRefs, &acParams, &U_cmd);
+        actuateFlightControls(&U_cmd, &flightControls, dt_s);
+
+        // [5] Compute Forces and Moments
+        computeForcesAndMoments(&X, &U_cmd, &acParams, &F_tot, &M_tot);
         
-        // [4] Compute state derivative from EOM
+        // [6] Compute state derivative from EOM
         computeStateDerivative(&X, &acParams, &F_tot, &M_tot, Xdot);
 
-        // [5] Log step
+        // [7] Log step
         loggerLogStep(simTime_s);
 
-        // [6] Integrate one step   
-        integrateRK4Step(&X, &U, &acParams, Xdot, dt_s);  // integrateEulerStep(&X, Xdot, dt_s);
+        // [8] Integrate one step   
+        integrateRK4Step(&X, &U_cmd, &acParams, Xdot, dt_s);
+        // integrateEulerStep(&X, Xdot, dt_s);
 
-        // [7] Step time
+        // [9] Step time
         simTime_s += dt_s;
     }
 
