@@ -1,3 +1,5 @@
+#include <math.h>
+
 #include "src/math/utils.h"
 
 
@@ -47,6 +49,11 @@ double clamp(double x, double min, double max){
     if (x < min) return min;
     else if (x > max) return max;
     else return x;
+}
+
+
+bool isEqual(double val1, double val2, double eps){
+    return fabs(val1 - val2) < eps;
 }
 
 
