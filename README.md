@@ -54,7 +54,7 @@ make build run
 make build
 
 # Run simulation
-build/flightlab.exe --data_log output/data_log.csv --config examples/basic_aricraft.cfg
+build/flightlab.exe --data_log output/data_log.csv --config examples/basic_aricraft.json
 
 # Plot results
 python scripts/run_post_proc.py --data_log output/data_log.csv --plot_csv --simple_rot_vis
