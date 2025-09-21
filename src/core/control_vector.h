@@ -9,5 +9,5 @@ typedef struct {
     double da;  // Aileron
     double de;  // Elevator
     double dr;  // Rudder
-    double dt[2];  // Throttle
+    double dthr[2];  // Throttle
 }ControlVector;

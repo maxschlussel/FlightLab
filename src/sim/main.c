@@ -7,8 +7,8 @@
 #include <time.h>
 
 #include "src/aircrafts/boeing_737.h"
-#include "src/actuators/flight_controls.h"
-#include "src/controllers/PID.h"
+#include "src/actuators/actuators.h"
+#include "src/controllers/PID/PID_controller.h"
 #include "src/core/aircraft_params.h"
 #include "src/core/constants.h"
 #include "src/core/control_vector.h"
@@ -42,12 +42,12 @@ int main(int argc, char* argv[]){
     // ---- Initialize models ----
     AircraftParams acParams = loadBoeing737AircraftParams();
     
-    StateVector X = initStateVectorBasicCruise();
+    StateVector X = initStateVectorBasicCruise();  // Load I.C.
     StateVector X_est;
     
-    ControlVector U_cmd = initControlVectorlBasic();
+    ControlSystemPID controlSystemPID = initControlSystemPID();
     
-    FlightControls flightControls = initFlightControls(&U_cmd);
+    Actuators actuators = initActuators(&controlSystemPID.U_cmd);
     
     GuidanceRefs guidanceRefs = initGuidanceNone();
     
@@ -71,11 +71,11 @@ int main(int argc, char* argv[]){
         updateGuidanceRefs(&guidanceRefs);
 
         // [4] Compute and actuate flight controls
-        computeFlightControlCmd(&X, &guidanceRefs, &acParams, &U_cmd);  // X_est
-        actuateFlightControls(&U_cmd, &flightControls, dt_s);
+        computeFlightControlPID(&X, &guidanceRefs, &acParams, &controlSystemPID, dt_s);  // X_est
+        driveActuators(&controlSystemPID.U_cmd, &actuators, dt_s);
 
         // [5] Compute Forces and Moments
-        computeForcesAndMoments(&X, &U_cmd, &acParams, &F_tot, &M_tot);  // flightControls
+        computeForcesAndMoments(&X, &controlSystemPID.U_cmd, &acParams, &F_tot, &M_tot);  // actuators
         
         // [6] Compute state derivative from EOM
         computeStateDerivative(&X, &acParams, &F_tot, &M_tot, Xdot);
@@ -84,7 +84,7 @@ int main(int argc, char* argv[]){
         loggerLogStep(simTime_s);
 
         // [8] Integrate one step   
-        integrateRK4Step(&X, &U_cmd, &acParams, Xdot, dt_s);  // flightControls
+        integrateRK4Step(&X, &controlSystemPID.U_cmd, &acParams, Xdot, dt_s);  // actuators
         // integrateEulerStep(&X, Xdot, dt_s);
 
         // [9] Step time

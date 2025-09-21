@@ -8,8 +8,7 @@ typedef struct {
     ServoActuator elevatorServo;
     ServoActuator rudderServo;
     double throttle[2];
-} FlightControls;
+} Actuators;
 
-FlightControls initFlightControls(ControlVector* U_cmd);
 
-void actuateFlightControls(ControlVector* U_cmd, FlightControls* flightControls, double dt);
+void driveActuators(ControlVector* U_cmd, Actuators* actuators, double dt);
