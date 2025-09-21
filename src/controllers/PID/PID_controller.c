@@ -18,6 +18,9 @@ void computeFlightControlPID(StateVector* X_est, GuidanceRefs* guidanceRefs, Air
     PID* pitch2elvPID = &(controlSystemPID->pitch2elvPID);
     PID* airspeed2throtPID = &(controlSystemPID->airspeed2throtPID);
 
+    PID* heading2rollPID = &(controlSystemPID->heading2rollPID);
+    PID* roll2aileronPID = &(controlSystemPID->roll2aileronPID);
+
     double velocity = vec3_norm(V_b);
     double Q = 0.5 * rho * pow(velocity, 2);  // Dynamic pressure
     double alpha = atan2(X_est->w, X_est->u);
@@ -31,36 +34,42 @@ void computeFlightControlPID(StateVector* X_est, GuidanceRefs* guidanceRefs, Air
 
     double alt_ref = -1000; // guidanceRefs->refs.headingAltVel.vel // [m]
     double vel_ref = 85; // guidanceRefs->refs.headingAltVel.vel    // [m/s]
-    double heading_ref = 0;  // guidanceRefs->refs.headingAltVel.heading    // [deg]
-
+    double heading_ref = 20*deg2rad;  // guidanceRefs->refs.headingAltVel.heading    // [deg]
 
     // ---- Longitudinal ----
     // [1] Outer Loop - Alt to Pitch
+    double alt_err = alt_ref - alt_meas;
+    double pitchCmd = computePID(alt2PitchPID, alt_err, dt_s) + 5.0 * deg2rad;
     
-    double pitchCmd =  5.0 * deg2rad;
-
-    static double time = 0;
-    
-    time += dt_s;
-    if (time > 50.0) {
-        double alt_err = alt_ref - alt_meas;
-        pitchCmd = computePID(alt2PitchPID, alt_err, dt_s) + 5.0 * deg2rad;
-    }
-    
-    double pitch_err = pitchCmd - X_est->theta;
+    // [2] Inner Loop - Pitch to Elv
+    double pitch_err = pitchCmd - pitch_meas;
     double elvCmd = computePID(pitch2elvPID, pitch_err, dt_s) - 10.2 * deg2rad;
     
-    double aileronCmd = 0.0;
-    double rudCmd = 0.0;
-    double throtCmd = 4.7 * deg2rad;
-
+    // [3] Airspeed to throttle
+    double vel_err = vel_ref - vel_meas;
+    double throtCmd = computePID(airspeed2throtPID, vel_err, dt_s) + 4.7 * deg2rad;
+    
     // ---- Lateral ----
+    // [1] Heading to Roll
+    double heading_err = heading_ref - heading_meas;
+    double rollCmd = computePID(heading2rollPID, heading_err, dt_s);
+    
+    // [2] Roll to Aileron
+    double roll_err = rollCmd - roll_meas;
+    double aileronCmd = computePID(roll2aileronPID, roll_err, dt_s);
+    
+    double rudCmd = 0.0;    
+    
+    // aileronCmd = 0.0;
+    // elvCmd = -10.2*deg2rad;
+    // rudCmd = 0.0;
+    // throtCmd = 4.7*deg2rad;
 
     // ---- Output & Log ----
-    controlSystemPID->U_cmd.da = clamp(aileronCmd, -25*deg2rad, 10*deg2rad);
+    controlSystemPID->U_cmd.da = aileronCmd;
     controlSystemPID->U_cmd.de = elvCmd;
     controlSystemPID->U_cmd.dr = clamp(rudCmd, -25*deg2rad, 10*deg2rad);
-    controlSystemPID->U_cmd.dthr[0] = clamp(throtCmd, 0.5*deg2rad, 10*deg2rad);
+    controlSystemPID->U_cmd.dthr[0] = throtCmd;
     controlSystemPID->U_cmd.dthr[1] = controlSystemPID->U_cmd.dthr[0];
         
     logger.data[LOG_U_CMD_DA] = controlSystemPID->U_cmd.da;

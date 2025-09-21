@@ -6,6 +6,8 @@ Test:   - const rotation
         - outer loops vs inner loops 
         - apply control theory to make controls
     - Tune PIDs
+    - Controls pos vs neg?
+    - neg control gain integral opposes correction (roll loop)
     - Fast vs slow sensors/ lopps
     - linearize model
     - calc trim conditions (Trim solver & steady-state analysis)

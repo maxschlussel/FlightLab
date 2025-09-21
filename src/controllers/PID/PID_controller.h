@@ -13,6 +13,9 @@ typedef struct {
     PID alt2pitchPID;
     PID pitch2elvPID;
     PID airspeed2throtPID;
+    
+    PID heading2rollPID;
+    PID roll2aileronPID;
 } ControlSystemPID;
 
 
