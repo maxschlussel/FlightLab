@@ -1,0 +1,48 @@
+Test:   - const rotation
+        - slow moment accel
+        - still blows up wtih only pure moment
+- PID control
+    - make PID cascaded controls
+        - outer loops vs inner loops 
+        - apply control theory to make controls
+    - Tune PIDs
+    - Fast vs slow sensors/ lopps
+    - linearize model
+    - calc trim conditions (Trim solver & steady-state analysis)
+- Sensors
+    - Make sensors (which) w valid delays/ params
+    - random seed for sensors
+    - sensor sample rates
+- Actuators
+    - Make actuators real
+    - second order or first order?
+- Estimate state
+    - complementary filter
+    - ekf
+- guidance
+    - basic guidance laws -m guidance commands (loiter, waypoint, path) into references (altitude, speed, heading, attitude)
+    - preplanned mission commands
+    - pilot input (gui)
+- clean aerodynamics function structure to be per aricraft (modular)
+- add const to avoid changing inputs
+- add logging to pid vals
+- solidify units/ var names/ agnostic funcitons
+- add all docstrings  for funcs
+- different run freq loops/ modules
+- Get and Set for control vars to clean interface
+- quats
+- Test X log at end
+    - Better logging system
+- make sim controls one line - sim runs regardles of if controls are config or not
+- parse C cmd params properly
+    - make config examples/basic_aircraft real functionality
+- Add env (wind, gusts, pressure, density, temp etc)
+    - env is input to sensor reading
+- Add earth/ gorund forces
+- agg ground effect
+
+
+END:
+- sign out of github
+- git config --system --unset credential.helper
+    AS ADMIN
