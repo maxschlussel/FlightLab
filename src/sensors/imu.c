@@ -6,7 +6,12 @@
 
 #include "src/io/logger.h"
 
-
+/**
+ * @brief Reads the simulated IMU sensor.
+ *
+ * @param[in]   X       Pointer to the current state vector.
+ * @param[out]  imu     Pointer to the imu sensor struct
+ */
 void readIMUSensor(const StateVector* X, IMUSensor* imu){
     imu->gyro[0] = X->p + randNoise(0.001);
     imu->gyro[1] = X->q + randNoise(0.001);

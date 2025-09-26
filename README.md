@@ -9,10 +9,9 @@ A modular simulation platform for aircraft dynamics, control algorithms, and fli
 
 ## 📋 Features
 
-- **6-DOF**: Realistic 6DOF flight dynamics  
+- **6-DOF**: High fidelity 6DOF flight dynamics  
 - **Control System**: Control system design & testing environment  
-- **Modular:** Modular, scalable, and extensible C-based simulation core  
-- **Models**: Extensible framework for new models and aircraft types  
+- **Modular:** Modular, scalable, and extensible C-based simulation core for new models and aircraft types  
 - **Monte Carlo**: Monte Carlo simulation for robustness and uncertainty analysis  
 - **Environment**: Wind, gusts, and atmospheric modeling  
 - **Data**: Automatic data logging & plotting  

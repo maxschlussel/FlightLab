@@ -6,10 +6,4 @@
 #include "src/math/vector.h"
 
 
-void computePropulsionForces(
-    StateVector* X, 
-    ControlVector* controlVector, 
-    AircraftParams* acParams, 
-    Vector3* F, 
-    Vector3* M
-);
+void computePropulsionForces(ControlVector* controlVector, AircraftParams* acParams, Vector3* F, Vector3* M);

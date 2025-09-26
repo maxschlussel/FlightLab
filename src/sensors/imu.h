@@ -3,6 +3,10 @@
 #include "src/core/state_vector.h"
 
 
+/**
+ * Basic representation of an IMU sensor.
+ */
+
 typedef struct {
     double accel[3];
     double gyro[3];

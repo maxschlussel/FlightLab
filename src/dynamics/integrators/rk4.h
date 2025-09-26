@@ -5,8 +5,4 @@
 #include "src/core/control_vector.h"
 
 
-void integrateRK4Step(StateVector* X, 
-                      ControlVector* U, 
-                      AircraftParams* acParams, 
-                      const double Xdot[12], 
-                      double dt_s);
+void integrateRK4Step(StateVector* X, ControlVector* U, AircraftParams* acParams, const double Xdot[12], double dt_s);

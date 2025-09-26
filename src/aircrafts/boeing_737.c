@@ -6,7 +6,7 @@
 
 
 /**
- * @brief Load and initialize the aircraft parameters.
+ * @brief Load and initialize the aircraft parameters for Boeing 737 model.
  *
  * This function sets up and returns an initialized instance of 
  * the AircraftParams structure, including geometry, mass 

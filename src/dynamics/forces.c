@@ -19,8 +19,7 @@
  * @param[out] F_tot     Pointer to the total force vector in the body frame.
  * @param[out] M_tot     Pointer to the total moment vector in the body frame.
  */
-void computeForcesAndMoments(StateVector* X, ControlVector* U_cmd, AircraftParams* acParams,
-    Vector3* F_tot, Vector3* M_tot){
+void computeForcesAndMoments(StateVector* X, ControlVector* U_cmd, AircraftParams* acParams, Vector3* F_tot, Vector3* M_tot){
     
     Vector3 F_aero = {0.0}, M_aero = {0.0};
     Vector3 F_prop = {0.0}, M_prop = {0.0};
@@ -28,7 +27,7 @@ void computeForcesAndMoments(StateVector* X, ControlVector* U_cmd, AircraftParam
     
     computeAerodynamicForces(X, U_cmd, acParams, &F_aero, &M_aero);
 
-    computePropulsionForces(X, U_cmd, acParams, &F_prop, &M_prop);
+    computePropulsionForces(U_cmd, acParams, &F_prop, &M_prop);
     
     computeGravityForces(X, acParams, &F_grav);
     

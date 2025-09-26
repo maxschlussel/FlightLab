@@ -1,8 +1,3 @@
-#!/usr/bin/env python3
-"""
-Interactive CSV timeseries plotter (3x3 paging).
-"""
-
 import math
 import pandas as pd
 import plotly.graph_objects as go
@@ -13,6 +8,10 @@ import plotly.offline as pyo
 
 
 def plot_csv(csv_file: str = 'output/data_log.csv', nrows: int = 3, ncols: int = 3):
+    """
+    Generates an interactive, multi-page plot of flight data from a CSV file.
+    """
+
     df = pd.read_csv(csv_file, skipinitialspace=True)
     
     # df.to_numpy()

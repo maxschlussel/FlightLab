@@ -7,6 +7,9 @@
 #include "src/sensors/pitot_tube.h"
 
 
+/**
+ * @brief Represents a collection of all simulated sensors.
+ */
 typedef struct {
     AltimeterSensor altimeterSensor;
     GPS gps;

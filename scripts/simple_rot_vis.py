@@ -7,6 +7,10 @@ from matplotlib.animation import FuncAnimation
 
 
 def show_rot(csv_file: str = 'output/data_log.csv'):
+    """
+    Creates a bisic wireframe 3D animated visualization of an aircraft's attitude.
+    """
+
     df = pd.read_csv(csv_file, skipinitialspace=True)
 
     time  = df["time"]

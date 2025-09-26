@@ -7,6 +7,12 @@
 #include "src/io/logger.h"
 
 
+/**
+ * @brief Reads the simulated altimeter sensor.
+ *
+ * @param[in]   X               Pointer to the current state vector.
+ * @param[out]  altemeterSensor Pointer to the altimeter sensor struct
+ */
 void readAltimeterSensor(const StateVector* X, AltimeterSensor* altemeterSensor){
     altemeterSensor->alt = X->z + randNoise(5);
 

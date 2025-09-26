@@ -1,16 +1,19 @@
 #pragma once
 
 
+/**
+ * @brief Struct to hold the state and gains of a PID controller.
+ */
 typedef struct {
-    double kp;  // Proportial gain
-    double ki;  // Integral gain
-    double kd;  // Derivative gain
+    double kp;          // Proportial gain
+    double ki;          // Integral gain
+    double kd;          // Derivative gain
 
-    double integral;    // Accumulated integral
-    double prevErr;     // Previous error for derivative
+    double integral;    // Accumulated integral err
+    double prevErr;     // Previous error value for derivative
 
-    double outMin;
-    double outMax;
+    double outMin;      // Minimum output value
+    double outMax;      // Maximum output value
 } PID;
 
 PID initPID(double kp, double ki, double kd, double outMin, double outMax);

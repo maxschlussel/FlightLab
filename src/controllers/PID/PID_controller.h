@@ -7,6 +7,14 @@
 #include "src/guidance/guidance.h"
 
 
+/**
+ * @brief Represents the flight control system's commands and PID controllers.
+ *
+ * This struct encapsulates the entire flight control system, including final
+ * computed control commands for the aircraft's actuators, as well as the all
+ * the necessary PID controllers for the longitudinal and lateral flight 
+ * control loops.
+ */
 typedef struct {
     ControlVector U_cmd;
 

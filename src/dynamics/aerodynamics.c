@@ -9,21 +9,22 @@
 
 
 /**
- * Goal: compute aerodynamic forces and moments
- * 
- * 1. Compute flight quantities (alpha, beta, Q, etc.)
- * 2. Calculate body forces
- *      2.a Calculate CL, Cd, Cy
- *      2.b Rotate from stability frame to wind frame
- *      2.c Calculate Fx_b, Fy_b, Fz_b
- * 3. Calculate body moments
- *      2.a Calculate Cl, Cm, Cn
- *      2.b Rotate from stability frame to wind frame
- *      2.c Calculate Mx_b, My_b, Mz_b
+ * @brief Computes the aerodynamic forces and moments on the aircraft.
+ *
+ * This function calculates the aerodynamic forces and moments acting on the
+ * aircraft based on its current state, control inputs, and aircraft parameters.
+ *
+ * @param[in]  X         Pointer to the aircraft's true StateVector.
+ * @param[in]  U         Pointer to the ControlVector containing commanded
+ *                       control deflections.
+ * @param[in]  acParams  Pointer to the AircraftParams struct with mass,
+ *                       inertia, and aircraft parameters.
+ * @param[out] F         Pointer to a Vector3 where the resulting aerodynamic
+ *                       forces in the body frame will be stored.
+ * @param[out] M         Pointer to a Vector3 where the resulting aerodynamic
+ *                       moments in the body frame will be stored.
  */
-void computeAerodynamicForces(StateVector* X, ControlVector* U, AircraftParams* acParams, Vector3* F, Vector3* M){
-    // saturateControls();
-
+ void computeAerodynamicForces(StateVector* X, ControlVector* U, AircraftParams* acParams, Vector3* F, Vector3* M){
     // [0] Defne Useful Quantities
     Vector3 w_b = {X->p, X->q, X->r}; // Angular rates in body frame - omega_b
     Vector3 V_b = {X->u, X->v, X->w}; // Velocities in body frame - V_b
@@ -45,32 +46,12 @@ void computeAerodynamicForces(StateVector* X, ControlVector* U, AircraftParams* 
 
     Vector3 F_stab = vec3_scale(CF_stab, QSfactor);
 
-    // // Rotate from Fs to wind frame [-Cd, Cy, -Cl]
-    // double R_stab_to_wind[3][3] = {
-    //     { cos(beta), sin(beta), 0},
-    //     {-sin(beta), cos(beta), 0},
-    //     {         0,         0, 1}
-    // };
-    
-    // double Cd_wind  = R_stab_to_wind[0][0]*coef_stability[0] + R_stab_to_wind[0][1]*coef_stability[1] + R_stab_to_wind[0][2]*coef_stability[2];
-    // double Cy_wind  = R_stab_to_wind[1][0]*coef_stability[0] + R_stab_to_wind[1][1]*coef_stability[1] + R_stab_to_wind[1][2]*coef_stability[2];
-    // double Cl_wind  = R_stab_to_wind[2][0]*coef_stability[0] + R_stab_to_wind[2][1]*coef_stability[1] + R_stab_to_wind[2][2]*coef_stability[2];
-    
-    // double Cf_w[3] = {Cd_wind, Cy_wind, Cl_wind};
-
-    // // Get Forces in Fb
-    // double Faero_stab[3] = {
-    //     -Cd_wind * Q * S,
-    //         Cy_wind * Q * S,
-    //     -Cl_wind * Q * S
-    // };
-
-    // Rotate to body frame
     double R_stab_to_body[3][3] = {};
     getRotationMatrix(0, alpha, 0, R_stab_to_body);
 
-    Vector3 F_body = mat3_mult_vec3(R_stab_to_body, F_stab);
+    Vector3 F_body = mat3_mult_vec3(R_stab_to_body, F_stab);  // Rotate to body frame
 
+    // [3] Computer Aerodynamic Moment
     Vector3 CM_aero = computeCM(acParams, alpha, beta, velocity, &w_b, &U_123);
 
     double QSCfactor = Q * acParams->S * acParams->chord;
@@ -102,12 +83,37 @@ void computeAerodynamicForces(StateVector* X, ControlVector* U, AircraftParams* 
 }
 
 
+/**
+ * @brief Computes the total lift coefficient for the aircraft.
+ *
+ * @param[in] acParams  Pointer to the AircraftParams struct containing
+ *                      aircraft properties.
+ * @param[in] U         Pointer to the ControlVector containing commanded
+ *                      control deflections.
+ * @param[in] alpha     The angle of attack in radians.
+ *
+ * @return The total lift coefficient.
+ */
 double computeCL(AircraftParams* acParams, ControlVector* U, double alpha){
     double CL_wingbody = computeCL_wingbody(acParams, alpha);
     double CL_tail     = computeCL_tail(acParams, U, alpha);  
     return CL_wingbody + CL_tail;
 }
 
+
+/**
+ * @brief Computes the wing-body lift coefficient.
+ *
+ * This function calculates the lift coefficient for the wing and body
+ * combination. It uses a linear model for small angles of attack and
+ * switches to a third-order polynomial for larger angles, as defined
+ * by the `alphaNonlinear` parameter.
+ *
+ * @param[in] acParams  Pointer to the AircraftParams struct.
+ * @param[in] alpha     The angle of attack in radians.
+ *
+ * @return The wing-body lift coefficient.
+ */
 double computeCL_wingbody(AircraftParams* acParams, double alpha){
     double CL_wingbody;
     if (alpha <= acParams->alphaNonlinear){
@@ -120,10 +126,32 @@ double computeCL_wingbody(AircraftParams* acParams, double alpha){
     return CL_wingbody;
 }
 
+
+/**
+ * @brief Computes the downwash angle at the tail.
+ *
+ * This function calculates the downwash angle at the tail as a linear
+ * function of the angle of attack.
+ *
+ * @param[in] acParams  Pointer to the AircraftParams struct.
+ * @param[in] alpha     The angle of attack in radians.
+ *
+ * @return The downwash angle in radians.
+ */
 double computeEpsilonDownwash(AircraftParams* acParams, double alpha){
     return acParams->dEpsDa * (alpha - acParams->alpha_L0);  // Downwash
 }
 
+
+/**
+ * @brief Computes the lift coefficient for the horizontal tail.
+ *
+ * @param[in] acParams  Pointer to the `AircraftParams` struct with aircraft properties.
+ * @param[in] U         Pointer to the `ControlVector` with control surface deflections.
+ * @param[in] alpha     The aircraft's angle of attack in radians.
+ *
+ * @return The lift coefficient of the tail.
+ */
 double computeCL_tail(AircraftParams* acParams, ControlVector* U, double alpha){
     double eps = computeEpsilonDownwash(acParams, alpha);
 
@@ -133,14 +161,52 @@ double computeCL_tail(AircraftParams* acParams, ControlVector* U, double alpha){
     return 3.1 * (acParams->S_tail / acParams->S) * alpha_tail;
 }
 
+
+/**
+ * @brief Computes the drag coefficient for the aircraft.
+ *
+ * @param[in] alpha The angle of attack in radians.
+ *
+ * @return The drag coefficient.
+ */
 double computeCd(double alpha){
     return 0.13 + 0.07 * pow((5.5 * alpha + 0.654), 2);
 }
 
+
+/**
+ * @brief Computes the side-force coefficient for the aircraft.
+ *
+ * @param[in] U         Pointer to the `ControlVector` struct.
+ * @param[in] beta      The sideslip angle in radians.
+ *
+ * @return The side-force coefficient.
+ */
 double computeCy(ControlVector* U, double beta){
     return -1.6 * beta + 0.24 * U->dr;
 }
 
+
+/**
+ * @brief Computes the aerodynamic moment coefficients (Cl, Cm, Cn).
+ *
+ * This function calculates the aerodynamic moment coefficients about the
+ * aircraft's center of gravity in the body frame. It is based on a linearized 
+ * model that depends on angle of attack, sideslip, angular rates, and
+ * control surface deflections.
+ *
+ * @param[in] acParams      Pointer to the `AircraftParams` struct.
+ * @param[in] alpha         The angle of attack in radians.
+ * @param[in] beta          The sideslip angle in radians.
+ * @param[in] velocity      The magnitude of the body-frame velocity.
+ * @param[in] w_b           Pointer to a `Vector3` with body-frame angular rates.
+ * @param[in] U_123         Pointer to a `Vector3` with primary control deflections.
+ *
+ * @return A `Vector3` containing the moment coefficients in the body frame:
+ * - x: Roll moment coefficient Cl
+ * - y: Pitch moment coefficient Cm
+ * - z: Yaw moment coefficient Cn
+ */
 Vector3 computeCM(AircraftParams* acParams, double alpha, double beta, double velocity, Vector3* w_b, Vector3* U_123){
     double eps = computeEpsilonDownwash(acParams, alpha);
 

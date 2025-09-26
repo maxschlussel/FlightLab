@@ -7,6 +7,12 @@
 #include "src/io/logger.h"
 
 
+/**
+ * @brief Reads the simulated GPS sensor.
+ *
+ * @param[in]   X       Pointer to the current state vector.
+ * @param[out]  gps     Pointer to the GPS sensor struct
+ */
 void readGPS(const StateVector* X, GPS* gps){
     gps->pos.x = X->x + randNoise(10);
     gps->pos.y = X->y + randNoise(10);

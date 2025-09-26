@@ -3,7 +3,18 @@
 
 #include "src/io/logger.h"
 
-
+/**
+ * @brief Commands vehicle actuators and logs their state.
+ *
+ * This function takes a control vector, a pointer to the actuators, and a
+ * time step to update the position of the servos and the value of the throttles.
+ * It also logs the new actuator positions.
+ *
+ * @param[in]  U_cmd      A pointer to a ControlVector struct containing the desired control inputs.
+ * @param[out] actuators  A pointer to an Actuators struct. This struct's members are
+ *                        modified by the function to reflect the new state of the actuators.
+ * @param[in]  dt         The time step in seconds since the last update.
+ */
 void driveActuators(ControlVector* U_cmd, Actuators* actuators, double dt){
     actuateServo(&(actuators->aileronServo), U_cmd->da, dt);
     actuateServo(&(actuators->elevatorServo), U_cmd->de, dt);

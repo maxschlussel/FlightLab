@@ -91,6 +91,11 @@ const char* logSignalNames[LOG_COUNT] = {
 };
 
 
+/**
+ * @brief Initializes the logger and opens the specified log file.
+ *
+ * @param[in] filename Pointer to a null-terminated string containing the name of the log file.
+ */
 void loggerInit(const char* filename){
     logger.fp = fopen(filename, "w");
 
@@ -105,6 +110,9 @@ void loggerInit(const char* filename){
 }
 
 
+/**
+ * @brief Writes the header row to the log file.
+ */
 void loggerLogHeader(void){
     fprintf(logger.fp, "time");
 
@@ -116,6 +124,14 @@ void loggerLogHeader(void){
 }
 
 
+/**
+ * @brief Logs a single row of data to the log file.
+ *
+ * This function records the current simulation time and all data
+ * from the `logger.data` array as a new, comma-separated row in the log file.
+ *
+ * @param[in] simTime_s The current simulation time in seconds.
+ */
 void loggerLogStep(double simTime_s){
     if (!logger.fp) return;
 
@@ -130,12 +146,16 @@ void loggerLogStep(double simTime_s){
     fprintf(logger.fp, "\n");
 }
 
-
+/**
+ * Clears the logger data to 0.
+ */
 void loggerClear(void){
     for (int i = 0; i < LOG_COUNT; i++) logger.data[i] = 0.0;
 }
 
-
+/**
+ * Closes the log file.
+ */
 void loggerClose(void){
     if (logger.fp) fclose(logger.fp);
 }

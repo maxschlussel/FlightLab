@@ -3,7 +3,13 @@
 
 #include "src/io/logger.h"
 
-
+/**
+ * @brief Reads data from all simulated sensors.
+ *
+ * @param[in]   X       Pointer to the true state vector of the aircraft.
+ * @param[out]  sensors Pointer to the `Sensors` struct where all the
+ *                      sensor measurement data will be stored.
+ */
 void readSensors(StateVector* X, Sensors* sensors){
     readAltimeterSensor(X, &(sensors->altimeterSensor));
     readGPS(X, &(sensors->gps));
@@ -25,6 +31,15 @@ void readSensors(StateVector* X, Sensors* sensors){
     logger.data[LOG_X_Z] = X->z;
 }
 
+
+/**
+ * @brief Initializes the sensor data to zero.
+ *
+ * This function creates a `Sensors` struct and initializes all of its
+ * members—altimeter, GPS, IMU, and pitot tube—to zero values. 
+ *
+ * @return A `Sensors` struct with all data fields initialized to zero.
+ */
 Sensors initSensors(void){
     Sensors sensors = {
         .altimeterSensor.alt = 0.0,

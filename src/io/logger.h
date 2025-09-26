@@ -92,6 +92,9 @@ typedef enum {
 } LogSignal;
 
 
+/**
+ * @brief Represents the logger system for data recording.
+ */
 typedef struct {
     FILE* fp;
     double data[LOGGER_SIZE];

@@ -6,13 +6,7 @@
 #include "src/math/vector.h"
 
 
-void computeAerodynamicForces(
-    StateVector* X, 
-    ControlVector* U,
-    AircraftParams* acParams, 
-    Vector3* F, 
-    Vector3* M
-);
+void computeAerodynamicForces(StateVector* X, ControlVector* U, AircraftParams* acParams, Vector3* F, Vector3* M);
 
 double computeCL(AircraftParams* acParams, ControlVector* U, double alpha);
 

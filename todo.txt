@@ -1,6 +1,16 @@
-Test:   - const rotation
+- Docstrings
+- Better readme
+    - Flightgear gif under intro (like https://github.com/jrsteensen/OpenHornet?tab=readme-ov-file)
+    - go thru githubs
+    - make better graphs (dark theme)/ gifs
+    - make better flightgear gif (with lines of data in bottom right pos vel clock etc)
+- Learn form githubs
+- Learn from yt
+- Port to c++?
+- Test: - const rotation
         - slow moment accel
         - still blows up wtih only pure moment
+- Create unit tests
 - PID control
     - make PID cascaded controls
         - outer loops vs inner loops 
@@ -11,6 +21,7 @@ Test:   - const rotation
     - Fast vs slow sensors/ lopps
     - linearize model
     - calc trim conditions (Trim solver & steady-state analysis)
+    - scheduled gains
 - Sensors
     - Make sensors (which) w valid delays/ params
     - random seed for sensors

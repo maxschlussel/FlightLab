@@ -5,7 +5,11 @@ import plot_csv
 import simple_rot_vis
 
 
-def run_post_proc():
+def run_post_proc(data_log_path):
+    """
+    Manages porst processing routine from command line arguments.
+    """
+
     if args.plot_csv:
         print("Running plot_csv")
         plot_csv.plot_csv(data_log_path)
@@ -27,4 +31,4 @@ if __name__ == "__main__":
 
     data_log_path = args.data_log
 
-    run_post_proc()
+    run_post_proc(data_log_path)

@@ -4,7 +4,33 @@
 
 #include "src/io/logger.h"
 
-
+/**
+ * @brief Computes flight control commands using cascaded PID controllers.
+ *
+ * This function implements the flight control logic for an aircraft by utilizing
+ * a set of cascaded PID controllers. It processes estimated state measurements,
+ * guidance references, and aircraft parameters to generate control commands for
+ * ailerons, elevator, rudder, and dual throttles.
+ *
+ * The control system is structured in two main loops:
+ * - **Longitudinal Control:** An outer loop controls altitude, commanding a desired
+ * pitch angle. An inner loop then controls pitch, commanding an elevator deflection.
+ * Airspeed is controlled independently by commanding a throttle setting.
+ * - **Lateral Control:** An outer loop controls heading, commanding a desired
+ * roll angle. An inner loop then controls roll, commanding an aileron deflection.
+ *
+ * @param[in]     X_est             A pointer to the estimated StateVector, containing
+ *                                  the aircraft's current measured state.
+ * @param[in]     guidanceRefs      A pointer to the GuidanceRefs struct, containing
+ *                                  the desired reference values for altitude,
+ *                                  airspeed, and heading.
+ * @param[in]     acParams          A pointer to the AircraftParams struct, containing
+ *                                  physical properties of the aircraft.
+ * @param[in,out] controlSystemPID  A pointer to the ControlSystemPID struct, which
+ *                                  contains the PID controllers and will be updated
+ *                                  with the new actuator commands.
+ * @param[in]     dt_s              The time step in seconds since the last update.
+ */
 void computeFlightControlPID(StateVector* X_est, GuidanceRefs* guidanceRefs, AircraftParams* acParams, 
                              ControlSystemPID* controlSystemPID, double dt_s) {
     // [0] Defne Useful Quantities
@@ -57,13 +83,7 @@ void computeFlightControlPID(StateVector* X_est, GuidanceRefs* guidanceRefs, Air
     // [2] Roll to Aileron
     double roll_err = rollCmd - roll_meas;
     double aileronCmd = computePID(roll2aileronPID, roll_err, dt_s);
-    
     double rudCmd = 0.0;    
-    
-    // aileronCmd = 0.0;
-    // elvCmd = -10.2*deg2rad;
-    // rudCmd = 0.0;
-    // throtCmd = 4.7*deg2rad;
 
     // ---- Output & Log ----
     controlSystemPID->U_cmd.da = aileronCmd;

@@ -15,6 +15,17 @@ from flightgear_python.fg_if import FDMConnection
 # FlightGear startup CMD
 # fgfs --native-fdm=socket,out,30,localhost,5501,udp --native-fdm=socket,in,30,localhost,5502,udp --max-fps=30 --fdm=null --telnet=5400 --prop:/sim/rendering/quality-level=0 --prop:/sim/rendering/shaders/quality-level=0 --disable-sound --timeofday=noon --enable-freeze --disable-ai-models --prop:/sim/current-view/view-number=3 --lat=63.9797 --lon=--22.5862
 def start_flightgear():
+    """
+    Starts the FlightGear flight simulator with specific network and rendering settings.
+
+    The FDM sockets are configured as follows:
+    - Native FDM output: UDP, local host, port 5501
+    - Native FDM input:  UDP, local host, port 5502
+
+    Returns:
+        subprocess.Popen: The subprocess object representing the running FlightGear instance.
+    """
+
     cmd = [
         "fgfs",
         "--native-fdm=socket,out,30,localhost,5501,udp",
@@ -37,7 +48,10 @@ def start_flightgear():
 
 
 def wait_for_fg_ready(host="127.0.0.1", port=5400, timeout=120):
-    """Wait until FlightGear reports it's initialized via Telnet property tree."""
+    """
+    Wait until FlightGear is initialized.
+    """
+
     print("Waiting 20 seconds for FlightGear to initialize...")
     time.sleep(40)
     return True
@@ -91,6 +105,10 @@ def ned_to_latlon(lat0, lon0, ned_n, ned_e, ned_d):
 
     
 def fdm_callback(fdm_data, event_pipe):
+    """"
+    Updates the FlightGear FDM with new data from a control loop.
+    """
+
     if event_pipe.child_poll():
         data, = event_pipe.child_recv()  # unpack 
         
@@ -125,6 +143,10 @@ def fdm_callback(fdm_data, event_pipe):
 
 
 def run_replay(csv_file):
+    """
+    Replays flight data from a CSV file to the FlightGear simulator.
+    """
+
     fdm_conn = FDMConnection()
     fdm_event_pipe = fdm_conn.connect_rx('127.0.0.1', 5501, fdm_callback)
     fdm_conn.connect_tx('127.0.0.1', 5502)
@@ -142,14 +164,18 @@ def run_replay(csv_file):
         sim_time = data["time"] - start_sim_time
         expected_real_time = start_real_time + sim_time
 
-        # Wait until the correct wall-clock time
+        # Wait until the correct real-time
         while time.time() < expected_real_time:
-            time.sleep(0.001)  # fine-grained wait
+            time.sleep(0.001)
 
         fdm_event_pipe.parent_send((data,))
 
 
 def run(csv_file: str = 'output/data_log.csv'):
+    """
+    Manageds the execution of the complete flight replay process.
+    """
+
     # 1. Launch FlightGear
     fg_proc = start_flightgear()
 

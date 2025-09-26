@@ -3,7 +3,7 @@
 #include "src/core/constants.h"
 
 /**
- * @brief Control input vector for the aircraft (δa, δe, δr, δt).
+ * @brief Commanded control input vector for the aircraft (δa, δe, δr, δt).
  */
 typedef struct {
     double da;  // Aileron

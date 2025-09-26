@@ -28,29 +28,19 @@
  *
  *   X_{n+1} = X_n + (dt/6) * ( k1 + 2*k2 + 2*k3 + k4 )
  *
- * This approach captures curvature of the state trajectory within the timestep,
- * yielding O(dt^4) local truncation error.
  *
  * ## Implementation Notes
  * - `Xdot` is passed in for readibility in main loop (already computed derivative at current state).
- * - Forces and moments are recomputed for each intermediate state (X2, X3, X4).
- *   This ensures nonlinear effects are captured correctly.
+ * - Forces and moments are recomputed for each intermediate state (X2, X3, X4). This ensures 
+ *   nonlinear effects are captured correctly.
  * - Controls `U_cmd` are assumed constant over the timestep (`dt_s`).
  *
  * ## Parameters
  * @param[in,out] X        Pointer to current aircraft state vector (updated in-place).
- * @param[in]     U_cmd        Pointer to current control vector.
+ * @param[in]     U_cmd    Pointer to current control vector.
  * @param[in]     acParams Pointer to aircraft parameters struct.
  * @param[in]     Xdot     Current state derivative at f(X, t).
  * @param[in]     dt_s     Simulation timestep [s].
- *
- * ```c
- * double Xdot[12];
- * computeStateDerivative(&X, &acParams, &F, &M, Xdot);
- * integrateRK4Step(&X, &U_cmd, &acParams, Xdot, dt_s);
- * ```
- *
- * After this call, `X` contains the updated state at `t + dt_s`.
  */
 
 void integrateRK4Step(StateVector* X, ControlVector* U_cmd, AircraftParams* acParams, 
