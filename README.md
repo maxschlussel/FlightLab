@@ -196,10 +196,10 @@ FlighLab/
 - [x] Implement quaternions
 - [x] Develop robust data logging pipeline and plotting toolset
 - [x] Connect with FlightGear for 3D visualization
-- [ ] Develop complementary filter estimator
+- [X] Develop complementary filter estimator
+- [ ] Develop Extended Kalmon filter
 - [ ] Design autopilot & control laws (PID, ML etc.) 
 - [ ] Develop guidance algorithms
-- [ ] Develop Extended Kalmon Filter
 - [ ] Increase fidelity (arodynamics, sensors, environment, mass, etc.)
 - [ ] Monte-Carlo simulation for robustness studies  
 - [ ] Real-time simulator mode  
