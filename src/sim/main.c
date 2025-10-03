@@ -43,7 +43,7 @@ int main(int argc, char* argv[]){
     AircraftParams acParams = loadBoeing737AircraftParams();
     
     StateVector X = initStateVectorBasicCruise();  // Load I.C.
-    StateVector X_est;
+    StateVector X_est = {0.0};
     
     ControlSystemPID controlSystemPID = initControlSystemPID();
     
