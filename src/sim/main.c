@@ -20,7 +20,7 @@
 #include "src/dynamics/integrators/euler_integrator.h"
 #include "src/dynamics/integrators/rk4.h"
 #include "src/dynamics/propulsion.h"
-#include "src/estimators/complementary_filter.h"
+#include "src/estimators/simple_estimator.h"
 #include "src/guidance/guidance.h"
 #include "src/io/logger.h"
 #include "src/sensors/sensors.h"
@@ -65,7 +65,7 @@ int main(int argc, char* argv[]){
         readSensors(&X, &sensors);
 
         // [2] State estimation
-        estimateState(&sensors, &X_est);
+        estimateStateSimple(&sensors, &X_est, dt_s);
 
         // [3] Guidance references
         updateGuidanceRefs(&guidanceRefs);

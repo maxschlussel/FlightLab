@@ -4,6 +4,7 @@
 
 // Global constants in metric
 extern const double pi;
+extern const double twoPi;
 extern const double deg2rad;
 extern const double rad2deg;
 
