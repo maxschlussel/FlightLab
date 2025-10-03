@@ -49,6 +49,15 @@ void estimateStateSimple(Sensors* sensors, StateVector* X_est, double dt){
 }
 
 
+/**
+ * @brief Estimates the current attitude (Roll, Pitch, Yaw) by fusing integrated gyroscope and 
+ * accelerometer sensor data using a Complementary Filter (CF).
+ *
+ * @param sensors   Pointer to the structure holding raw sensor readings.
+ * @param X_est     Pointer to the current estimated StateVector structure.
+ * @param dt        The time elapsed since the last update, in seconds.
+ * @return          Vector3 A structure containing the new, filtered Euler angles in radians: 
+ */
 Vector3 estimateAttitudeCF(Sensors* sensors, StateVector* X_est, double dt){
     // [0] Define useful quantities
     const double f_cutoff = 2.0;  // Hz
@@ -92,6 +101,16 @@ Vector3 estimateAttitudeCF(Sensors* sensors, StateVector* X_est, double dt){
 }
 
 
+/**
+ * @brief Estimates the current body frame velocity (u, v, w) by fusing integrated accelorometer and 
+ * gps sensor data using a Complementary Filter (CF).
+ *
+ * @param eulerAngles_est   Pointer to a Vector3 containing the updated estimated euler angles.
+ * @param sensors           Pointer to the structure holding raw sensor readings.
+ * @param X_est             Pointer to the current estimated StateVector structure.
+ * @param dt                The time elapsed since the last update, in seconds.
+ * @return                  Vector3 A structure containing the new, filtered body frame velocity.
+ */
 Vector3 estimateVelCF(Vector3* eulerAngles_est, Sensors* sensors, StateVector* X_est, double dt){
     // [0] Define useful quantities
     const double f_cutoff = 0.25;  // Hz
@@ -131,6 +150,18 @@ Vector3 estimateVelCF(Vector3* eulerAngles_est, Sensors* sensors, StateVector* X
     return vel_b_est;
 }
 
+
+/**
+ * @brief Estimates the current position in NED (x, y, z) by fusing integrated velocity and 
+ * gps sensor data using a Complementary Filter (CF).
+ *
+ * @param eulerAngles_est   Pointer to a Vector3 containing the updated estimated euler angles.
+ * @param vel_b_est         Pointer to a Vector3 containing the updated estimated body frame velocities.
+ * @param sensors           Pointer to the structure holding raw sensor readings.
+ * @param X_est             Pointer to the current estimated StateVector structure.
+ * @param dt                The time elapsed since the last update, in seconds.
+ * @return                  Vector3 A structure containing the new, filtered position in NED. 
+ */
 Vector3 estimatePosCF(Vector3* eulerAngles_est, Vector3* vel_b_est, Sensors* sensors, StateVector* X_est, double dt){
     // [0] Define useful quantities
     const double f_cutoff = 0.25;  // Hz
