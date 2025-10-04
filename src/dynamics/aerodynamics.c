@@ -24,7 +24,7 @@
  * @param[out] M         Pointer to a Vector3 where the resulting aerodynamic
  *                       moments in the body frame will be stored.
  */
- void computeAerodynamicForces(StateVector* X, ControlVector* U, AircraftParams* acParams, Vector3* F, Vector3* M){
+ void computeAerodynamicForces(const StateVector* X, const ControlVector* U, const AircraftParams* acParams, Vector3* F, Vector3* M){
     // [0] Defne Useful Quantities
     Vector3 w_b = {X->p, X->q, X->r}; // Angular rates in body frame - omega_b
     Vector3 V_b = {X->u, X->v, X->w}; // Velocities in body frame - V_b
@@ -94,7 +94,7 @@
  *
  * @return The total lift coefficient.
  */
-double computeCL(AircraftParams* acParams, ControlVector* U, double alpha){
+double computeCL(const AircraftParams* acParams, const ControlVector* U, double alpha){
     double CL_wingbody = computeCL_wingbody(acParams, alpha);
     double CL_tail     = computeCL_tail(acParams, U, alpha);  
     return CL_wingbody + CL_tail;
@@ -114,7 +114,7 @@ double computeCL(AircraftParams* acParams, ControlVector* U, double alpha){
  *
  * @return The wing-body lift coefficient.
  */
-double computeCL_wingbody(AircraftParams* acParams, double alpha){
+double computeCL_wingbody(const AircraftParams* acParams, double alpha){
     double CL_wingbody;
     if (alpha <= acParams->alphaNonlinear){
         CL_wingbody = acParams->slope_CL_Alpha * (alpha - acParams->alpha_L0);
@@ -138,7 +138,7 @@ double computeCL_wingbody(AircraftParams* acParams, double alpha){
  *
  * @return The downwash angle in radians.
  */
-double computeEpsilonDownwash(AircraftParams* acParams, double alpha){
+double computeEpsilonDownwash(const AircraftParams* acParams, double alpha){
     return acParams->dEpsDa * (alpha - acParams->alpha_L0);  // Downwash
 }
 
@@ -152,7 +152,7 @@ double computeEpsilonDownwash(AircraftParams* acParams, double alpha){
  *
  * @return The lift coefficient of the tail.
  */
-double computeCL_tail(AircraftParams* acParams, ControlVector* U, double alpha){
+double computeCL_tail(const AircraftParams* acParams, const ControlVector* U, double alpha){
     double eps = computeEpsilonDownwash(acParams, alpha);
 
     double alpha_tail = alpha - eps + U->de;  // Omitted for simplicity
@@ -182,7 +182,7 @@ double computeCd(double alpha){
  *
  * @return The side-force coefficient.
  */
-double computeCy(ControlVector* U, double beta){
+double computeCy(const ControlVector* U, double beta){
     return -1.6 * beta + 0.24 * U->dr;
 }
 
@@ -207,7 +207,7 @@ double computeCy(ControlVector* U, double beta){
  * - y: Pitch moment coefficient Cm
  * - z: Yaw moment coefficient Cn
  */
-Vector3 computeCM(AircraftParams* acParams, double alpha, double beta, double velocity, Vector3* w_b, Vector3* U_123){
+Vector3 computeCM(const AircraftParams* acParams, double alpha, double beta, double velocity, Vector3* w_b, Vector3* U_123){
     double eps = computeEpsilonDownwash(acParams, alpha);
 
     double eta[3] = {

@@ -36,7 +36,7 @@
  *                          - [10] y_dot   : inertial y-position derivative (m/s)
  *                          - [11] z_dot   : inertial z-position derivative (m/s)
  */
-void computeStateDerivative(const StateVector* X, AircraftParams* acParams, Vector3* F, Vector3* M, double* Xdot){
+void computeStateDerivative(const StateVector* X, const AircraftParams* acParams, const Vector3* F, const Vector3* M, double* Xdot){
 
     // [0] Define useful params
     Vector3 w_b = {X->p, X->q, X->r}; // Angular rates in body frame - omega_b

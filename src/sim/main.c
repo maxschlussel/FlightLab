@@ -23,15 +23,14 @@
 #include "src/estimators/simple_estimator.h"
 #include "src/guidance/guidance.h"
 #include "src/io/logger.h"
-#include "src/sensors/sensors.h"
+#include "src/sensors/aircraft_sensors.h"
 #include "src/sim/scenarios.h"
 #include "src/math/dcm.h"
 #include "src/math/vector.h"
 
 
 int main(int argc, char* argv[]){   
-    // ---- Timer & logger ----
-    clock_t start_time = clock();
+    // ---- Logger ----
     loggerInit(argv[2]);
 
     // ---- Global sim variables ----
@@ -52,17 +51,21 @@ int main(int argc, char* argv[]){
     GuidanceRefs guidanceRefs = initGuidanceNone();
     
     Sensors sensors = initSensors();
+    SensorInput sensorInput = {&X, &(controlSystemPID.U_cmd), &acParams, dt_s};
     
     Vector3 F_tot = {0.0}, M_tot = {0.0};
-
+    
     double Xdot[12] = {0.0};
+
+    // ---- Timer ----
+    clock_t start_time = clock();
 
     // ---- Main loop ----
     while(simTime_s <= tFinal_s + EPS){
         loggerClear();
 
         // [1] Read sensors
-        readSensors(&X, &sensors);
+        readSensors(&sensorInput, &sensors);
 
         // [2] State estimation
         estimateStateSimple(&sensors, &X_est, dt_s);

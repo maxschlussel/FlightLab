@@ -11,7 +11,7 @@
 #include "src/io/logger.h"
 
 void estimateStateSimple(Sensors* sensors, StateVector* X_est, double dt){
-    Vector3 w_b_est  = sensors->imuSensor.gyro;
+    Vector3 w_b_est  = sensors->imuSensor.gyro.data;
 
     Vector3 eulerAngles_est = estimateAttitudeCF(sensors, X_est, dt);
     
@@ -64,8 +64,8 @@ Vector3 estimateAttitudeCF(Sensors* sensors, StateVector* X_est, double dt){
     const double tau = 1 / (twoPi * f_cutoff);
     const double alphaCF = tau / (tau + dt);
 
-    Vector3* gyro  = &(sensors->imuSensor.gyro);
-    Vector3* accel = &(sensors->imuSensor.accel);
+    Vector3* gyro  = &(sensors->imuSensor.gyro.data);
+    Vector3* accel = &(sensors->imuSensor.accel.data);
 
     double phi   = X_est->phi;
     double theta = X_est->theta;
@@ -132,7 +132,7 @@ Vector3 estimateVelCF(Vector3* eulerAngles_est, Sensors* sensors, StateVector* X
     mat3_transpose(R_e2b, R_b2e);
 
     Vector3 vel_NED = mat3_mult_vec3(R_b2e, vel_b_est);
-    Vector3 accel_NED = mat3_mult_vec3(R_b2e, sensors->imuSensor.accel);
+    Vector3 accel_NED = mat3_mult_vec3(R_b2e, sensors->imuSensor.accel.data);
     
     // [2] Subtract out grav
     Vector3 grav = {0, 0, g};

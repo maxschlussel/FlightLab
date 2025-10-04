@@ -6,18 +6,18 @@
 #include "src/math/vector.h"
 
 
-void computeAerodynamicForces(StateVector* X, ControlVector* U, AircraftParams* acParams, Vector3* F, Vector3* M);
+void computeAerodynamicForces(const StateVector* X, const ControlVector* U, const AircraftParams* acParams, Vector3* F, Vector3* M);
 
-double computeCL(AircraftParams* acParams, ControlVector* U, double alpha);
+double computeCL(const AircraftParams* acParams, const ControlVector* U, double alpha);
 
-double computeCL_wingbody(AircraftParams* acParamms, double alpha);
+double computeCL_wingbody(const AircraftParams* acParamms, double alpha);
 
-double computeCL_tail(AircraftParams* acParams, ControlVector* U, double alpha);
+double computeCL_tail(const AircraftParams* acParams, const ControlVector* U, double alpha);
 
 double computeCd(double alpha);
 
-double computeCy(ControlVector* U, double beta);
+double computeCy(const ControlVector* U, double beta);
 
-Vector3 computeCM(AircraftParams* acParams, double alpha, double beta, double velocity, Vector3* w_b, Vector3* u_123);
+Vector3 computeCM(const AircraftParams* acParams, double alpha, double beta, double velocity, Vector3* w_b, Vector3* u_123);
 
-double computeEpsilonDownwash(AircraftParams* acParams, double alpha);
+double computeEpsilonDownwash(const AircraftParams* acParams, double alpha);

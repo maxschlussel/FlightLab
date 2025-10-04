@@ -1,3 +1,22 @@
+- Better sensors
+- Fix simple estimator
+- quats
+- EKF
+- Aero database
+- Better PID
+- Const for funct inputs
+- Better logging
+- Dif freq loops
+- Earth effects
+
+- Better readme
+    - Flightgear gif under intro (like https://github.com/jrsteensen/OpenHornet?tab=readme-ov-file)
+    - go thru githubs
+    - make better graphs (dark theme)/ gifs
+    - make better flightgear gif (with lines of data in bottom right pos vel clock etc)
+- Learn form githubs
+- Learn from yt
+- Port to c++?
 - Test: - const rotation
         - slow moment accel
         - still blows up wtih only pure moment
@@ -27,14 +46,22 @@
     - basic guidance laws -m guidance commands (loiter, waypoint, path) into references (altitude, speed, heading, attitude)
     - preplanned mission commands
     - pilot input (gui)
+- cmake
+- Redo sensor random wlak when using seed in montecarlo
+- Start each imu ssensor with some sort of bias
 - clean aerodynamics function structure to be per aricraft (modular)
 - add const to avoid changing inputs
+- add const to docstrings?
 - add logging to pid vals
 - solidify units/ var names/ agnostic funcitons
-- add all docstrings  for funcs
 - different run freq loops/ modules
 - Get and Set for control vars to clean interface
 - quats
+- Fix rot matrix
+- Better aaerodynamics (database from delta)
+- aerodynamics .h no small functions only big ones
+- Eurler angle kinematix matrix func
+- getInertialVelocity function for eom and gps sensor calcs
 - Test X log at end
     - Better logging system
 - make sim controls one line - sim runs regardles of if controls are config or not
@@ -44,6 +71,7 @@
     - env is input to sensor reading
 - Add earth/ gorund forces
 - agg ground effect
+- unerstand why imu sensor bias random walk is * sqrt(dt)
 
 
 END:

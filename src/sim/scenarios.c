@@ -110,3 +110,39 @@ Actuators initActuators(ControlVector* U_cmd){
     };
     return actuators;
 }
+
+
+/**
+ * @brief Initializes the aircraft sensors.
+ *
+ * This function creates a `Sensors` struct and initializes all of its
+ * members—altimeter, GPS, IMU, and pitot tube.
+ *
+ * @return A `Sensors` struct with all data fields initialized.
+ */
+Sensors initSensors(void){
+    Sensors sensors = {
+        // Altemeter
+        .altimeterSensor.alt = 0.0,
+
+        // GPS
+        .gps.pos = {0.0},
+        .gps.vel = {0.0},
+
+        // IMU - Accelerometer
+        .imuSensor.accel.data = {0.0},
+        .imuSensor.accel.bias = {0.0},
+        .imuSensor.accel.sigmaWalk = 0.0001,
+        .imuSensor.accel.sigmaNoise = 0.01,
+        
+        // IMU - Gyroscope
+        .imuSensor.gyro.data = {0.0},
+        .imuSensor.gyro.bias = {0.0},
+        .imuSensor.gyro.sigmaWalk = 0.00001,
+        .imuSensor.gyro.sigmaNoise = 0.001,
+        
+        // Pitot Tube
+        .pitotTube.vel = 0.0
+    };
+    return sensors;
+}

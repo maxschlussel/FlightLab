@@ -7,6 +7,7 @@
  * Basic representation of a gps sensor.
  */
 typedef struct {
+    bool gps_valid;
     Vector3 pos;
     Vector3 vel;
 } GPS;

@@ -19,7 +19,7 @@
  * @param[out] F          Pointer to a Vector3 structure where the computed gravity
  *                        force vector (in Newtons) will be stored.
  */
-void computeGravityForces(StateVector* X, AircraftParams* ac_params, Vector3* F){
+void computeGravityForces(const StateVector* X, const AircraftParams* ac_params, Vector3* F){
     Vector3 Fgrav_inertial = {0, 0, ac_params->mass * g};
     
     // Earth to body rotation matrix

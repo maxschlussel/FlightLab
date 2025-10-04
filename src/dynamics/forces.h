@@ -5,4 +5,4 @@
 #include "src/core/state_vector.h"
 #include "src/math/vector.h"
 
-void computeForcesAndMoments(StateVector* X, ControlVector* U, AircraftParams* acParams, Vector3* F_tot, Vector3* M_tot);
+void computeForcesAndMoments(const StateVector* X, const ControlVector* U, const AircraftParams* acParams, Vector3* F_tot, Vector3* M_tot);
