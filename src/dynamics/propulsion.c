@@ -17,10 +17,10 @@
  * @param[out] M          Pointer to a `Vector3` where the total propulsion moment
  *                        vector in the body frame will be stored.
  */
-void computePropulsionForces(const ControlVector* U, const AircraftParams* acParams, Vector3* F, Vector3* M){
+void computePropulsionForces(const Actuators* actuators, const AircraftParams* acParams, Vector3* F, Vector3* M){
 
-    double Fthrottle1 = U->dthr[0] * acParams->mass * g;
-    double Fthrottle2 = U->dthr[1] * acParams->mass * g;
+    double Fthrottle1 = actuators->throttle[0] * acParams->mass * g;
+    double Fthrottle2 = actuators->throttle[1] * acParams->mass * g;
 
     Vector3 FengineOne = {Fthrottle1, 0, 0};
     Vector3 FengineTwo = {Fthrottle2, 0, 0};

@@ -47,6 +47,7 @@
     - preplanned mission commands
     - pilot input (gui)
 - cmake
+- Make sure all headers are right for each files (no extras, each file has what it needs)
 - Redo sensor random wlak when using seed in montecarlo
 - Start each imu ssensor with some sort of bias
 - clean aerodynamics function structure to be per aricraft (modular)

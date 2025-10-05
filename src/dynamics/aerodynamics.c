@@ -24,11 +24,13 @@
  * @param[out] M         Pointer to a Vector3 where the resulting aerodynamic
  *                       moments in the body frame will be stored.
  */
- void computeAerodynamicForces(const StateVector* X, const ControlVector* U, const AircraftParams* acParams, Vector3* F, Vector3* M){
+ void computeAerodynamicForces(const StateVector* X, const Actuators* actuators, const AircraftParams* acParams, Vector3* F, Vector3* M){
     // [0] Defne Useful Quantities
     Vector3 w_b = {X->p, X->q, X->r}; // Angular rates in body frame - omega_b
     Vector3 V_b = {X->u, X->v, X->w}; // Velocities in body frame - V_b
-    Vector3 U_123 = {U->da, U->de, U->dr};  // Primary controls
+    Vector3 U_123 = {actuators->aileronServo.pos, 
+                     actuators->elevatorServo.pos, 
+                     actuators->rudderServo.pos};  // Primary controls
     
     // [1] Compute Flight Quantities
     double velocity = vec3_norm(V_b);
@@ -37,9 +39,9 @@
     double beta = asin(X->v/velocity); //?????????
 
     // [2] Compute Aerodynamic Force
-    double CL = computeCL(acParams, U, alpha);
+    double CL = computeCL(acParams, U_123.y, alpha);
     double Cd = computeCd(alpha);
-    double Cy = computeCy(U, beta);
+    double Cy = computeCy(U_123.z, beta);
     Vector3 CF_stab = {-Cd, Cy, -CL};
 
     double QSfactor = Q * acParams->S;
@@ -88,15 +90,14 @@
  *
  * @param[in] acParams  Pointer to the AircraftParams struct containing
  *                      aircraft properties.
- * @param[in] U         Pointer to the ControlVector containing commanded
- *                      control deflections.
+ * @param[in] de        Elevator deflection in radians.
  * @param[in] alpha     The angle of attack in radians.
  *
  * @return The total lift coefficient.
  */
-double computeCL(const AircraftParams* acParams, const ControlVector* U, double alpha){
+double computeCL(const AircraftParams* acParams, double de, double alpha){
     double CL_wingbody = computeCL_wingbody(acParams, alpha);
-    double CL_tail     = computeCL_tail(acParams, U, alpha);  
+    double CL_tail     = computeCL_tail(acParams, de, alpha);  
     return CL_wingbody + CL_tail;
 }
 
@@ -152,11 +153,11 @@ double computeEpsilonDownwash(const AircraftParams* acParams, double alpha){
  *
  * @return The lift coefficient of the tail.
  */
-double computeCL_tail(const AircraftParams* acParams, const ControlVector* U, double alpha){
+double computeCL_tail(const AircraftParams* acParams, double de, double alpha){
     double eps = computeEpsilonDownwash(acParams, alpha);
 
-    double alpha_tail = alpha - eps + U->de;  // Omitted for simplicity
-                                              // + 1.3 * X.q * acParams->l_t / velocity;
+    double alpha_tail = alpha - eps + de;   // Omitted for simplicity
+                                            // + 1.3 * X.q * acParams->l_t / velocity;
 
     return 3.1 * (acParams->S_tail / acParams->S) * alpha_tail;
 }
@@ -182,8 +183,8 @@ double computeCd(double alpha){
  *
  * @return The side-force coefficient.
  */
-double computeCy(const ControlVector* U, double beta){
-    return -1.6 * beta + 0.24 * U->dr;
+double computeCy(double dr, double beta){
+    return -1.6 * beta + 0.24 * dr;
 }
 
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "src/core/state_vector.h"
+#include "src/actuators/actuators.h"
 #include "src/core/aircraft_params.h"
 #include "src/math/vector.h"
 #include "src/sensors/altimeter.h"
@@ -27,13 +28,13 @@ typedef struct {
  *        aircraft sensor readings at the current time t.
  * 
  * @param X         State vector at current time t.
- * @param U_cmd     Flight controls from previous loop, t-1. Not yet updated 
+ * @param actuators Flight controls actuators from previous loop, t-1. Not yet updated 
  *                  for current loop at time t.
  * @param acParams  Aircraft parameters.
  */
 typedef struct {
     const StateVector* X;
-    const ControlVector* U_cmd;
+    const Actuators* actuators;
     const AircraftParams* acParams;
     double dt;
 } SensorInput;

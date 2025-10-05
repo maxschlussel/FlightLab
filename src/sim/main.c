@@ -51,7 +51,7 @@ int main(int argc, char* argv[]){
     GuidanceRefs guidanceRefs = initGuidanceNone();
     
     Sensors sensors = initSensors();
-    SensorInput sensorInput = {&X, &(controlSystemPID.U_cmd), &acParams, dt_s};
+    SensorInput sensorInput = {&X, &actuators, &acParams, dt_s};
     
     Vector3 F_tot = {0.0}, M_tot = {0.0};
     
@@ -78,7 +78,7 @@ int main(int argc, char* argv[]){
         driveActuators(&controlSystemPID.U_cmd, &actuators, dt_s);
 
         // [5] Compute Forces and Moments
-        computeForcesAndMoments(&X, &controlSystemPID.U_cmd, &acParams, &F_tot, &M_tot);  // actuators
+        computeForcesAndMoments(&X, &actuators, &acParams, &F_tot, &M_tot);  // actuators
         
         // [6] Compute state derivative from EOM
         computeStateDerivative(&X, &acParams, &F_tot, &M_tot, Xdot);
@@ -87,7 +87,7 @@ int main(int argc, char* argv[]){
         loggerLogStep(simTime_s);
 
         // [8] Integrate one step   
-        integrateRK4Step(&X, &controlSystemPID.U_cmd, &acParams, Xdot, dt_s);  // actuators
+        integrateRK4Step(&X, &actuators, &acParams, Xdot, dt_s);  // actuators
         // integrateEulerStep(&X, Xdot, dt_s);
 
         // [9] Step time

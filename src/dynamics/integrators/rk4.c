@@ -43,7 +43,7 @@
  * @param[in]     dt_s     Simulation timestep [s].
  */
 
-void integrateRK4Step(StateVector* X, ControlVector* U_cmd, AircraftParams* acParams, 
+void integrateRK4Step(StateVector* X, Actuators* actuators, AircraftParams* acParams, 
                       const double Xdot[12], double dt_s){
 
     Vector3 F = {0.0}, M = {0.0};
@@ -56,21 +56,21 @@ void integrateRK4Step(StateVector* X, ControlVector* U_cmd, AircraftParams* acPa
     StateVector X2 = *X;
     double k2[12];
     integrateEulerStep(&X2, k1, dt_s/2);
-    computeForcesAndMoments(&X2, U_cmd, acParams, &F, &M);
+    computeForcesAndMoments(&X2, actuators, acParams, &F, &M);
     computeStateDerivative(&X2, acParams, &F, &M, k2);
 
     // [3] Compute k3 = f( X_n + (dt/2)*k2 )
     StateVector X3 = *X;
     double k3[12];
     integrateEulerStep(&X3, k2, dt_s/2);
-    computeForcesAndMoments(&X3, U_cmd, acParams, &F, &M);
+    computeForcesAndMoments(&X3, actuators, acParams, &F, &M);
     computeStateDerivative(&X3, acParams, &F, &M, k3);
 
     // [4] Compute k4 = f( X_n + dt*k3 )
     StateVector X4 = *X;    // intermediate state y_n + h * k3
     double k4[12];          // derivative of state = f(X4)
     integrateEulerStep(&X4, k3, dt_s);
-    computeForcesAndMoments(&X4, U_cmd, acParams, &F, &M);
+    computeForcesAndMoments(&X4, actuators, acParams, &F, &M);
     computeStateDerivative(&X4, acParams, &F, &M, k4);
 
     // X += (dt_s / 6) * (k1 + 2*k2 + 2*k3 + k4);

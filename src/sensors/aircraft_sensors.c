@@ -15,7 +15,7 @@
 void readSensors(const SensorInput* sensorInput, Sensors* sensors){
     // [0] Unpack sensor input params
     const StateVector* X = sensorInput->X;
-    const ControlVector* U_cmd = sensorInput->U_cmd;
+    const Actuators* actuators = sensorInput->actuators;
     const AircraftParams* acParams = sensorInput->acParams;
     double dt = sensorInput->dt;
 
@@ -24,7 +24,7 @@ void readSensors(const SensorInput* sensorInput, Sensors* sensors){
     double Xdot[12] = {0.0};
 
     // [1] Compute sensor input value Xdot at current time
-    computeForcesAndMoments(X, U_cmd, acParams, &F, &M);  // actuators
+    computeForcesAndMoments(X, actuators, acParams, &F, &M);
     computeStateDerivative(X, acParams, &F, &M, Xdot);
 
     // [2] Compute sensor readings
