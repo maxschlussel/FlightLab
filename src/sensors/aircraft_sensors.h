@@ -7,6 +7,7 @@
 #include "src/sensors/altimeter.h"
 #include "src/sensors/gps.h"
 #include "src/sensors/imu.h"
+#include "src/sensors/magnetometer.h"
 #include "src/sensors/pitot_tube.h"
 
 #include "src/core/control_vector.h"
@@ -20,6 +21,7 @@ typedef struct {
     GPS gps;
     IMUSensor imuSensor;
     PitotTube pitotTube;
+    Magnetometer mag;
 } Sensors;
 
 

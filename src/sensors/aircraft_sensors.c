@@ -36,6 +36,8 @@ void readSensors(const SensorInput* sensorInput, Sensors* sensors){
     
     readPitotTube(X, &(sensors->pitotTube));   
     
+    readMagnetometer(X, &(sensors->mag), dt);
+    
     // Log ground truth states
     logger.data[LOG_X_U] = X->u;
     logger.data[LOG_X_V] = X->v;

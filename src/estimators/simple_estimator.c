@@ -66,13 +66,14 @@ Vector3 estimateAttitudeCF(Sensors* sensors, StateVector* X_est, double dt){
 
     Vector3* gyro  = &(sensors->imuSensor.gyro.data);
     Vector3* accel = &(sensors->imuSensor.accel.data);
+    Vector3* mag   = &(sensors->mag.data);
 
     double phi   = X_est->phi;
     double theta = X_est->theta;
     double psi   = X_est->psi;
     Vector3 w_b  = *gyro;  // Angular rates in body frame - omega_b
 
-    // [1] Calculate estimated engles from Gyro
+    // [1] Calculate estimated angles from Gyro
     double H[3][3] = {
         {1, sin(phi)*tan(theta), cos(phi)*tan(theta)},
         {0,            cos(phi),           -sin(phi)},
@@ -88,16 +89,35 @@ Vector3 estimateAttitudeCF(Sensors* sensors, StateVector* X_est, double dt){
     double phiAccel   = atan2(accel->y, accel->z);
     double thetaAccel = atan2(-accel->x, sqrt(accel->y*accel->y + accel->z*accel->z));
 
-    // [3] Apply complementary filter blend
+    // [3] Apply complementary filter blend to phi and theta
     phi     = complementaryFilter(phiGyro, phiAccel, alphaCF);
     theta   = complementaryFilter(thetaGyro, thetaAccel, alphaCF);
-    psi     = psiGyro;
+    
+    // [4] Calculate estimaged heading from Magnetometer and apply complementary filter blend to psi
+    double psiMag = computeHeadingFromMag(mag, phi, theta);
+    psi     = complementaryFilter(psiGyro, psiMag, alphaCF);
 
     phi   = wrapAngle(phi, -pi, pi);
     theta = wrapAngle(theta, -pi, pi);
     psi   = wrapAngle(psi, 0, twoPi);
 
     return (Vector3) {phi, theta, psi};
+}
+
+
+double computeHeadingFromMag(const Vector3* mag, double phi_est, double theta_est) {
+    double R_e2b[3][3];  // Earth (NED) 2 body dcm
+    getRotationMatrix(phi_est, theta_est, 0, R_e2b);
+    double R_b2e[3][3];  // Body 2 Earth (NED) dcm
+    mat3_transpose(R_e2b, R_b2e);
+
+    Vector3 B_ned = mat3_mult_vec3(R_b2e, *mag);
+
+    double psi_mag = atan2(-B_ned.y, B_ned.x);
+
+    psi_mag = wrapAngle(psi_mag, 0, twoPi);
+
+    return psi_mag;
 }
 
 

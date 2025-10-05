@@ -6,7 +6,7 @@ SRC = $(wildcard src/*/*/*/*.c) $(wildcard src/*/*/*.c) $(wildcard src/*/*.c) $(
 
 LOG_PATH = output/data_log.csv
 EXE = build/flightlab.exe
-SIM_CONFIG = examples/basic_aricraft.cfg
+SIM_CONFIG = examples/basic_aricraft.json
 PYTHON = .venv/Scripts/python.exe
 
 all: build run

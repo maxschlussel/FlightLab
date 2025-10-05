@@ -7,6 +7,8 @@ void estimateStateSimple(Sensors* sensors, StateVector* X_est, double dt);
 
 Vector3 estimateAttitudeCF(Sensors* sensors, StateVector* X_est, double dt);
 
+double computeHeadingFromMag(const Vector3* mag, double phi_est, double theta_est);
+
 Vector3 estimateVelCF(Vector3* eulerAngles_est, Sensors* sensors, StateVector* X_est, double dt);
 
 Vector3 estimatePosCF(Vector3* eulerAngles_est, Vector3* vel_b_est, Sensors* sensors, StateVector* X_est, double dt);

@@ -142,7 +142,13 @@ Sensors initSensors(void){
         .imuSensor.gyro.sigmaNoise = 0.001,
         
         // Pitot Tube
-        .pitotTube.vel = 0.0
+        .pitotTube.vel = 0.0,
+
+        // Magnetometer
+        .mag.data = {0.0},
+        .mag.bias = {0.0},
+        .mag.sigmaWalk = 0.00001,
+        .mag.sigmaNoise = 0.001
     };
     return sensors;
 }
