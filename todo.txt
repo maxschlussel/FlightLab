@@ -54,6 +54,7 @@
 - add const to avoid changing inputs
 - add const to docstrings?
 - add logging to pid vals
+- Remove 2 names for log enums and make it so it goes off of emun name alone
 - Add time delay to sensors
 - solidify units/ var names/ agnostic funcitons
 - different run freq loops/ modules

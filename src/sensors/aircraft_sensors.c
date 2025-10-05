@@ -32,7 +32,7 @@ void readSensors(const SensorInput* sensorInput, Sensors* sensors){
 
     readAltimeterSensor(X, &(sensors->altimeterSensor));
     
-    readGPS(X, &(sensors->gps));
+    readGPS(X, &(sensors->gps), dt);
     
     readPitotTube(X, &(sensors->pitotTube));   
     

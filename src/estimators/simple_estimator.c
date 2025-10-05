@@ -143,7 +143,7 @@ Vector3 estimateVelCF(Vector3* eulerAngles_est, Sensors* sensors, StateVector* X
 
     Vector3 vel_b_est = {X_est->u, X_est->v, X_est->w};
 
-    Vector3 velGPS = sensors->gps.vel;
+    Vector3 velGPS = sensors->gps.vel.data;
 
     // [1] Compute accel and vel in NED frame  
     double R_e2b[3][3];  // Earth (NED) 2 body dcm
@@ -206,9 +206,9 @@ Vector3 estimatePosCF(Vector3* eulerAngles_est, Vector3* vel_b_est, Sensors* sen
 
     Vector3 posNED = vec3_add(pos_est, posVeldx);
 
-    double posX = complementaryFilter(posNED.x, sensors->gps.pos.x, alphaCF);
-    double posY = complementaryFilter(posNED.y, sensors->gps.pos.y, alphaCF);
-    double posZ = complementaryFilter(posNED.z, sensors->gps.pos.z, alphaCF);
+    double posX = complementaryFilter(posNED.x, sensors->gps.pos.data.x, alphaCF);
+    double posY = complementaryFilter(posNED.y, sensors->gps.pos.data.y, alphaCF);
+    double posZ = complementaryFilter(posNED.z, sensors->gps.pos.data.z, alphaCF);
 
     return (Vector3) {posX, posY, posZ};
 }
