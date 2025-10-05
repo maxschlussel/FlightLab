@@ -13,9 +13,6 @@
  * @param[out]  mag Pointer to the magnetometer sensor.
  */
 void readMagnetometer(const StateVector* X, Magnetometer* mag, double dt){
-    // Earth magnetic field in NED (normalized)
-    Vector3 B_ned = {0.2, 0.0, 0.45};
-
     double R_e2b[3][3];  // Earth (NED) 2 body dcm
     getRotationMatrix(X->phi, X->theta, X->psi, R_e2b);
     Vector3 B_body = mat3_mult_vec3(R_e2b, B_ned);

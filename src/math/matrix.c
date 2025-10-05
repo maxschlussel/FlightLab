@@ -1,7 +1,7 @@
 #include "src/math/matrix.h"
 
 /** Multiply a 3x3 martrix with a Vector3. */
-Vector3 mat3_mult_vec3(const double M[3][3], Vector3 v) {
+Vector3 mat3_mult_vec3(const double M[3][3], const Vector3 v) {
     Vector3 vout;
     vout.x = M[0][0]*v.x + M[0][1]*v.y + M[0][2]*v.z;
     vout.y = M[1][0]*v.x + M[1][1]*v.y + M[1][2]*v.z;

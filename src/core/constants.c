@@ -7,5 +7,7 @@ const double rad2deg = 180/pi;
 
 const double g = 9.81;  // Gravity [m/s^2]
 
+const Vector3 B_ned = {0.2, 0.0, 0.45};  // Earth magnetic field in NED
+
 const double rho = 1.225;  // Air density at MSL [kg/m^3]
 
