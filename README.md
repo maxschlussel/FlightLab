@@ -22,10 +22,12 @@ A modular simulation platform for aircraft dynamics, control algorithms, and fli
 
 ## 📊 Example Output
 
-- Complete data log timeseries (position, velocity, attitude, rates, alpha, etc.)  
-- Control surface deflection commands and actuator responses  
-- Sensor output logs (IMU, magnetometer, GPS, etc.)
-- 3D animation/ trajectory visualization  
+- Complete simulation data log timeseries (statevector, aerodynamic forces and coefficients, Xdot, etc.)
+- Actuator and sensor output logs (servo positions, IMU readings, magnetometer, GPS, etc.)
+- User custom algorithm logs (estimators, control systems, guidance systems)
+- Interactive timeseries plots in custom plotting software
+- Flightgear 3D animation of flight 
+- Flight trajectory/ guidance visualization  
 
 <p align="center">
   <img src="docs/images/plots.gif" width="800" />
