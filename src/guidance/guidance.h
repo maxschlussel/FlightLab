@@ -1,6 +1,5 @@
 #pragma once
 
-#include "src/math/vector.h"
 
 typedef enum {
     GUIDANCE_NONE,              // No guidance (manual or open-loop)

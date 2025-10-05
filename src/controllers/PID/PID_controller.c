@@ -1,5 +1,4 @@
 #include "src/controllers/PID/PID_controller.h"
-#include "src/controllers/PID/PID.h"
 #include "src/math/utils.h"
 
 #include "src/io/logger.h"

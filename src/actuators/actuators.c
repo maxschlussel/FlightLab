@@ -1,5 +1,4 @@
 #include "src/actuators/actuators.h"
-#include "src/core/constants.h"
 
 #include "src/io/logger.h"
 
@@ -28,7 +27,6 @@ void driveActuators(const ControlVector* U_cmd, Actuators* actuators, double dt)
     logger.data[LOG_SRVO_THROTTLE1_VAL] = actuators->throttle[0];
     logger.data[LOG_SRVO_THROTTLE2_VAL] = actuators->throttle[1];
 }
-
 
 // double throttleLim[2]   = {0.5 * deg2rad, 10 * deg2rad};
 // double dThrottleRateLim = 1.6 * deg2rad;  // rate limit for change in throttle [units/sec]

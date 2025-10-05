@@ -5,7 +5,7 @@
 #include "src/math/vector.h"
 
 
-Vector3 mat3_mult_vec3(const double M[3][3], Vector3 v);
+Vector3 mat3_mult_vec3(const double M[3][3], const Vector3 v);
 
 void mat3_mult(const double A[3][3], const double B[3][3], double C[3][3]);
 

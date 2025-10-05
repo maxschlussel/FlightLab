@@ -1,9 +1,11 @@
 - Fix simple estimator
 - quats
+- Dvelop Sensors: pitot tube and altimeter
 - EKF
 - Aero database
 - Better PID
-- Const for funct inputs
+- parse C cmd params properly
+    - make config examples/basic_aircraft real functionality
 - Better logging
 - Dif freq loops
 - Earth effects
@@ -46,11 +48,9 @@
     - preplanned mission commands
     - pilot input (gui)
 - cmake
-- Make sure all headers are right for each files (no extras, each file has what it needs)
 - Redo sensor random wlak when using seed in montecarlo
 - Start each imu ssensor with some sort of bias
 - clean aerodynamics function structure to be per aricraft (modular)
-- add const to avoid changing inputs
 - add const to docstrings?
 - add logging to pid vals
 - Remove 2 names for log enums and make it so it goes off of emun name alone
@@ -64,12 +64,9 @@
 - aerodynamics .h no small functions only big ones
 - Eurler angle kinematix matrix func
 - getInertialVelocity function for eom and gps sensor calcs
-- Dvelop Sensors: pitot tube and altimeter
 - Test X log at end
     - Better logging system
 - make sim controls one line - sim runs regardles of if controls are config or not
-- parse C cmd params properly
-    - make config examples/basic_aircraft real functionality
 - Add env (wind, gusts, pressure, density, temp etc)
     - env is input to sensor reading
 - Add earth/ gorund forces

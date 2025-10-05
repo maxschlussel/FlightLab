@@ -1,7 +1,5 @@
 #pragma once
 
-#include "src/core/control_vector.h"
-
 /**
  * @brief Represents a single servo actuator.
  */

@@ -2,6 +2,7 @@
 
 #include "src/core/state_vector.h"
 #include "src/sensors/aircraft_sensors.h"
+#include "src/math/vector.h"
 
 void estimateStateSimple(const Sensors* sensors, StateVector* X_est, double dt);
 

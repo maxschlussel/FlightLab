@@ -1,7 +1,5 @@
 #pragma once
 
-#include "src/core/constants.h"
-
 /**
  * @brief Commanded control input vector for the aircraft (δa, δe, δr, δt).
  */

@@ -2,8 +2,6 @@
 
 #include <stdio.h>
 
-#include "src/core/state_vector.h"
-
 #define LOGGER_SIZE 128
 
 

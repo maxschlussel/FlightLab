@@ -51,4 +51,3 @@ void updateGuidanceRefs(GuidanceRefs* g){
     // [2] Set guidance refs
     handleGuidance(g);
 }
-
