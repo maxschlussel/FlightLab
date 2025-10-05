@@ -24,11 +24,11 @@ A modular simulation platform for aircraft dynamics, control algorithms, and fli
 
 - Complete data log timeseries (position, velocity, attitude, rates, alpha, etc.)  
 - Control surface deflection commands and actuator responses  
-- Sensor output logs (accelerometer, gyro, etc.)
+- Sensor output logs (IMU, magnetometer, GPS, etc.)
 - 3D animation/ trajectory visualization  
 
 <p align="center">
-  <img src="docs/images/plot.png" width="800" />
+  <img src="docs/images/plots.gif" width="800" />
 </p>
 
 
