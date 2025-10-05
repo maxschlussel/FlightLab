@@ -125,10 +125,18 @@ Sensors initSensors(void){
         // Altemeter
         .altimeterSensor.alt = 0.0,
 
-        // GPS
-        .gps.pos = {0.0},
-        .gps.vel = {0.0},
+        // GPS - Position
+        .gps.pos.data = {0.0},
+        .gps.pos.bias = {0.0},
+        .gps.pos.sigmaWalk = 0.0001,
+        .gps.pos.sigmaNoise = 0.01,
 
+        // GPS - Velocity
+        .gps.vel.data = {0.0},
+        .gps.vel.bias = {0.0},
+        .gps.vel.sigmaWalk = 0.0001,
+        .gps.vel.sigmaNoise = 0.01,
+        
         // IMU - Accelerometer
         .imuSensor.accel.data = {0.0},
         .imuSensor.accel.bias = {0.0},

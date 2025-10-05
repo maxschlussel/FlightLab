@@ -15,13 +15,17 @@
  * @param[in]   X       Pointer to the current state vector.
  * @param[out]  gps     Pointer to the GPS sensor struct
  */
-void readGPS(const StateVector* X, GPS* gps){
+void readGPS(const StateVector* X, GPS* gps, double dt){
     Vector3 V_b = {X->u, X->v, X->w}; // Velocities in body frame - V_b
 
     // Position
-    gps->pos.x = X->x + randNoise(10);
-    gps->pos.y = X->y + randNoise(10);
-    gps->pos.z = X->z + randNoise(10);
+    gps->pos.bias.x += randNoise(gps->pos.sigmaWalk * sqrt(dt));
+    gps->pos.bias.y += randNoise(gps->pos.sigmaWalk * sqrt(dt));
+    gps->pos.bias.z += randNoise(gps->pos.sigmaWalk * sqrt(dt));
+    
+    gps->pos.data.x = X->x + gps->pos.bias.x + randNoise(gps->pos.sigmaNoise);
+    gps->pos.data.y = X->y + gps->pos.bias.y + randNoise(gps->pos.sigmaNoise);
+    gps->pos.data.z = X->z + gps->pos.bias.z + randNoise(gps->pos.sigmaNoise);
     
     // Velocity
     double R_e2b[3][3];  // Earth 2 body dcm
@@ -30,14 +34,14 @@ void readGPS(const StateVector* X, GPS* gps){
     mat3_transpose(R_e2b, R_b2e);
     Vector3 dPos = mat3_mult_vec3(R_b2e, V_b);
     
-    gps->vel.x = dPos.x + randNoise(10);
-    gps->vel.y = dPos.y + randNoise(10);
-    gps->vel.z = dPos.z + randNoise(10);
+    gps->vel.data.x = dPos.x + randNoise(gps->vel.sigmaNoise);;
+    gps->vel.data.y = dPos.y + randNoise(gps->vel.sigmaNoise);;
+    gps->vel.data.z = dPos.z + randNoise(gps->vel.sigmaNoise);;
 
-    logger.data[LOG_SNS_GPS_POS_X] = gps->pos.x;
-    logger.data[LOG_SNS_GPS_POS_Y] = gps->pos.y;
-    logger.data[LOG_SNS_GPS_POS_Z] = gps->pos.z;
-    logger.data[LOG_SNS_GPS_VEL_X] = gps->vel.x;
-    logger.data[LOG_SNS_GPS_VEL_Y] = gps->vel.y;
-    logger.data[LOG_SNS_GPS_VEL_Z] = gps->vel.z;
+    logger.data[LOG_SNS_GPS_POS_X] = gps->pos.data.x;
+    logger.data[LOG_SNS_GPS_POS_Y] = gps->pos.data.y;
+    logger.data[LOG_SNS_GPS_POS_Z] = gps->pos.data.z;
+    logger.data[LOG_SNS_GPS_VEL_X] = gps->vel.data.x;
+    logger.data[LOG_SNS_GPS_VEL_Y] = gps->vel.data.y;
+    logger.data[LOG_SNS_GPS_VEL_Z] = gps->vel.data.z;
 }
