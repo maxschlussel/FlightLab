@@ -10,12 +10,12 @@
 
 #include "src/io/logger.h"
 
-void estimateStateSimple(Sensors* sensors, StateVector* X_est, double dt){
+void estimateStateSimple(const Sensors* sensors, StateVector* X_est, double dt){
     Vector3 w_b_est  = sensors->imuSensor.gyro.data;
 
     Vector3 eulerAngles_est = estimateAttitudeCF(sensors, X_est, dt);
     
-    Vector3 vel_b_est = estimateVelCF(&eulerAngles_est, sensors, X_est, dt);  //sensors->gps.vel;
+    Vector3 vel_b_est = estimateVelCF(&eulerAngles_est, sensors, X_est, dt);
     
     Vector3 pos_est = estimatePosCF(&eulerAngles_est, &vel_b_est, sensors, X_est, dt);
     
@@ -58,15 +58,15 @@ void estimateStateSimple(Sensors* sensors, StateVector* X_est, double dt){
  * @param dt        The time elapsed since the last update, in seconds.
  * @return          Vector3 A structure containing the new, filtered Euler angles in radians: 
  */
-Vector3 estimateAttitudeCF(Sensors* sensors, StateVector* X_est, double dt){
+Vector3 estimateAttitudeCF(const Sensors* sensors, StateVector* X_est, double dt){
     // [0] Define useful quantities
     const double f_cutoff = 2.0;  // Hz
     const double tau = 1 / (twoPi * f_cutoff);
     const double alphaCF = tau / (tau + dt);
 
-    Vector3* gyro  = &(sensors->imuSensor.gyro.data);
-    Vector3* accel = &(sensors->imuSensor.accel.data);
-    Vector3* mag   = &(sensors->mag.data);
+    const Vector3* gyro  = &(sensors->imuSensor.gyro.data);
+    const Vector3* accel = &(sensors->imuSensor.accel.data);
+    const Vector3* mag   = &(sensors->mag.data);
 
     double phi   = X_est->phi;
     double theta = X_est->theta;
@@ -131,7 +131,7 @@ double computeHeadingFromMag(const Vector3* mag, double phi_est, double theta_es
  * @param dt                The time elapsed since the last update, in seconds.
  * @return                  Vector3 A structure containing the new, filtered body frame velocity.
  */
-Vector3 estimateVelCF(Vector3* eulerAngles_est, Sensors* sensors, StateVector* X_est, double dt){
+Vector3 estimateVelCF(const Vector3* eulerAngles_est, const Sensors* sensors, StateVector* X_est, double dt){
     // [0] Define useful quantities
     const double f_cutoff = 0.25;  // Hz
     const double tau = 1 / (twoPi * f_cutoff);
@@ -182,7 +182,7 @@ Vector3 estimateVelCF(Vector3* eulerAngles_est, Sensors* sensors, StateVector* X
  * @param dt                The time elapsed since the last update, in seconds.
  * @return                  Vector3 A structure containing the new, filtered position in NED. 
  */
-Vector3 estimatePosCF(Vector3* eulerAngles_est, Vector3* vel_b_est, Sensors* sensors, StateVector* X_est, double dt){
+Vector3 estimatePosCF(const Vector3* eulerAngles_est, const Vector3* vel_b_est, const Sensors* sensors, StateVector* X_est, double dt){
     // [0] Define useful quantities
     const double f_cutoff = 0.25;  // Hz
     const double tau = 1 / (twoPi * f_cutoff);

@@ -10,6 +10,6 @@ typedef struct
     Vector3 data;       // Actual sensor data
     
     Vector3 bias;       // Moving bias (random walk)
-    double sigmaWalk;   // Sigma for random walk []
-    double sigmaNoise;  // Sigma for random noise
+    const double sigmaWalk;   // Sigma for random walk []
+    const double sigmaNoise;  // Sigma for random noise
 } Sensor;

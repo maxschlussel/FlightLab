@@ -27,4 +27,5 @@ typedef struct {
 } ControlSystemPID;
 
 
-void computeFlightControlPID(StateVector* X_est, GuidanceRefs* guidanceRefs, AircraftParams* acParams, ControlSystemPID* controlSystemPID, double dt_s);
+void computeFlightControlPID(const StateVector* X_est, const GuidanceRefs* guidanceRefs, const AircraftParams* acParams, 
+                             ControlSystemPID* controlSystemPID, double dt_s);

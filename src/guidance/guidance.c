@@ -43,6 +43,8 @@ GuidanceRefs initGuidanceNone(void){
 
 
 void updateGuidanceRefs(GuidanceRefs* g){
+    // Module in development...
+
     // [1] Chose guidance mode
     g->mode = GUIDANCE_NONE;
 

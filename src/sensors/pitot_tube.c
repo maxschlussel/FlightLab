@@ -15,6 +15,8 @@
  * @param[out]  pitotTube   Pointer to the Pitot tube sensor struct
  */
 void readPitotTube(const StateVector* X, PitotTube* pitotTube){
+    // Module in development...
+
     Vector3 V_b = {X->u, X->v, X->w}; // Velocities in body frame - V_b
     double velocity = vec3_norm(V_b);
 

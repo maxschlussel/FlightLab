@@ -18,4 +18,4 @@ typedef struct {
 } Actuators;
 
 
-void driveActuators(ControlVector* U_cmd, Actuators* actuators, double dt);
+void driveActuators(const ControlVector* U_cmd, Actuators* actuators, double dt);

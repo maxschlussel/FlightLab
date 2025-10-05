@@ -5,4 +5,4 @@
 #include "src/actuators/actuators.h"
 
 
-void integrateRK4Step(StateVector* X, Actuators* actuators, AircraftParams* acParams, const double Xdot[12], double dt_s);
+void integrateRK4Step(StateVector* X, const Actuators* actuators, const AircraftParams* acParams, const double Xdot[12], double dt_s);

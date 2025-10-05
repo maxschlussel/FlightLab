@@ -43,7 +43,7 @@
  * @param[in]     dt_s     Simulation timestep [s].
  */
 
-void integrateRK4Step(StateVector* X, Actuators* actuators, AircraftParams* acParams, 
+void integrateRK4Step(StateVector* X, const Actuators* actuators, const AircraftParams* acParams, 
                       const double Xdot[12], double dt_s){
 
     Vector3 F = {0.0}, M = {0.0};

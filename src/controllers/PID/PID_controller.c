@@ -31,7 +31,7 @@
  *                                  with the new actuator commands.
  * @param[in]     dt_s              The time step in seconds since the last update.
  */
-void computeFlightControlPID(StateVector* X_est, GuidanceRefs* guidanceRefs, AircraftParams* acParams, 
+void computeFlightControlPID(const StateVector* X_est, const GuidanceRefs* guidanceRefs, const AircraftParams* acParams, 
                              ControlSystemPID* controlSystemPID, double dt_s) {
     // [0] Defne Useful Quantities
     Vector3 w_b = {X_est->p, X_est->q, X_est->r}; // Angular rates in body frame - omega_b

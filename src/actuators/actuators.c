@@ -15,7 +15,7 @@
  *                        modified by the function to reflect the new state of the actuators.
  * @param[in]  dt         The time step in seconds since the last update.
  */
-void driveActuators(ControlVector* U_cmd, Actuators* actuators, double dt){
+void driveActuators(const ControlVector* U_cmd, Actuators* actuators, double dt){
     actuateServo(&(actuators->aileronServo), U_cmd->da, dt);
     actuateServo(&(actuators->elevatorServo), U_cmd->de, dt);
     actuateServo(&(actuators->rudderServo), U_cmd->dr, dt);

@@ -14,6 +14,7 @@
  * @param[out]  altemeterSensor Pointer to the altimeter sensor struct
  */
 void readAltimeterSensor(const StateVector* X, AltimeterSensor* altemeterSensor){
+    // Module in development...
     altemeterSensor->alt = X->z + randNoise(5);
 
     logger.data[LOG_SNS_ALT] = altemeterSensor->alt;
