@@ -7,6 +7,7 @@
 #include "src/math/matrix.h"
 #include "src/math/dcm.h"
 #include "src/math/vector.h"
+#include "src/math/utils.h"
 #include "src/core/constants.h"
 #include "src/estimators/simple_estimator.h"
 
@@ -357,13 +358,13 @@ void estimateStateEKF(const Sensors* sensors, StateVector* X_est, double dt){
 
     /* 6) Magnetometer (heading) */
     double mag_var = 0.05 * 0.05; /* ~0.05 rad std */
-    double heading = computeHeadingFromMag(sensors->mag, X_est->phi, X_est->theta);
+    double heading = computeHeadingFromMag(&(sensors->mag.data), X_est->phi, X_est->theta);
     ekf_update_scalar(heading, h_mag_psi, mag_var);
 
     /* Keep angles normalized */
-    ekf_global.x[6] = normalize_angle(ekf_global.x[6]);
-    ekf_global.x[7] = normalize_angle(ekf_global.x[7]);
-    ekf_global.x[8] = normalize_angle(ekf_global.x[8]);
+    ekf_global.x[6] = wrapAngle(ekf_global.x[6], -pi, pi);
+    ekf_global.x[7] = wrapAngle(ekf_global.x[7], -pi, pi);
+    ekf_global.x[8] = wrapAngle(ekf_global.x[8], -pi, pi);
 
     /* Copy back to user's StateVector */
     ekf_to_StateVector(ekf_global.x, X_est);
