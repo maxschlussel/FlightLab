@@ -1,3 +1,10 @@
+EKF
+Complementary filter fix
+Make main func accept real inputs (actuators) + README
+quats
+Controls
+- trim
+
 - Fix simple estimator
 - quats
 - Dvelop Sensors: pitot tube and altimeter
@@ -22,6 +29,13 @@
         - slow moment accel
         - still blows up wtih only pure moment
 - Create unit tests
+- Change make to c
+- Process sensors seperatly in EKF for dif refresh rates (seperate matricies)
+- Include in EKF forces and moments in F
+- Seperate aircraft control vs sim
+- Make mat mult (and others) safer so two input pointers to the same place dont corrupt (mat_mult(&A, &B, &A, N))
+- Make everthing arrays instead of structs?
+- Expand state vector?
 - PID control
     - make PID cascaded controls
         - outer loops vs inner loops 
@@ -52,6 +66,7 @@
 - Start each imu ssensor with some sort of bias
 - clean aerodynamics function structure to be per aricraft (modular)
 - add const to docstrings?
+- Better logger/ xdot fully computed in rk4
 - add logging to pid vals
 - Remove 2 names for log enums and make it so it goes off of emun name alone
 - Add time delay to sensors
@@ -59,6 +74,7 @@
 - different run freq loops/ modules
 - Get and Set for control vars to clean interface
 - quats
+- learn about lineara\irty of force functions (isnt F=C * qinf * S always non linear bc of qinf)
 - Fix rot matrix
 - Better aaerodynamics (database from delta)
 - aerodynamics .h no small functions only big ones
@@ -72,6 +88,11 @@
 - Add earth/ gorund forces
 - agg ground effect
 - unerstand why imu sensor bias random walk is * sqrt(dt)
+- Clean up:
+    - State Vector.c/h
+    - Matrix N x M functions
+    - Aircraft sensors/ sensors file / naming struct
+    - Sensors 2 array in aircraft sensors
 
 
 END:

@@ -52,3 +52,25 @@ void readSensors(const SensorInput* sensorInput, Sensors* sensors){
     logger.data[LOG_X_Y] = X->y;
     logger.data[LOG_X_Z] = X->z;
 }
+
+/**
+ * Convert Sensor struct to 1D array
+ * z=[p,q,r,ax​,ay​,az​,x,y,z,u,v,w,ψ]
+ */
+void sensors_to_array(const Sensors* sensors, double arr[N_SENSOR_DATA]){
+    arr[0] = sensors->imuSensor.gyro.data.x;
+    arr[1] = sensors->imuSensor.gyro.data.y;
+    arr[2] = sensors->imuSensor.gyro.data.z;
+    arr[3] = sensors->imuSensor.accel.data.x;
+    arr[4] = sensors->imuSensor.accel.data.y;
+    arr[5] = sensors->imuSensor.accel.data.z;
+    arr[6] = sensors->gps.pos.data.x;
+    arr[7] = sensors->gps.pos.data.y;
+    arr[8] = sensors->gps.pos.data.z;
+    arr[9] = sensors->gps.vel.data.x;
+    arr[10] = sensors->gps.vel.data.y;
+    arr[11] = sensors->gps.vel.data.z;
+    arr[12] = sensors->pitotTube.vel;
+    arr[13] = sensors->mag.data.x; // TODO: FIX
+    arr[14] = sensors->altimeterSensor.alt;
+}

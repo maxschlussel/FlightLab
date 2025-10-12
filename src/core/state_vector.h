@@ -1,5 +1,7 @@
 #pragma once
 
+#define N_STATE_VEC 12
+
 /**
  * @brief Represents the complete aircraft state vector (12 states).
  * 
@@ -13,3 +15,8 @@ typedef struct {
     double phi, theta, psi; // Euler angles [NED frame]
     double x, y, z;         // Position [NED frame]
 } StateVector;
+
+
+void statevec_to_array(const StateVector* X, double x[N_STATE_VEC]);
+
+void array_to_statevec(const double x[N_STATE_VEC], StateVector* X);

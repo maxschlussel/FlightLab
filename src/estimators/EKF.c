@@ -10,367 +10,393 @@
 #include "src/math/utils.h"
 #include "src/core/constants.h"
 #include "src/estimators/simple_estimator.h"
+#include "src/dynamics/eom.h"
+#include "src/dynamics/forces.h"
 
-#define N_EKF 18
+#include "src/io/logger.h"
+
+// Module in development...
+
+EKF initEKF(const AircraftParams* acParams, const Sensors* sensors, const Actuators* actuators) {
+    EKF ekf = {0.0};
+    ekf.X[0] = 80.0;
+    
+    ekf.acParams = acParams;
+    ekf.sensors  = sensors;
+    ekf.actuators  = actuators;
+
+    // // Initialize covariance matrices
+    // mat_identity(ekf.P, 12);
+    // mat_scale(ekf.P, 12, 1.0);    // Start with large uncertainty
+    // mat_identity(ekf.Q, 12);
+    // mat_scale(ekf.Q, 12, 0.01);   // Small process noise
+    // mat_identity(ekf.R, 12);
+    // mat_scale(ekf.R, 12, 0.1);    // Moderate measurement noise
+
+    return ekf;
+}
 
 
-typedef struct {
-    int initialized;
-    double x[N_EKF];          /* state */
-    double P[N_EKF][N_EKF];   /* covariance */
-    double Q[N_EKF][N_EKF];   /* process-noise (continuous -> discretized by dt) */
-} EKF;
+void EKF_predictState(EKF* ekf, double dt) {
+    
+    StateVector X;
+    array_to_statevec(ekf->X, &X);
+    
+    // [1] Compute f (state derivative)
+    computeForcesAndMoments(&X, ekf->actuators, ekf->acParams, &(ekf->Forces), &(ekf->Moments));
 
-/* Singleton filter instance used by estimateStateEKF */
-static EKF ekf_global;
+    computeStateDerivative(&X, ekf->acParams, &(ekf->Forces), &(ekf->Moments), ekf->Xdot);
+    
+    // [2] Propogate state (simple Euler integration)
+    for (int i = 0; i < N_EKF_STATE; i++) {
+        ekf->X[i] += ekf->Xdot[i] * dt;
+    }
+}
 
-/* ---------- Model and numeric jacobians ---------- */
-/* continuous-time state derivative f(x) (xdot) */
-static void f_state_dot(const double *x, double *xdot){
-    /* state indices:
-       0:u,1:v,2:w
-       3:p,4:q,5:r
-       6:phi,7:theta,8:psi
-       9:x,10:y,11:z
-       12..14 gyro bias
-       15..17 accel bias
-    */
-    double u = x[0], v = x[1], w = x[2];
-    double p = x[3], q = x[4], r = x[5];
-    double phi = x[6], theta = x[7], psi = x[8];
+// F = I + (df/dx)*dt
+void EKF_computeProcessJacobianF(EKF* ekf) {
+    // [0] Define useful params
+    double u = ekf->X[0], v = ekf->X[1], w = ekf->X[2];
+    double p = ekf->X[3], q = ekf->X[4], r = ekf->X[5];
+    double phi = ekf->X[6], theta = ekf->X[7], psi = ekf->X[8];
 
-    /* 1) body-velocity derivatives (kinematic coupling due to rotation)
-       (neglecting external forces; in a better model you'd include forces/mass)
-         u_dot = r*v - q*w
-         v_dot = p*w - r*u
-         w_dot = q*u - p*v
-    */
-    xdot[0] = r*v - q*w;
-    xdot[1] = p*w - r*u;
-    xdot[2] = q*u - p*v;
+    double dt = ekf->dt;
+    
+    // Initialize F as identity matrix
+    mat_identity(&ekf->F[0][0], N_EKF_STATE);
 
-    /* angular rates derivatives - assume near-constant angular rates (random walk) */
-    xdot[3] = 0.0;
-    xdot[4] = 0.0;
-    xdot[5] = 0.0;
+    // [1] Translational dynamics: Vdot_b = (1/m)*F - w_b x V_b
+    // Partial derivatives of Vdot_b w.r.t. V_b and w_b
+    // w_b x V_b = [q w - r v, 
+    //              r u - p w, 
+    //              p v - q u]
+    // d(Vdot_b)/dV_b = -skew(w_b)
+    // d(Vdot_b)/w_b = -skew(V_b)
 
-    /* Euler rates from body rates: [phi_dot;theta_dot;psi_dot] = E * [p;q;r] */
-    double cphi = cos(phi), sphi = sin(phi);
-    double cth = cos(theta), sth = sin(theta);
-    double tth = tan(theta);
-    /* matrix E */
-    double E[3][3] = {
-        {1.0, sphi*tth, cphi*tth},
-        {0.0, cphi,     -sphi},
-        {0.0, sphi/cth, cphi/cth}
+    ekf->F[0][1] += dt * r;    // du_dot/dv
+    ekf->F[0][2] += dt * (-q); // du_dot/dw
+    ekf->F[0][4] += dt * (-w); // du_dot/dq
+    ekf->F[0][5] += dt * v;    // du_dot/dr
+
+    ekf->F[1][0] += dt * (-r); // dv_dot/du
+    ekf->F[1][2] += dt * p;    // dv_dot/dw
+    ekf->F[1][3] += dt * w;    // dv_dot/dp
+    ekf->F[1][5] += dt * (-u); // dv_dot/dr
+    
+    ekf->F[2][0] += dt * q;    // dw_dot/du
+    ekf->F[2][1] += dt * (-p); // dw_dot/dv
+    ekf->F[2][3] += dt * (-v); // dw_dot/dp
+    ekf->F[2][4] += dt * u;    // dw_dot/dq
+    
+    // [2] Rotational dynamics: wdot_b = I_inv * (M - w_b x I*w_b)
+    double I_inv[3][3];
+    mat3_inv(ekf->acParams->I, I_inv);
+    double I[3][3];
+    for (int i = 0; i < 3; i++) for (int j = 0; j < 3; j++) I[i][j] = ekf->acParams->I[i][j];
+
+    // Compute d(w_b x I*w_b)/dp, dq, dr
+    double dCross_dp[3] = {
+        q * I[2][0] - r * I[1][0],  // q*I_zx - r*I_yx
+        -r * I[0][0] + p * I[2][0], // -r*I_xx + p*I_zx
+        p * I[1][0] - q * I[0][0]   // p*I_yx - q*I_xx
     };
-    xdot[6] = E[0][0]*p + E[0][1]*q + E[0][2]*r;
-    xdot[7] = E[1][0]*p + E[1][1]*q + E[1][2]*r;
-    xdot[8] = E[2][0]*p + E[2][1]*q + E[2][2]*r;
+    double dCross_dq[3] = {
+        q * I[2][1] - r * I[1][1] + (I[2][0] * p + I[2][1] * q + I[2][2] * r),
+        -r * I[0][1] + p * I[2][1], // -r*I_xy + p*I_zy
+        p * I[1][1] - q * I[0][1] - (I[0][0] * p + I[0][1] * q + I[0][2] * r)
+    };
+    double dCross_dr[3] = {
+        q * I[2][2] - r * I[1][2] - (I[1][0] * p + I[1][1] * q + I[1][2] * r),
+        -r * I[0][2] + p * I[2][2] + (I[0][0] * p + I[0][1] * q + I[0][2] * r),
+        p * I[1][2] - q * I[0][2]
+    };
 
-    /* positions: body->NED velocity mapping */
-    double R_e2b[3][3];
+    // Apply I_inv to get d(wdot_b)/dp, dq, dr
+    for (int i = 0; i < 3; i++) {
+        ekf->F[3][3] += dt * I_inv[i][0] * (-dCross_dp[0]) + dt * I_inv[i][1] * (-dCross_dp[1]) + dt * I_inv[i][2] * (-dCross_dp[2]); // dp_dot/dp
+        ekf->F[4][3] += dt * I_inv[i][0] * (-dCross_dp[0]) + dt * I_inv[i][1] * (-dCross_dp[1]) + dt * I_inv[i][2] * (-dCross_dp[2]); // dq_dot/dp
+        ekf->F[5][3] += dt * I_inv[i][0] * (-dCross_dp[0]) + dt * I_inv[i][1] * (-dCross_dp[1]) + dt * I_inv[i][2] * (-dCross_dp[2]); // dr_dot/dp
+
+        ekf->F[3][4] += dt * I_inv[i][0] * (-dCross_dq[0]) + dt * I_inv[i][1] * (-dCross_dq[1]) + dt * I_inv[i][2] * (-dCross_dq[2]); // dp_dot/dq
+        ekf->F[4][4] += dt * I_inv[i][0] * (-dCross_dq[0]) + dt * I_inv[i][1] * (-dCross_dq[1]) + dt * I_inv[i][2] * (-dCross_dq[2]); // dq_dot/dq
+        ekf->F[5][4] += dt * I_inv[i][0] * (-dCross_dq[0]) + dt * I_inv[i][1] * (-dCross_dq[1]) + dt * I_inv[i][2] * (-dCross_dq[2]); // dr_dot/dq
+
+        ekf->F[3][5] += dt * I_inv[i][0] * (-dCross_dr[0]) + dt * I_inv[i][1] * (-dCross_dr[1]) + dt * I_inv[i][2] * (-dCross_dr[2]); // dp_dot/dr
+        ekf->F[4][5] += dt * I_inv[i][0] * (-dCross_dr[0]) + dt * I_inv[i][1] * (-dCross_dr[1]) + dt * I_inv[i][2] * (-dCross_dr[2]); // dq_dot/dr
+        ekf->F[5][5] += dt * I_inv[i][0] * (-dCross_dr[0]) + dt * I_inv[i][1] * (-dCross_dr[1]) + dt * I_inv[i][2] * (-dCross_dr[2]); // dr_dot/dr
+    }
+
+    // [3] Euler angle kinematics: Phi_dot = H * w_b
+    double tan_theta = tan(theta), sec_theta = 1.0 / cos(theta);
+    ekf->F[6][3] += dt * 1.0;                    // dphi_dot/dp
+    ekf->F[6][4] += dt * sin(phi) * tan_theta;   // dphi_dot/dq
+    ekf->F[6][5] += dt * cos(phi) * tan_theta;   // dphi_dot/dr
+    ekf->F[6][6] += dt * (q * cos(phi) * tan_theta - r * sin(phi) * tan_theta); // dphi_dot/dphi
+    ekf->F[6][7] += dt * (q * sin(phi) + r * cos(phi)) * (sec_theta * sec_theta); // dphi_dot/dtheta
+
+    ekf->F[7][4] += dt * cos(phi);               // dtheta_dot/dq
+    ekf->F[7][5] += dt * (-sin(phi));            // dtheta_dot/dr
+    ekf->F[7][6] += dt * (-q * sin(phi) - r * cos(phi)); // dtheta_dot/dphi
+
+    ekf->F[8][4] += dt * sin(phi) * sec_theta;   // dpsi_dot/dq
+    ekf->F[8][5] += dt * cos(phi) * sec_theta;   // dpsi_dot/dr
+    ekf->F[8][6] += dt * (q * cos(phi) - r * sin(phi)) * sec_theta; // dpsi_dot/dphi
+    ekf->F[8][7] += dt * (q * sin(phi) + r * cos(phi)) * (-sin(theta) * sec_theta * sec_theta); // dpsi_dot/dtheta
+
+
+    // [4] Position kinematics: P_dot = R_b2e * V_b
+    double R_b2e[3][3], R_e2b[3][3];
     getRotationMatrix(phi, theta, psi, R_e2b);
-    /* R_b2n = transpose(R_e2b) */
-    double R_b2n[3][3];
-    for(int i=0;i<3;i++) for(int j=0;j<3;j++) R_b2n[i][j] = R_e2b[j][i];
+    mat3_transpose(R_e2b, R_b2e);
 
-    Vector3 v_body = {u,v,w};
-    Vector3 v_ned = mat3_mult_vec3(R_b2n, v_body);
-    xdot[9]  = v_ned.x;
-    xdot[10] = v_ned.y;
-    xdot[11] = v_ned.z;
+    ekf->F[9][0] += dt * R_b2e[0][0]; // dx_dot/du
+    ekf->F[9][1] += dt * R_b2e[0][1]; // dx_dot/dv
+    ekf->F[9][2] += dt * R_b2e[0][2]; // dx_dot/dw
+    ekf->F[10][0] += dt * R_b2e[1][0]; // dy_dot/du
+    ekf->F[10][1] += dt * R_b2e[1][1]; // dy_dot/dv
+    ekf->F[10][2] += dt * R_b2e[1][2]; // dy_dot/dw
+    ekf->F[11][0] += dt * R_b2e[2][0]; // dz_dot/du
+    ekf->F[11][1] += dt * R_b2e[2][1]; // dz_dot/dv
+    ekf->F[11][2] += dt * R_b2e[2][2]; // dz_dot/dw
 
-    /* biases assumed random-walk with zero mean derivative */
-    xdot[12] = 0.0; xdot[13] = 0.0; xdot[14] = 0.0;
-    xdot[15] = 0.0; xdot[16] = 0.0; xdot[17] = 0.0;
+    // Derivatives w.r.t. phi, theta, psi
+    double dR_b2e_dphi[3][3], dR_b2e_dtheta[3][3], dR_b2e_dpsi[3][3];
+    double dR_e2b_dphi[3][3] = {
+        {0, 0, 0},
+        {cos(phi) * sin(theta) * cos(psi) + sin(phi) * sin(psi), cos(phi) * sin(theta) * sin(psi) - sin(phi) * cos(psi), cos(phi) * cos(theta)},
+        {-sin(phi) * sin(theta) * cos(psi) + cos(phi) * sin(psi), -sin(phi) * sin(theta) * sin(psi) - cos(phi) * cos(psi), -sin(phi) * cos(theta)}
+    };
+    double dR_e2b_dtheta[3][3] = {
+        {-sin(theta) * cos(psi), -sin(theta) * sin(psi), -cos(theta)},
+        {sin(phi) * cos(theta) * cos(psi), sin(phi) * cos(theta) * sin(psi), -sin(phi) * sin(theta)},
+        {cos(phi) * cos(theta) * cos(psi), cos(phi) * cos(theta) * sin(psi), -cos(phi) * sin(theta)}
+    };
+    double dR_e2b_dpsi[3][3] = {
+        {-cos(theta) * sin(psi), cos(theta) * cos(psi), 0},
+        {-sin(phi) * sin(theta) * sin(psi) - cos(phi) * cos(psi), sin(phi) * sin(theta) * cos(psi) - cos(phi) * sin(psi), 0},
+        {-cos(phi) * sin(theta) * sin(psi) + sin(phi) * cos(psi), cos(phi) * sin(theta) * cos(psi) + sin(phi) * sin(psi), 0}
+    };
+    mat3_transpose(dR_e2b_dphi, dR_b2e_dphi);
+    mat3_transpose(dR_e2b_dtheta, dR_b2e_dtheta);
+    mat3_transpose(dR_e2b_dpsi, dR_b2e_dpsi);
+
+    Vector3 V_b = {u, v, w};
+    Vector3 dP_dphi, dP_dtheta, dP_dpsi;
+    dP_dphi = mat3_mult_vec3(dR_b2e_dphi, V_b);
+    dP_dtheta = mat3_mult_vec3(dR_b2e_dtheta, V_b);
+    dP_dpsi = mat3_mult_vec3(dR_b2e_dpsi, V_b);
+
+    ekf->F[9][6] += dt * dP_dphi.x;   // dx_dot/dphi
+    ekf->F[9][7] += dt * dP_dtheta.x; // dx_dot/dtheta
+    ekf->F[9][8] += dt * dP_dpsi.x;   // dx_dot/dpsi
+    ekf->F[10][6] += dt * dP_dphi.y;  // dy_dot/dphi
+    ekf->F[10][7] += dt * dP_dtheta.y;// dy_dot/dtheta
+    ekf->F[10][8] += dt * dP_dpsi.y;  // dy_dot/dpsi
+    ekf->F[11][6] += dt * dP_dphi.z;  // dz_dot/dphi
+    ekf->F[11][7] += dt * dP_dtheta.z;// dz_dot/dtheta
+    ekf->F[11][8] += dt * dP_dpsi.z;  // dz_dot/dpsi
 }
 
-/* Numeric Jacobian df/dx (n x n) using central differences */
-static void numeric_jacobian_f(const double *x, double J[N_EKF][N_EKF]){
-    double fplus[N_EKF], fminus[N_EKF];
-    double xpert[N_EKF];
-    for(int j=0;j<N_EKF;j++){
-        /* adaptive eps */
-        double eps = 1e-6 * (1.0 + fabs(x[j]));
-        memcpy(xpert, x, sizeof(double)*N_EKF);
-        xpert[j] = x[j] + eps;
-        f_state_dot(xpert, fplus);
-        memcpy(xpert, x, sizeof(double)*N_EKF);
-        xpert[j] = x[j] - eps;
-        f_state_dot(xpert, fminus);
-        for(int i=0;i<N_EKF;i++){
-            J[i][j] = (fplus[i] - fminus[i]) / (2.0 * eps);
+
+void EKF_PredictCovariance(EKF* ekf) {
+    // P = F * P * F^T + Q
+    double P_temp[N_EKF_STATE][N_EKF_STATE] = {0.0};
+    
+    // P_temp = F * P
+    mat_mult(&ekf->F[0][0], &ekf->P[0][0], &P_temp[0][0], N_EKF_STATE);
+
+    // P = P_temp * F^T + Q
+    mat_mult(&P_temp[0][0], &ekf->F_T[0][0], &ekf->P[0][0], N_EKF_STATE);
+    mat_add(&ekf->P[0][0], &ekf->Q[0][0], &ekf->P[0][0], N_EKF_STATE);
+}
+
+
+void EKF_commpute_h(EKF* ekf) {
+    // [0] IMU: p, q, r
+    ekf->Z_pred[0] = ekf->X[3]; // p
+    ekf->Z_pred[1] = ekf->X[4]; // q
+    ekf->Z_pred[2] = ekf->X[5]; // r
+
+    // [1] IMU: body-frame acceleration
+    ekf->Z_pred[3] = 0; // a_x
+    ekf->Z_pred[4] = 0; // a_y
+    ekf->Z_pred[5] = 0; // a_z
+
+    // [2] GPS: x, y, z, dx, dy, dz
+    ekf->Z_pred[6] = ekf->X[9];  // X
+    ekf->Z_pred[7] = ekf->X[10]; // y
+    ekf->Z_pred[8] = ekf->X[11]; // z
+    ekf->Z_pred[9] = 0; //ekf->X[0];  // u
+    ekf->Z_pred[10] = 0; //ekf->X[1]; // v
+    ekf->Z_pred[11] = 0; //ekf->X[2]; // w
+
+    // [4] Pitot: airspeed
+    // Compute airspeed from u, v, w
+    ekf->Z_pred[12] = sqrt(ekf->X[0]*ekf->X[0] + ekf->X[1]*ekf->X[1] + ekf->X[2]*ekf->X[2]);
+    
+    // [3] Magnetometer: psi
+    ekf->Z_pred[13] = 0;
+
+
+    // [5] Altimeter: altitude
+    ekf->Z_pred[14] = -ekf->X[11]; // z
+}
+
+
+// Compute measurement residual: y = z - h(x)
+void EKF_ComputeMeasurementResidual(EKF* ekf) {
+    double z[N_EKF_MEAS];
+    sensors_to_array(ekf->sensors, z);
+
+    for (int i = 0; i < N_EKF_MEAS; i++) {
+        ekf->y[i] = z[i] - ekf->Z_pred[i];
+    }
+}
+
+
+void EKF_computeMeasurmentJacobianH(EKF* ekf) {
+    // Zero out H
+    for (int i = 0; i < N_EKF_MEAS; i++) {
+        for (int j = 0; j < N_EKF_STATE; j++) {
+            ekf->H[i][j] = 0.0;
         }
     }
-}
 
-/* Numeric jacobian of a scalar measurement h(x): returns row vector H[0..n-1] (dh/dx_j) */
-static void numeric_jacobian_h_scalar(double (*hfun)(const double*), const double *x, double H_out[N_EKF]){
-    double xplus[N_EKF], xminus[N_EKF];
-    for(int j=0;j<N_EKF;j++){
-        double eps = 1e-6 * (1.0 + fabs(x[j]));
-        memcpy(xplus, x, sizeof(double)*N_EKF);
-        memcpy(xminus, x, sizeof(double)*N_EKF);
-        xplus[j]  = x[j] + eps;
-        xminus[j] = x[j] - eps;
-        double hp = hfun(xplus);
-        double hm = hfun(xminus);
-        H_out[j] = (hp - hm) / (2.0 * eps);
+    // [0] IMU: p, q, r
+    ekf->H[0][3] = 1.0; // h0 = p = x3
+    ekf->H[1][4] = 1.0; // h1 = q = x4
+    ekf->H[2][5] = 1.0; // h2 = r = x5
+
+    // [1] IMU: a_x, a_y, a_z
+
+    // [2] GPS: x, y, z, u, v, w
+    ekf->H[6][9] = 1;  // h6 = x = x9
+    ekf->H[7][10] = 1; // h7 = y = x10
+    ekf->H[8][11] = 1; // h8 = z = x11
+    ekf->H[9][0] = 1;  // h9 = u = x0
+    ekf->H[10][1] = 1; // h10 = v = x1
+    ekf->H[11][2] = 1; // h11 = w = x2
+
+    // [3] Magnetometer: m_x, m_y, m_z
+
+    // [4] Pitot: airspeed
+    double u = ekf->X[0], v = ekf->X[1], w = ekf->X[2];
+    double airspeed = sqrt(u*u + v*v + w*w);
+    if (airspeed > 0) {
+        ekf->H[12][0] = u / airspeed;
+        ekf->H[12][1] = v / airspeed;
+        ekf->H[12][2] = w / airspeed;
     }
+
+    // [5] Altimeter: altitude
+    ekf->H[13][11] = 1; // h16 = z = x11
 }
 
-/* ---------- Measurement prediction functions (scalar) ---------- */
 
-/* gyro: z = p + gyro_bias_x */
-static double h_gyro_x(const double *x){ return x[3] + x[12]; }
-static double h_gyro_y(const double *x){ return x[4] + x[13]; }
-static double h_gyro_z(const double *x){ return x[5] + x[14]; }
+void compute_kalman_gain(EKF* ekf) {
+    // 2. Compute Kalman Gain: K = P * H^T * (H * P * H^T + R)^-1
+    double S[N_EKF_MEAS][N_EKF_MEAS]; // Innovation covariance
+    double K[N_EKF_STATE][N_EKF_MEAS]; // Kalman gain
 
-/* GPS pos: x,y,z in NED */
-static double h_gps_x(const double *x){ return x[9]; }
-static double h_gps_y(const double *x){ return x[10]; }
-/* GPS z (NED down): return x[11] */
-static double h_gps_z(const double *x){ return x[11]; }
-
-/* Altimeter (assume altimeter gives altitude above mean sea level positive UP).
-   Our state z is NED down positive, so altitude = -z */
-static double h_altimeter(const double *x){ return -x[11]; }
-
-/* Magnetometer / compass: assume preprocessed heading measurement (rad) */
-static double h_mag_psi(const double *x){ return x[8]; }
-
-/* Pitot/airspeed: ||v_body|| */
-static double h_airspeed(const double *x){ return sqrt(x[0]*x[0] + x[1]*x[1] + x[2]*x[2]); }
-
-/* Accelerometer predicted measurement (body-frame): approx = -g_b + accel_bias
-   where g_b = R_e2b * [0,0,g]^T, thus predicted accel = -g_b + bias.
-   (This assumes negligible translational acceleration; it's an approximation.) */
-static double h_accel_x(const double *x){
-    double phi = x[6], theta = x[7], psi = x[8];
-    double R[3][3]; getRotationMatrix(phi,theta,psi,R);
-    Vector3 g_ned = {0.0, 0.0, g};
-    Vector3 g_b = mat3_mult_vec3(R, g_ned); /* g in body */
-    return -g_b.x + x[15];
-}
-static double h_accel_y(const double *x){
-    double phi = x[6], theta = x[7], psi = x[8];
-    double R[3][3]; getRotationMatrix(phi,theta,psi,R);
-    Vector3 g_ned = {0.0, 0.0, g};
-    Vector3 g_b = mat3_mult_vec3(R, g_ned); /* g in body */
-    return -g_b.y + x[16];
-}
-static double h_accel_z(const double *x){
-    double phi = x[6], theta = x[7], psi = x[8];
-    double R[3][3]; getRotationMatrix(phi,theta,psi,R);
-    Vector3 g_ned = {0.0, 0.0, g};
-    Vector3 g_b = mat3_mult_vec3(R, g_ned); /* g in body */
-    return -g_b.z + x[17];
-}
-
-/* ---------- EKF predict & scalar-update functions ---------- */
-
-static void ekf_init_if_needed(void){
-    if(ekf_global.initialized) return;
-    ekf_global.initialized = 1;
-
-    /* default state */
-    for(int i=0;i<N_EKF;i++) ekf_global.x[i] = 0.0;
-    /* set small initial forward velocity to avoid singularities */
-    ekf_global.x[0] = 10.0; /* u ~ 10 m/s as a guess */
-
-    /* covariance: initialize large for poorly-known states */
-    for(int i=0;i<N_EKF;i++) for(int j=0;j<N_EKF;j++) ekf_global.P[i][j] = 0.0;
-    for(int i=0;i<12;i++) ekf_global.P[i][i] = 1.0;      /* moderate uncertainty */
-    ekf_global.P[9][9]  = ekf_global.P[10][10] = ekf_global.P[11][11] = 100.0; /* position big uncertainty */
-    /* biases high uncertainty */
-    ekf_global.P[12][12] = ekf_global.P[13][13] = ekf_global.P[14][14] = 0.1;
-    ekf_global.P[15][15] = ekf_global.P[16][16] = ekf_global.P[17][17] = 0.1;
-
-    /* process noise Q (continuous). Tune these values for your sim. */
-    for(int i=0;i<N_EKF;i++) for(int j=0;j<N_EKF;j++) ekf_global.Q[i][j] = 0.0;
-    /* velocity process noise */
-    ekf_global.Q[0][0] = ekf_global.Q[1][1] = ekf_global.Q[2][2] = 0.5; /* (m/s^2)^2 */
-    /* angular-rate noise */
-    ekf_global.Q[3][3] = ekf_global.Q[4][4] = ekf_global.Q[5][5] = 0.01;
-    /* attitude noise */
-    ekf_global.Q[6][6] = ekf_global.Q[7][7] = ekf_global.Q[8][8] = 1e-4;
-    /* position process noise (integration drift) */
-    ekf_global.Q[9][9] = ekf_global.Q[10][10] = ekf_global.Q[11][11] = 0.1;
-    /* bias random walk */
-    ekf_global.Q[12][12] = ekf_global.Q[13][13] = ekf_global.Q[14][14] = 1e-6;
-    ekf_global.Q[15][15] = ekf_global.Q[16][16] = ekf_global.Q[17][17] = 1e-6;
-}
-
-/* Predict step: x <- x + dt * f(x)
-   P <- F * P * F^T + Qd (where F = I + dt * df/dx, Qd = Q*dt) */
-static void ekf_predict(double dt){
-    double xold[N_EKF];
-    memcpy(xold, ekf_global.x, sizeof(xold));
-
-    /* compute xdot = f(x) and advance */
-    double xdot[N_EKF];
-    f_state_dot(xold, xdot);
-    for(int i=0;i<N_EKF;i++) ekf_global.x[i] = xold[i] + dt * xdot[i];
-
-    /* numeric Jacobian df/dx */
-    double J[N_EKF][N_EKF];
-    numeric_jacobian_f(xold, J);
-
-    /* F = I + dt * J */
-    double F[N_EKF][N_EKF];
-    for(int i=0;i<N_EKF;i++) for(int j=0;j<N_EKF;j++)
-        F[i][j] = ((i==j)?1.0:0.0) + dt * J[i][j];
-
-    /* P = F * P * F^T + Q * dt (simple discretization) */
-    double tmp[N_EKF][N_EKF];
-    memset(tmp, 0, sizeof(tmp));
-    for(int i=0;i<N_EKF;i++){
-        for(int k=0;k<N_EKF;k++){
-            double fik = F[i][k];
-            for(int j=0;j<N_EKF;j++){
-                tmp[i][j] += fik * ekf_global.P[k][j];
+    // S = H * P * H^T + R
+    for (int i = 0; i < N_EKF_MEAS; i++) {
+        for (int j = 0; j < N_EKF_MEAS; j++) {
+            S[i][j] = ekf->R[i][j];
+            for (int k = 0; k < N_EKF_STATE; k++) {
+                for (int l = 0; l < N_EKF_STATE; l++) {
+                    S[i][j] += ekf->H[i][k] * ekf->P[k][l] * ekf->H[j][l];
+                }
             }
         }
     }
-    double Pnew[N_EKF][N_EKF];
-    memset(Pnew, 0, sizeof(Pnew));
-    for(int i=0;i<N_EKF;i++){
-        for(int j=0;j<N_EKF;j++){
-            for(int k=0;k<N_EKF;k++){
-                Pnew[i][j] += tmp[i][k] * F[j][k]; /* note F^T access */
+
+    // K = P * H^T * S_inv
+    for (int i = 0; i < N_EKF_STATE; i++) {
+        for (int j = 0; j < N_EKF_MEAS; j++) {
+            K[i][j] = 0;
+            for (int k = 0; k < N_EKF_STATE; k++) {
+                for (int l = 0; l < N_EKF_MEAS; l++) {
+                    K[i][j] += ekf->P[i][k] * ekf->H[j][k] * S[l][k];
+                }
             }
-            /* add process noise discretized */
-            Pnew[i][j] += ekf_global.Q[i][j] * dt;
         }
     }
-    /* copy back and symmetrize */
-    for(int i=0;i<N_EKF;i++) for(int j=0;j<N_EKF;j++) ekf_global.P[i][j] = 0.5*(Pnew[i][j] + Pnew[j][i]);
-}
 
-/* Scalar measurement update:
-   z: measurement scalar
-   hfun: pointer to scalar measurement function h(x)
-   R: measurement variance (sigma^2)
-*/
-static void ekf_update_scalar(double z, double (*hfun)(const double*), double R){
-    /* predicted measurement */
-    double zpred = hfun(ekf_global.x);
 
-    /* compute jacobian H (1xN) numerically */
-    double H[N_EKF];
-    numeric_jacobian_h_scalar(hfun, ekf_global.x, H);
-
-    /* temp = P * H^T (n-vector) */
-    double temp[N_EKF];
-    for(int i=0;i<N_EKF;i++){
-        temp[i] = 0.0;
-        for(int j=0;j<N_EKF;j++) temp[i] += ekf_global.P[i][j] * H[j];
-    }
-
-    /* S = H * P * H^T + R = dot(H, temp) + R */
-    double S = R;
-    for(int j=0;j<N_EKF;j++) S += H[j] * temp[j];
-    if(S <= 1e-12) S = 1e-12; /* guard */
-
-    /* Kalman gain K = temp / S */
-    double K[N_EKF];
-    for(int i=0;i<N_EKF;i++) K[i] = temp[i] / S;
-
-    /* innovation */
-    double y = z - zpred;
-
-    /* state update: x = x + K * y */
-    for(int i=0;i<N_EKF;i++) ekf_global.x[i] += K[i] * y;
-
-    /* covariance update: P = P - K * (H * P)  where (H * P) is 1xN vector HP[j] = sum_i H[i]*P[i][j] */
-    double HP[N_EKF];
-    for(int j=0;j<N_EKF;j++){
-        HP[j] = 0.0;
-        for(int i=0;i<N_EKF;i++) HP[j] += H[i] * ekf_global.P[i][j];
-    }
-    for(int i=0;i<N_EKF;i++){
-        for(int j=0;j<N_EKF;j++){
-            ekf_global.P[i][j] -= K[i] * HP[j];
+    // 3. Update state: x = x + K * y
+    for (int i = 0; i < N_EKF_STATE; i++) {
+        for (int j = 0; j < N_EKF_MEAS; j++) {
+            ekf->X[i] += K[i][j] * ekf->y[j];
         }
     }
-    /* symmetrize to counter numerical drift */
-    for(int i=0;i<N_EKF;i++) for(int j=0;j<N_EKF;j++)
-        ekf_global.P[i][j] = 0.5 * (ekf_global.P[i][j] + ekf_global.P[j][i]);
-}
 
-/* Convert internal ekf state -> user StateVector */
-static void ekf_to_StateVector(const double *x_in, StateVector *Xout){
-    Xout->u = x_in[0]; Xout->v = x_in[1]; Xout->w = x_in[2];
-    Xout->p = x_in[3]; Xout->q = x_in[4]; Xout->r = x_in[5];
-    Xout->phi = x_in[6]; Xout->theta = x_in[7]; Xout->psi = x_in[8];
-    Xout->x = x_in[9]; Xout->y = x_in[10]; Xout->z = x_in[11];
-}
-
-/* ----------------- Main func ------------------ */
-
-/* sensors: pointer to latest measurement struct
-   dt: time step (s)
-   X_est: output estimated StateVector (filled by function)
-*/
-void estimateStateEKF(const Sensors* sensors, StateVector* X_est, double dt){
-    /* init */
-    ekf_init_if_needed();
-
-    /* Predict */
-    ekf_predict(dt);
-
-    /* Now sequentially apply available measurements (scalar updates).
-       Use sensor sigmaNoise fields where available for R. We fall back
-       to sensible defaults if not present. */
-
-    /* 1) IMU gyro (p,q,r) */
-    /* measurement variance */
-    double gyro_var = sensors->imuSensor.gyro.sigmaNoise * sensors->imuSensor.gyro.sigmaNoise;
-    if(gyro_var <= 0.0) gyro_var = 0.001; /* fallback */
-
-    ekf_update_scalar(sensors->imuSensor.gyro.data.x, h_gyro_x, gyro_var);
-    ekf_update_scalar(sensors->imuSensor.gyro.data.y, h_gyro_y, gyro_var);
-    ekf_update_scalar(sensors->imuSensor.gyro.data.z, h_gyro_z, gyro_var);
-
-    /* 2) IMU accel (three axes) - treat as gravity vector reference (approx) */
-    double accel_var = sensors->imuSensor.accel.sigmaNoise * sensors->imuSensor.accel.sigmaNoise;
-    if(accel_var <= 0.0) accel_var = 0.5;
-    ekf_update_scalar(sensors->imuSensor.accel.data.x, h_accel_x, accel_var);
-    ekf_update_scalar(sensors->imuSensor.accel.data.y, h_accel_y, accel_var);
-    ekf_update_scalar(sensors->imuSensor.accel.data.z, h_accel_z, accel_var);
-
-    /* 3) GPS (if has_fix) - assume sensors->gps.x/y/z are NED positions (m) */
-    if(sensors->gps.gps_valid){
-        double gps_pos_var = 25.0; /* 5m std -> variance 25. Tune using real GPS HDOP. */
-        ekf_update_scalar(sensors->gps.pos.data.x, h_gps_x, gps_pos_var);
-        ekf_update_scalar(sensors->gps.pos.data.y, h_gps_y, gps_pos_var);
-        ekf_update_scalar(sensors->gps.pos.data.z, h_gps_z, gps_pos_var);
+    // 4. Update covariance: P = (I - K * H) * P
+    double I_KH[N_EKF_STATE][N_EKF_STATE];
+    for (int i = 0; i < N_EKF_STATE; i++) {
+        for (int j = 0; j < N_EKF_STATE; j++) {
+            I_KH[i][j] = (i == j) ? 1.0 : 0.0;
+            for (int k = 0; k < N_EKF_MEAS; k++) {
+                I_KH[i][j] -= K[i][k] * ekf->H[k][j];
+            }
+        }
+    }
+    double P_temp[N_EKF_STATE][N_EKF_STATE];
+    for (int i = 0; i < N_EKF_STATE; i++) {
+        for (int j = 0; j < N_EKF_STATE; j++) {
+            P_temp[i][j] = 0;
+            for (int k = 0; k < N_EKF_STATE; k++) {
+                P_temp[i][j] += I_KH[i][k] * ekf->P[k][j];
+            }
+        }
+    }
+    for (int i = 0; i < N_EKF_STATE; i++) {
+        for (int j = 0; j < N_EKF_STATE; j++) {
+            ekf->P[i][j] = P_temp[i][j];
+        }
     }
 
-    /* 4) Altimeter */
-    double alt_var = 4.0; /* 2 m std */
-    ekf_update_scalar(sensors->altimeterSensor.alt, h_altimeter, alt_var);
-
-    /* 5) Pitot (airspeed) */
-    double pitot_var = 1.0; /* 1 m/s std */
-    ekf_update_scalar(sensors->pitotTube.vel, h_airspeed, pitot_var);
-
-    /* 6) Magnetometer (heading) */
-    double mag_var = 0.05 * 0.05; /* ~0.05 rad std */
-    double heading = computeHeadingFromMag(&(sensors->mag.data), X_est->phi, X_est->theta);
-    ekf_update_scalar(heading, h_mag_psi, mag_var);
-
-    /* Keep angles normalized */
-    ekf_global.x[6] = wrapAngle(ekf_global.x[6], -pi, pi);
-    ekf_global.x[7] = wrapAngle(ekf_global.x[7], -pi, pi);
-    ekf_global.x[8] = wrapAngle(ekf_global.x[8], -pi, pi);
-
-    /* Copy back to user's StateVector */
-    ekf_to_StateVector(ekf_global.x, X_est);
 }
 
-/* Optional helper to reset EKF (if you restart sim). */
-void ekf_reset(void){
-    ekf_global.initialized = 0;
+
+void estimateStateEKF(EKF* ekf, double dt){
+    // [1] Predict state: X_hat{k|k-1} = f(X{k-1|k-1}, u{k})
+    EKF_predictState(ekf, dt);
+
+    // [2] Compute process Jacobian: F = I + (df/dx)*dt
+    // (Jacobian of state transition function f)
+    EKF_computeProcessJacobianF(ekf);    
+
+    // [3] Predict covariance: P_pred = F*P*F^T + Q
+    EKF_PredictCovariance(ekf);
+
+    // [4] Compute predicted measurment h(x)
+    EKF_commpute_h(ekf);
+    
+    // [5] compute measurement residual innovation
+    EKF_ComputeMeasurementResidual(ekf);
+
+    // [6] Comupute the measurment Jacobian: H = dh/dx
+    EKF_computeMeasurmentJacobianH(ekf);
+
+    // [7] Compute innovation covariance: S = H*P_pred*H^T + R
+    compute_kalman_gain(ekf);
+
+    // [8] Compute Kalman gain: K = P_pred*H^T*S^-1
+    
+    // [9] Update state: x = x_pred + K*v    
+    
+    // [10] Update covariance: P = (I - K*H)*P_pred}
+
+    logger.data[LOG_X_EST_U] = ekf->X[0];
+    logger.data[LOG_X_EST_V] = ekf->X[1];
+    logger.data[LOG_X_EST_W] = ekf->X[2];
+    logger.data[LOG_X_EST_P] = ekf->X[3];
+    logger.data[LOG_X_EST_Q] = ekf->X[4];
+    logger.data[LOG_X_EST_R] = ekf->X[5];
+    logger.data[LOG_X_EST_PHI]   = ekf->X[6];
+    logger.data[LOG_X_EST_THETA] = ekf->X[7];
+    logger.data[LOG_X_EST_PSI]   = ekf->X[8];
+    logger.data[LOG_X_EST_X] = ekf->X[9];
+    logger.data[LOG_X_EST_Y] = ekf->X[10];
+    logger.data[LOG_X_EST_Z] = ekf->X[11];
 }

@@ -21,6 +21,7 @@
 #include "src/dynamics/integrators/rk4.h"
 #include "src/dynamics/propulsion.h"
 #include "src/estimators/simple_estimator.h"
+#include "src/estimators/ekf.h"
 #include "src/guidance/guidance.h"
 #include "src/io/logger.h"
 #include "src/sensors/aircraft_sensors.h"
@@ -54,6 +55,8 @@ int main(int argc, char* argv[]){
     SensorInput sensorInput = {&X, &actuators, &acParams, dt_s};
     
     Vector3 F_tot = {0.0}, M_tot = {0.0};
+
+    EKF ekf = initEKF(&acParams, &sensors, &actuators);
     
     double Xdot[12] = {0.0};
 
@@ -68,7 +71,7 @@ int main(int argc, char* argv[]){
         readSensors(&sensorInput, &sensors);
 
         // [2] State estimation
-        estimateStateSimple(&sensors, &X_est, dt_s);
+        estimateStateEKF(&ekf, dt_s);
 
         // [3] Guidance references
         updateGuidanceRefs(&guidanceRefs);

@@ -61,6 +61,8 @@ build/flightlab.exe --data_log output/data_log.csv --config examples/basic_aricr
 python scripts/run_post_proc.py --data_log output/data_log.csv --plot_csv --simple_rot_vis
 ```
 
+** The automatic make script assumes the python interpreter is in the virtual environment ".venv/Scripts/python.exe". If you environment path is different, update the path in the Makefile script to your python interpreter.
+
 ## 🔄 Simulation Flow  
 
 1. **Initialization**  

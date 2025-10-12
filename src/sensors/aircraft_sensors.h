@@ -12,6 +12,8 @@
 
 #include "src/core/control_vector.h"
 
+#define N_SENSOR_DATA 15
+
 
 /**
  * @brief Represents a collection of all aircraft simulated sensors.
@@ -42,3 +44,5 @@ typedef struct {
 } SensorInput;
 
 void readSensors(const SensorInput* sensorInput, Sensors* sensors);
+
+void sensors_to_array(const Sensors* sensors, double arr[N_SENSOR_DATA]);

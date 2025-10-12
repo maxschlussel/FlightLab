@@ -68,3 +68,88 @@ bool mat3_inv(const double M[3][3], double M_inv[3][3]){
 
     return true;  
 }
+
+
+/** Create an n x n identity matrix. */
+void mat_identity(double* A, int n) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            int index = i * n + j;
+            A[index] = (i == j) ? 1.0 : 0.0;        }
+        }
+    }
+    
+
+/** Scale an n x n matrix. */
+void mat_scale(double* A, int n, double scale) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            int index = i * n + j;
+            A[index] *= scale;
+        }
+    }
+}
+
+
+/** Transpose an n x n matrix. */
+void mat_transpose(double* A, int N) {
+    for (int i = 0; i < N; i++) {
+        for (int j = i + 1; j < N; j++) {
+            int index_ij = i * N + j;
+            int index_ji = j * N + i;
+            
+            double temp = A[index_ij];
+            
+            A[index_ij] = A[index_ji];
+            A[index_ji] = temp;
+        }
+    }
+}
+
+
+/** Multiply two n x n matricies. */
+void mat_mult(const double* A, const double* B, double* C, int N) {
+    // C[i][j] = sum(A[i][k] * B[k][j])
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            
+            double sum = 0.0;
+            
+            for (int k = 0; k < N; k++) {
+                int index_A = i * N + k;
+                int index_B = k * N + j;
+                
+                sum += A[index_A] * B[index_B];
+            }
+            
+            C[i * N + j] = sum;
+        }
+    }
+}
+
+
+/** Add two n x n matricies. */
+void mat_add(const double* A, const double* B, double* C, int N) {
+    for (int i = 0; i < N * N; i++) {
+        C[i] = A[i] + B[i];
+    }
+}
+
+
+// Matrix multiplication: C = A * B
+// A: n x m, B: m x p, C: n x p
+void matrixMultiply(const double* A, int n, int m, const double* B, int m2, int p, double* C) {
+    if (m != m2) {
+        // Dimension mismatch
+        return;
+    }
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < p; j++) {
+            double sum = 0.0;
+            for (int k = 0; k < m; k++) {
+                sum += A[i * m + k] * B[k * p + j];
+            }
+            C[i * p + j] = sum;
+        }
+    }
+}

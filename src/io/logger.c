@@ -3,7 +3,7 @@
 #include "src/io/logger.h"
 
 
-// Define the global logger
+// Global logger instance
 Logger logger;
 
 
