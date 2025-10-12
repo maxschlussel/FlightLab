@@ -34,6 +34,6 @@ typedef struct {
 
 } EKF;
 
-EKF initEKF(const AircraftParams* acParams, const Sensors* sensors, const Actuators* actuators);
+EKF initEKF(const AircraftParams* acParams, const Actuators* actuators);
 
-void estimateStateEKF(EKF* ekf, double dt);
+void estimateStateEKF(EKF* ekf, Sensors* sensors, double dt);

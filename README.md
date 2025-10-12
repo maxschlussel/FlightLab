@@ -73,29 +73,29 @@ python scripts/run_post_proc.py --data_log output/data_log.csv --plot_csv --simp
 ```c
 while(simTime_s < tFinal_s){
     // [1] Read sensors
-    readSensors(&X, &sensors);
+    readSensors(sensorInput, sensors);
 
     // [2] State estimation
-    estimateState(&sensors, &X_est);
+    estimateStateEKF(ekf, sensors);
 
     // [3] Guidance references
-    updateGuidanceRefs(&guidanceRefs);
+    updateGuidanceRefs(guidanceRefs);
 
     // [4] Compute and actuate flight controls
-    computeFlightControlCmd(&X_est, &guidanceRefs, &acParams, &U_cmd);
-    actuateFlightControls(&U_cmd, &flightControls, dt_s);
+    computeFlightControlCmd(X_est, guidanceRefs, controlSystem);
+    driveActuators(controlSystem.cmd, actuators);
 
     // [5] Compute Forces and Moments
-    computeForcesAndMoments(&X, &flightControls, &acParams, &F_tot, &M_tot);
+    computeForcesAndMoments(X, actuators, F_tot, M_tot);
     
     // [6] Compute state derivative from EOM
-    computeStateDerivative(&X, &acParams, &F_tot, &M_tot, Xdot);
+    computeStateDerivative(X, F_tot, M_tot, Xdot);
 
     // [7] Log step
     loggerLogStep(simTime_s);
 
     // [8] Integrate one step   
-    integrateRK4Step(&X, &U_cmd, &acParams, Xdot, dt_s);
+    integrateRK4Step(X, Xdot, dt_s);
 
     // [9] Step time
     simTime_s += dt_s;

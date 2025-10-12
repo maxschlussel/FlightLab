@@ -1,6 +1,5 @@
 EKF
 Complementary filter fix
-Make main func accept real inputs (actuators) + README
 quats
 Controls
 - trim

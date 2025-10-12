@@ -17,12 +17,11 @@
 
 // Module in development...
 
-EKF initEKF(const AircraftParams* acParams, const Sensors* sensors, const Actuators* actuators) {
+EKF initEKF(const AircraftParams* acParams, const Actuators* actuators) {
     EKF ekf = {0.0};
     ekf.X[0] = 80.0;
     
     ekf.acParams = acParams;
-    ekf.sensors  = sensors;
     ekf.actuators  = actuators;
 
     // // Initialize covariance matrices
@@ -244,9 +243,9 @@ void EKF_commpute_h(EKF* ekf) {
 
 
 // Compute measurement residual: y = z - h(x)
-void EKF_ComputeMeasurementResidual(EKF* ekf) {
+void EKF_ComputeMeasurementResidual(EKF* ekf, Sensors* sensors) {
     double z[N_EKF_MEAS];
-    sensors_to_array(ekf->sensors, z);
+    sensors_to_array(sensors, z);
 
     for (int i = 0; i < N_EKF_MEAS; i++) {
         ekf->y[i] = z[i] - ekf->Z_pred[i];
@@ -358,7 +357,7 @@ void compute_kalman_gain(EKF* ekf) {
 }
 
 
-void estimateStateEKF(EKF* ekf, double dt){
+void estimateStateEKF(EKF* ekf, Sensors* sensors, double dt){
     // [1] Predict state: X_hat{k|k-1} = f(X{k-1|k-1}, u{k})
     EKF_predictState(ekf, dt);
 
@@ -373,7 +372,7 @@ void estimateStateEKF(EKF* ekf, double dt){
     EKF_commpute_h(ekf);
     
     // [5] compute measurement residual innovation
-    EKF_ComputeMeasurementResidual(ekf);
+    EKF_ComputeMeasurementResidual(ekf, sensors);
 
     // [6] Comupute the measurment Jacobian: H = dh/dx
     EKF_computeMeasurmentJacobianH(ekf);

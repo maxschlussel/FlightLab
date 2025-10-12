@@ -56,7 +56,7 @@ int main(int argc, char* argv[]){
     
     Vector3 F_tot = {0.0}, M_tot = {0.0};
 
-    EKF ekf = initEKF(&acParams, &sensors, &actuators);
+    EKF ekf = initEKF(&acParams, &actuators);
     
     double Xdot[12] = {0.0};
 
@@ -71,7 +71,7 @@ int main(int argc, char* argv[]){
         readSensors(&sensorInput, &sensors);
 
         // [2] State estimation
-        estimateStateEKF(&ekf, dt_s);
+        estimateStateEKF(&ekf, &sensors, dt_s);
 
         // [3] Guidance references
         updateGuidanceRefs(&guidanceRefs);
@@ -81,7 +81,7 @@ int main(int argc, char* argv[]){
         driveActuators(&controlSystemPID.U_cmd, &actuators, dt_s);
 
         // [5] Compute Forces and Moments
-        computeForcesAndMoments(&X, &actuators, &acParams, &F_tot, &M_tot);  // actuators
+        computeForcesAndMoments(&X, &actuators, &acParams, &F_tot, &M_tot);
         
         // [6] Compute state derivative from EOM
         computeStateDerivative(&X, &acParams, &F_tot, &M_tot, Xdot);
