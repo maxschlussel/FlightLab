@@ -43,7 +43,7 @@ int main(int argc, char* argv[]){
     AircraftParams acParams = loadBoeing737AircraftParams();
     
     StateVector X = initStateVectorBasicCruise();  // Load I.C.
-    StateVector X_est = {0.0};
+    StateVector X_est = X;
     
     ControlSystemPID controlSystemPID = initControlSystemPID();
     
@@ -71,13 +71,14 @@ int main(int argc, char* argv[]){
         readSensors(&sensorInput, &sensors);
 
         // [2] State estimation
-        estimateStateEKF(&ekf, &sensors, dt_s);
+        estimateStateSimple(&sensors, &X_est, dt_s);
+        // estimateStateEKF(&ekf, &sensors, dt_s);
 
         // [3] Guidance references
         updateGuidanceRefs(&guidanceRefs);
 
         // [4] Compute and actuate flight controls
-        computeFlightControlPID(&X, &guidanceRefs, &acParams, &controlSystemPID, dt_s);  // X_est
+        computeFlightControlPID(&X_est, &guidanceRefs, &acParams, &controlSystemPID, dt_s);  // X_est
         driveActuators(&controlSystemPID.U_cmd, &actuators, dt_s);
 
         // [5] Compute Forces and Moments

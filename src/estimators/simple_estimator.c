@@ -32,7 +32,6 @@ void estimateStateSimple(const Sensors* sensors, StateVector* X_est, double dt){
     X_est->y = pos_est.y;
     X_est->z = pos_est.z;
 
-
     // Log estimated states
     logger.data[LOG_X_EST_U] = X_est->u;
     logger.data[LOG_X_EST_V] = X_est->v;
@@ -60,7 +59,7 @@ void estimateStateSimple(const Sensors* sensors, StateVector* X_est, double dt){
  */
 Vector3 estimateAttitudeCF(const Sensors* sensors, StateVector* X_est, double dt){
     // [0] Define useful quantities
-    const double f_cutoff = 2.0;  // Hz
+    const double f_cutoff = 0.5;  // Hz
     const double tau = 1 / (twoPi * f_cutoff);
     const double alphaCF = tau / (tau + dt);
 
@@ -85,13 +84,17 @@ Vector3 estimateAttitudeCF(const Sensors* sensors, StateVector* X_est, double dt
     double thetaGyro = theta + euler_dot.y * dt;
     double psiGyro   = psi   + euler_dot.z * dt;
 
-    // [2] Calculate estimated angles from Accel
-    double phiAccel   = atan2(accel->y, accel->z);
-    double thetaAccel = atan2(-accel->x, sqrt(accel->y*accel->y + accel->z*accel->z));
+    // [2] Calculate estimated anglesfrom Accel
+    double ax = accel->x;
+    double ay = accel->y;
+    double az = accel->z;
 
+    double phiAccel = atan2(-ay, -az);
+    double thetaAccel = atan2(ax, sqrt(ay*ay + az*az));
+    
     // [3] Apply complementary filter blend to phi and theta
-    phi     = complementaryFilter(phiGyro, phiAccel, alphaCF);
-    theta   = complementaryFilter(thetaGyro, thetaAccel, alphaCF);
+    phi     = phiGyro;//complementaryFilter(phiGyro, phiAccel, alphaCF);
+    theta   = thetaGyro;//complementaryFilter(thetaGyro, thetaAccel, alphaCF);
     
     // [4] Calculate estimaged heading from Magnetometer and apply complementary filter blend to psi
     double psiMag = computeHeadingFromMag(mag, phi, theta);
@@ -99,7 +102,7 @@ Vector3 estimateAttitudeCF(const Sensors* sensors, StateVector* X_est, double dt
 
     phi   = wrapAngle(phi, -pi, pi);
     theta = wrapAngle(theta, -pi, pi);
-    psi   = wrapAngle(psi, 0, twoPi);
+    psi   = wrapAngle(psi, -pi, pi);
 
     return (Vector3) {phi, theta, psi};
 }
@@ -154,9 +157,9 @@ Vector3 estimateVelCF(const Vector3* eulerAngles_est, const Sensors* sensors, St
     Vector3 vel_NED = mat3_mult_vec3(R_b2e, vel_b_est);
     Vector3 accel_NED = mat3_mult_vec3(R_b2e, sensors->imuSensor.accel.data);
     
-    // [2] Subtract out grav
+    // [2] Accel -> real world: Add grav back into accel reading
     Vector3 grav = {0, 0, g};
-    accel_NED = vec3_sub(accel_NED, grav);
+    accel_NED = vec3_add(accel_NED, grav);
     
     // [3] Apply complementary filter blend
     Vector3 deltaAccel_NED = vec3_scale(accel_NED, dt);
