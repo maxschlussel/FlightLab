@@ -76,7 +76,7 @@ while(simTime_s < tFinal_s){
     readSensors(sensorInput, sensors);
 
     // [2] State estimation
-    estimateStateEKF(ekf, sensors);
+    EKF_estimateState(ekf, sensors);
 
     // [3] Guidance references
     updateGuidanceRefs(guidanceRefs);
@@ -201,7 +201,7 @@ FlighLab/
 - [x] Develop robust data logging pipeline and plotting toolset
 - [x] Connect with FlightGear for 3D visualization
 - [X] Develop complementary filter estimator
-- [ ] Develop Extended Kalmon filter
+- [X] Develop Extended Kalmon filter
 - [ ] Design autopilot & control laws (PID, ML etc.) 
 - [ ] Develop guidance algorithms
 - [ ] Increase fidelity (arodynamics, sensors, environment, mass, etc.)
