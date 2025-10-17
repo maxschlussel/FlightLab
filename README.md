@@ -5,19 +5,23 @@
 
 # FlightLab – Virtual Aviation Environment  
 
-A modular simulation platform for aircraft dynamics, control algorithms, and flight visualization.  Written in C.
+A modular aerospace simulation platform for aircraft dynamics, control algorithms, and flight visualization.  Written in C.
 
 ## 📋 Features
 
-- **6-DOF**: High fidelity 6DOF flight dynamics  
-- **Control System**: Control system design & testing environment  
-- **Modular:** Modular, scalable, and extensible C-based simulation core for new modules, models, and aircraft types  
-- **Sensor Simulation**: Sensor suite simulation for testing estimators and control systems robustness
-- **Monte Carlo**: Monte Carlo simulation for robustness and uncertainty analysis  
-- **Environment**: Wind, gusts, and atmospheric modeling  
-- **Data**: Automatic data logging & plotting  
-- **Visualization**: Integration with FlightGear for 3D visualization and recording
-- **Clean**: Clean project structure for easy development  
+| Feature | Description |
+| :--- | :--- |
+| **6-DOF** | High fidelity 6DOF flight dynamics |
+| **Control System** | Cascaded PID control system with trim solving and linearization |
+| **Sensor Simulation** | Sensor suite simulation for testing estimators and control systems robustness |
+| **Aerodynamics** | Modular nonlinear aerodynamic databases that can be easily swapped for different models |
+| **Monte Carlo** | Monte Carlo simulation for robustness and uncertainty analysis |
+| **Environment** | Wind, gusts, and atmospheric modeling |
+| **Modular** | Modular C-based core supporting easy development of new modules, models, and aircraft types |
+| **Data** | Automatic data logging & plotting using custom plotting software |
+| **Visualization** | Integration with FlightGear for 3D visualization and recording |
+| **Development Platform** | Platform for developing advanced GNC algorithms (Kalman Filters, nonlinear/ ML control systems, etc.) |
+| **Clean** | Clean project structure for easy development |
 
 
 ## 📊 Example Output
@@ -66,8 +70,8 @@ python scripts/run_post_proc.py --data_log output/data_log.csv --plot_csv --simp
 ## 🔄 Simulation Flow  
 
 1. **Initialization**  
-   - Load aircraft parameters, I.C. state vector, control vector, etc.
-   - Initialize sensors and actuators  
+   - Load all models, aircraft parameters, initial conditions, etc.
+   - Initialize sensors, actuators, estimators, control systems, etc.
 
 2. **Main Loop** (per time step `dt`)  
 ```c
@@ -83,21 +87,18 @@ while(simTime_s < tFinal_s){
 
     // [4] Compute and actuate flight controls
     computeFlightControlCmd(X_est, guidanceRefs, controlSystem);
+    
     driveActuators(controlSystem.cmd, actuators);
 
-    // [5] Compute Forces and Moments
-    computeForcesAndMoments(X, actuators, F_tot, M_tot);
-    
-    // [6] Compute state derivative from EOM
-    computeStateDerivative(X, F_tot, M_tot, Xdot);
+    // [5] Compute state derivative from EOM
+    computeStateDerivative(X, actuators, Xdot);
 
-    // [7] Log step
+    // [6] Log step
     loggerLogStep(simTime_s);
 
-    // [8] Integrate one step   
-    integrateRK4Step(X, Xdot, dt_s);
+    // [7] Integrate and step forward
+    RK4_integrateStep(X, Xdot, dt_s);
 
-    // [9] Step time
     simTime_s += dt_s;
 }
 ```
@@ -200,11 +201,14 @@ FlighLab/
 - [x] Implement quaternions
 - [x] Develop robust data logging pipeline and plotting toolset
 - [x] Connect with FlightGear for 3D visualization
-- [X] Develop complementary filter estimator
-- [X] Develop Extended Kalmon filter
-- [ ] Design autopilot & control laws (PID, ML etc.) 
+- [X] Develop complementary filter state estimator
+- [X] Develop Extended Kalmon filter state estimator
+- [ ] Implement trim solver/ linearization
+- [ ] Design cascaded PID control system
 - [ ] Develop guidance algorithms
-- [ ] Increase fidelity (arodynamics, sensors, environment, mass, etc.)
+- [ ] Implement wind, gusts, and atmospheric modeling
 - [ ] Monte-Carlo simulation for robustness studies  
 - [ ] Real-time simulator mode  
 - [ ] Expand aircraft database  
+- [ ] Develop advanced GNC algorithms (nonlinear control, ML control, etc.)
+- [ ] Increase fidelity (arodynamics, sensors, environment, mass, etc.)
