@@ -19,27 +19,22 @@
  * @param[out] F_tot     Pointer to the total force vector in the body frame.
  * @param[out] M_tot     Pointer to the total moment vector in the body frame.
  */
-void computeForcesAndMoments(const StateVector* X, const Actuators* actuators, const AircraftParams* acParams, 
-                             Vector3* F_tot, Vector3* M_tot){
+void computeForcesAndMoments(const StateVector* X, const Actuators* actuators, const AircraftParams* acParams, AeroData* aeroData){
     
-    Vector3 F_aero = {0.0}, M_aero = {0.0};
-    Vector3 F_prop = {0.0}, M_prop = {0.0};
-    Vector3 F_grav = {0.0};
-    
-    computeAerodynamicForces(X, actuators, acParams, &F_aero, &M_aero);
+    computeAerodynamicForces(X, actuators, acParams, aeroData);
 
-    computePropulsionForces(actuators, acParams, &F_prop, &M_prop);
+    computePropulsionForces(actuators, acParams, &aeroData->F_prop_net, &aeroData->M_prop_net);
     
-    computeGravityForces(X, acParams, &F_grav);
+    computeGravityForces(X, acParams, &aeroData->F_grav_net);
     
     // Sum forces
-    *F_tot = vec3_add(F_aero, vec3_add(F_prop, F_grav) );
-    *M_tot = vec3_add(M_aero, M_prop);
+    aeroData->F_tot = vec3_add(aeroData->F_aero_net, vec3_add(aeroData->F_prop_net, aeroData->F_grav_net) );
+    aeroData->M_tot = vec3_add(aeroData->M_aero_net, aeroData->M_prop_net);
 
-    logger.data[LOG_FORCES_F_TOT_X] = F_tot->x;
-    logger.data[LOG_FORCES_F_TOT_Y] = F_tot->y;
-    logger.data[LOG_FORCES_F_TOT_Z] = F_tot->z;
-    logger.data[LOG_MOMENTS_M_TOT_X] = M_tot->x;
-    logger.data[LOG_MOMENTS_M_TOT_Y] = M_tot->y;
-    logger.data[LOG_MOMENTS_M_TOT_Z] = M_tot->z;
+    logger.data[LOG_FORCES_F_TOT_X] = aeroData->F_tot.x;
+    logger.data[LOG_FORCES_F_TOT_Y] = aeroData->F_tot.y;
+    logger.data[LOG_FORCES_F_TOT_Z] = aeroData->F_tot.z;
+    logger.data[LOG_MOMENTS_M_TOT_X] = aeroData->M_tot.x;
+    logger.data[LOG_MOMENTS_M_TOT_Y] = aeroData->M_tot.y;
+    logger.data[LOG_MOMENTS_M_TOT_Z] = aeroData->M_tot.z;
 }

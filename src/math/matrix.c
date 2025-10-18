@@ -153,3 +153,54 @@ void matrixMultiply(const double* A, int n, int m, const double* B, int m2, int 
         }
     }
 }
+
+/**
+ * @brief Multiplies a matrix (M x N) by a vector (N x 1), resulting in a vector (M x 1).
+ * * * Operation: y = M * x
+ * * Matrix must be stored in row-major order.
+ *
+ * @param vector The N-dimensional input vector (N elements).
+ * @param matrix The M x N matrix, stored as a flat array of M * N elements.
+ * @param rows The number of rows in the matrix (M, the length of the result vector).
+ * @param cols The number of columns in the matrix (N, must match vector length).
+ * @param result The M-dimensional output vector.
+ */
+void mat_mult_vec(const double *vector, const double *matrix, int rows, int cols, double *result) {
+
+    // Outer loop iterates through rows (i) of the matrix M (M = rows)
+    for (int i = 0; i < rows; i++) {
+        double dot_product = 0.0;
+        
+        // Inner loop iterates through columns (j) of the matrix M (N = cols)
+        for (int j = 0; j < cols; j++) {
+            // Matrix element M[i][j] is at matrix[i * cols + j]
+            // Calculate: M[i][j] * x[j]
+            dot_product += matrix[i * cols + j] * vector[j];
+        }
+        
+        // Store the result y[i]
+        result[i] = dot_product;
+    }
+}
+
+
+double calculate_quadratic_form(const double *q, const double *H, int size) {
+
+    double total_result = 0.0;
+
+    // Sum over i (q[i] * (H*q)[i])
+    for (int i = 0; i < size; i++) {
+        double intermediate_component = 0.0; // This stores the i-th component of (H * q)
+
+        // Calculate the i-th component of the H * q vector: sum over j (H[i][j] * q[j])
+        for (int j = 0; j < size; j++) {
+            intermediate_component += H[i * size + j] * q[j]; 
+        }
+
+        // Add the term q[i] * (H*q)[i] to the total result
+        total_result += q[i] * intermediate_component;
+    }
+    
+    return total_result;
+}
+

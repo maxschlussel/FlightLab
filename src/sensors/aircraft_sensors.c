@@ -19,13 +19,12 @@ void readSensors(const SensorInput* sensorInput, Sensors* sensors){
     const AircraftParams* acParams = sensorInput->acParams;
     double dt = sensorInput->dt;
 
-    Vector3 F = {0.0};
-    Vector3 M = {0.0};
+    AeroData aerodata = {0.0};
     double Xdot[12] = {0.0};
 
     // [1] Compute sensor input value Xdot at current time
-    computeForcesAndMoments(X, actuators, acParams, &F, &M);
-    computeStateDerivative(X, acParams, &F, &M, Xdot);
+    computeForcesAndMoments(X, actuators, acParams, &aerodata);
+    computeStateDerivative(X, acParams, &aerodata.F_tot, &aerodata.M_tot, Xdot);
 
     // [2] Compute sensor readings
     readIMUSensor(X, Xdot, dt, &(sensors->imuSensor));

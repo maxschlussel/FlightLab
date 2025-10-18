@@ -30,8 +30,20 @@
  *                                  with the new actuator commands.
  * @param[in]     dt_s              The time step in seconds since the last update.
  */
-void computeFlightControlPID(const StateVector* X_est, const GuidanceRefs* guidanceRefs, const AircraftParams* acParams, 
-                             ControlSystemPID* controlSystemPID, double dt_s) {
+void PID_computeFlightControl(const StateVector* X_est, const GuidanceRefs* guidanceRefs, const AircraftParams* acParams, 
+                             Actuators* actuators, double dt, ControlSystemPID* controlSystemPID, double dt_s) {
+    // Development in progress...
+
+    // computeFlightControl()           
+    // ├─ computeLongitudinalControl()  
+    // │  ├─ computeAltitudeHold()      
+    // │  ├─ computePitchControl()      
+    // │  └─ computeSpeedControl()      
+    // │
+    // └─ computeLateralControl()   
+    // ├─ computeHeadingHold()      
+    // └─ computeRollControl()      
+    
     // [0] Defne Useful Quantities
     Vector3 w_b = {X_est->p, X_est->q, X_est->r}; // Angular rates in body frame - omega_b
     Vector3 V_b = {X_est->u, X_est->v, X_est->w}; // Velocities in body frame - V_b
@@ -45,6 +57,8 @@ void computeFlightControlPID(const StateVector* X_est, const GuidanceRefs* guida
 
     PID* heading2rollPID = &(controlSystemPID->heading2rollPID);
     PID* roll2aileronPID = &(controlSystemPID->roll2aileronPID);
+
+    // solveTrimLM(X_est, &(controlSystemPID->U_cmd), acParams);
 
     double velocity = vec3_norm(V_b);
     double Q = 0.5 * rho * pow(velocity, 2);  // Dynamic pressure

@@ -85,11 +85,11 @@ Vector3 estimateAttitudeCF(const Sensors* sensors, StateVector* X_est, double dt
     double psiGyro   = psi   + euler_dot.z * dt;
 
     // [2] Calculate estimated anglesfrom Accel
-    double ax = accel->x;
-    double ay = accel->y;
-    double az = accel->z;
+    double ax = -accel->x;
+    double ay = -accel->y;
+    double az = -accel->z;
 
-    double phiAccel = atan2(-ay, -az);
+    double phiAccel = atan2(ay, az);
     double thetaAccel = atan2(ax, sqrt(ay*ay + az*az));
     
     // [3] Apply complementary filter blend to phi and theta

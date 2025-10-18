@@ -1,5 +1,6 @@
 # pragma once
 
+#include "src/actuators/actuators.h"
 #include "src/controllers/PID/PID.h"
 #include "src/core/aircraft_params.h"
 #include "src/core/control_vector.h"
@@ -27,5 +28,5 @@ typedef struct {
 } ControlSystemPID;
 
 
-void computeFlightControlPID(const StateVector* X_est, const GuidanceRefs* guidanceRefs, const AircraftParams* acParams, 
-                             ControlSystemPID* controlSystemPID, double dt_s);
+void PID_computeFlightControl(const StateVector* X_est, const GuidanceRefs* guidanceRefs, const AircraftParams* acParams, 
+                             Actuators* actuators, double dt, ControlSystemPID* controlSystemPID, double dt_s);

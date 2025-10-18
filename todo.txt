@@ -1,14 +1,13 @@
-EKF
-Complementary filter fix
-quats
 Controls
 - trim
+    - analhytical from eq
+        - Get equations fromn database?
+    - perterbations (from database)
 
+- Aero database
 - Fix simple estimator
-- quats
 - Dvelop Sensors: pitot tube and altimeter
 - EKF
-- Aero database
 - Better PID
 - parse C cmd params properly
     - make config examples/basic_aircraft real functionality
@@ -22,13 +21,19 @@ Controls
     - make better graphs (dark theme)/ gifs
     - make better flightgear gif (with lines of data in bottom right pos vel clock etc)
 - Learn form githubs
+- Folder names (estimation, control, guidance, aircraft etc)
+- Complementary filter fix accel reading
 - Learn from yt
 - Port to c++?
+- Variable length arrays/ handle passing matricies / matrix functions better
+- Fix EKF
+- Go thru code and unify func naming (EKF_getx)
 - Test: - const rotation
         - slow moment accel
         - still blows up wtih only pure moment
 - Create unit tests
-- Change make to c
+- Change make to cmake
+- acParam name to acModel
 - Process sensors seperatly in EKF for dif refresh rates (seperate matricies)
 - Include in EKF forces and moments in F
 - Seperate aircraft control vs sim
@@ -46,6 +51,7 @@ Controls
     - linearize model
     - calc trim conditions (Trim solver & steady-state analysis)
     - scheduled gains
+    - PID → LQR → MPC
 - Sensors
     - Make sensors (which) w valid delays/ params
     - random seed for sensors
@@ -60,9 +66,13 @@ Controls
     - basic guidance laws -m guidance commands (loiter, waypoint, path) into references (altitude, speed, heading, attitude)
     - preplanned mission commands
     - pilot input (gui)
-- cmake
+- naming add SNS_readSensor? etc
+- function parameter naming convention x_output?
+- Update project structure in readme
 - Redo sensor random wlak when using seed in montecarlo
-- Start each imu ssensor with some sort of bias
+- Start each imu sensor with some sort of bias
+- Defualt datalog path so user doesnt need to inut at runtime
+- add config file to make build run command so looks like make build run --congif etc
 - clean aerodynamics function structure to be per aricraft (modular)
 - add const to docstrings?
 - Better logger/ xdot fully computed in rk4
@@ -72,9 +82,9 @@ Controls
 - solidify units/ var names/ agnostic funcitons
 - different run freq loops/ modules
 - Get and Set for control vars to clean interface
+- python venv in make script be reg python call
 - quats
 - learn about lineara\irty of force functions (isnt F=C * qinf * S always non linear bc of qinf)
-- Fix rot matrix
 - Better aaerodynamics (database from delta)
 - aerodynamics .h no small functions only big ones
 - Eurler angle kinematix matrix func

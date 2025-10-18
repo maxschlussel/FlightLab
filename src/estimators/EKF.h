@@ -2,6 +2,7 @@
 
 #include "src/core/state_vector.h"
 #include "src/sensors/aircraft_sensors.h"
+#include "src/dynamics/aerodynamics.h"
 
 #define N_EKF_STATE 12
 #define N_EKF_MEAS 15
@@ -25,8 +26,7 @@ typedef struct {
 
     double dt;
 
-    Vector3 Forces;
-    Vector3 Moments;
+    AeroData aeroData;
     
     const AircraftParams* acParams; // Pointer to aircraft parameters
     const Sensors* sensors;         // Pointer to current sensor readings

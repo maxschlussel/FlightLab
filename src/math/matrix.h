@@ -26,3 +26,7 @@ void mat_mult(const double* A, const double* B, double* C, int N);
 void mat_add(const double* A, const double* B, double* C, int N);
 
 void matrixMultiply(const double* A, int n, int m, const double* B, int m2, int p, double* C);
+
+void mat_mult_vec(const double *vector, const double *matrix, int rows, int cols, double *result);
+
+double calculate_quadratic_form(const double *q, const double *H, int size);

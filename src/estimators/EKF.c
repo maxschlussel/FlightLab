@@ -18,19 +18,11 @@
 // Module in development...
 
 EKF initEKF(const AircraftParams* acParams, const Actuators* actuators) {
-    EKF ekf = {0.0};
+    EKF ekf = {{0.0}};
     ekf.X[0] = 80.0;
     
     ekf.acParams = acParams;
     ekf.actuators  = actuators;
-
-    // // Initialize covariance matrices
-    // mat_identity(ekf.P, 12);
-    // mat_scale(ekf.P, 12, 1.0);    // Start with large uncertainty
-    // mat_identity(ekf.Q, 12);
-    // mat_scale(ekf.Q, 12, 0.01);   // Small process noise
-    // mat_identity(ekf.R, 12);
-    // mat_scale(ekf.R, 12, 0.1);    // Moderate measurement noise
 
     return ekf;
 }
@@ -42,9 +34,9 @@ void EKF_predictState(EKF* ekf, double dt) {
     array_to_statevec(ekf->X, &X);
     
     // [1] Compute f (state derivative)
-    computeForcesAndMoments(&X, ekf->actuators, ekf->acParams, &(ekf->Forces), &(ekf->Moments));
+    computeForcesAndMoments(&X, ekf->actuators, ekf->acParams, &(ekf->aeroData));
 
-    computeStateDerivative(&X, ekf->acParams, &(ekf->Forces), &(ekf->Moments), ekf->Xdot);
+    computeStateDerivative(&X, ekf->acParams, &(ekf->aeroData.F_tot), &(ekf->aeroData.M_tot), ekf->Xdot);
     
     // [2] Propogate state (simple Euler integration)
     for (int i = 0; i < N_EKF_STATE; i++) {

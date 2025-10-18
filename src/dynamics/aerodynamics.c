@@ -24,7 +24,7 @@
  * @param[out] M         Pointer to a Vector3 where the resulting aerodynamic
  *                       moments in the body frame will be stored.
  */
- void computeAerodynamicForces(const StateVector* X, const Actuators* actuators, const AircraftParams* acParams, Vector3* F, Vector3* M){
+ void computeAerodynamicForces(const StateVector* X, const Actuators* actuators, const AircraftParams* acParams, AeroData* aeroData){
     // [0] Defne Useful Quantities
     Vector3 w_b = {X->p, X->q, X->r}; // Angular rates in body frame - omega_b
     Vector3 V_b = {X->u, X->v, X->w}; // Velocities in body frame - V_b
@@ -34,17 +34,17 @@
     
     // [1] Compute Flight Quantities
     double velocity = vec3_norm(V_b);
-    double Q = 0.5 * rho * pow(velocity, 2);  // Dynamic pressure
+    double q_inf = 0.5 * rho * pow(velocity, 2);  // Dynamic pressure
     double alpha = atan2(X->w, X->u);
     double beta = asin(X->v/velocity); //?????????
 
     // [2] Compute Aerodynamic Force
     double CL = computeCL(acParams, U_123.y, alpha);
-    double Cd = computeCd(alpha);
-    double Cy = computeCy(U_123.z, beta);
-    Vector3 CF_stab = {-Cd, Cy, -CL};
+    double CD = computeCd(alpha);
+    double CY = computeCy(U_123.z, beta);
+    Vector3 CF_stab = {-CD, CY, -CL};
 
-    double QSfactor = Q * acParams->S;
+    double QSfactor = q_inf * acParams->S;
 
     Vector3 F_stab = vec3_scale(CF_stab, QSfactor);
 
@@ -56,7 +56,7 @@
     // [3] Computer Aerodynamic Moment
     Vector3 CM_aero = computeCM(acParams, alpha, beta, velocity, &w_b, &U_123);
 
-    double QSCfactor = Q * acParams->S * acParams->chord;
+    double QSCfactor = q_inf * acParams->S * acParams->chord;
 
     Vector3 M_ac_body = vec3_scale(CM_aero, QSCfactor);
 
@@ -64,24 +64,44 @@
 
     Vector3 M_body = vec3_add(M_ac_body, M_cg_body);
 
-    *F = F_body;
-    *M = M_body;
+    // [4]] Return AeroData
+    aeroData->F_aero_net = F_body;
+    aeroData->M_aero_net = M_body;
+    
+    aeroData->CL = CL;
+    aeroData->CD = CD;
+    aeroData->CY = CY;
+    aeroData->Cl = CM_aero.x;
+    aeroData->Cm = CM_aero.y;
+    aeroData->Cn = CM_aero.z;
 
-    logger.data[LOG_QINF] = Q;
+    aeroData->Lift = F_stab.z;
+    aeroData->Drag = F_stab.x;
+    aeroData->SideForce = F_stab.y;
+    aeroData->PitchingMoment = CM_aero.x;
+    aeroData->RollingMoment = CM_aero.y;
+    aeroData->YawingMoment = CM_aero.z;
+    
+    aeroData->q_inf = q_inf;
+    aeroData->alpha = alpha;
+    aeroData->beta = beta;
+    aeroData->velocity = velocity;
+
+    logger.data[LOG_QINF] = q_inf;
     logger.data[LOG_ALPHA] = alpha;
     logger.data[LOG_BETA] = beta;
     logger.data[LOG_AERO_COEF_CL] = CL;
-    logger.data[LOG_AERO_COEF_CD] = Cd;
-    logger.data[LOG_AERO_COEF_CY] = Cy;
+    logger.data[LOG_AERO_COEF_CD] = CD;
+    logger.data[LOG_AERO_COEF_CY] = CY;
     logger.data[LOG_AERO_COEF_Cl] = CM_aero.x;
     logger.data[LOG_AERO_COEF_Cm] = CM_aero.y;
     logger.data[LOG_AERO_COEF_Cn] = CM_aero.z;
-    logger.data[LOG_FORCES_F_AERO_X] = F->x;
-    logger.data[LOG_FORCES_F_AERO_Y] = F->y;
-    logger.data[LOG_FORCES_F_AERO_Z] = F->z;
-    logger.data[LOG_MOMENTS_M_AERO_X] = M->x;
-    logger.data[LOG_MOMENTS_M_AERO_Y] = M->y;
-    logger.data[LOG_MOMENTS_M_AERO_Z] = M->z;
+    logger.data[LOG_FORCES_F_AERO_X] = F_body.x;
+    logger.data[LOG_FORCES_F_AERO_Y] = F_body.y;
+    logger.data[LOG_FORCES_F_AERO_Z] = F_body.z;
+    logger.data[LOG_MOMENTS_M_AERO_X] = M_body.x;
+    logger.data[LOG_MOMENTS_M_AERO_Y] = M_body.y;
+    logger.data[LOG_MOMENTS_M_AERO_Z] = M_body.z;
 }
 
 

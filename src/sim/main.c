@@ -54,7 +54,7 @@ int main(int argc, char* argv[]){
     Sensors sensors = initSensors();
     SensorInput sensorInput = {&X, &actuators, &acParams, dt_s};
     
-    Vector3 F_tot = {0.0}, M_tot = {0.0};
+    AeroData aeroData = {0.0};
 
     EKF ekf = initEKF(&acParams, &actuators);
     
@@ -72,20 +72,20 @@ int main(int argc, char* argv[]){
 
         // [2] State estimation
         estimateStateSimple(&sensors, &X_est, dt_s);
-        // estimateStateEKF(&ekf, &sensors, dt_s);
 
         // [3] Guidance references
         updateGuidanceRefs(&guidanceRefs);
 
         // [4] Compute and actuate flight controls
-        computeFlightControlPID(&X_est, &guidanceRefs, &acParams, &controlSystemPID, dt_s);  // X_est
+        PID_computeFlightControl(&X, &guidanceRefs, &acParams, &actuators, dt_s, &controlSystemPID, dt_s);  // X_est
+        
         driveActuators(&controlSystemPID.U_cmd, &actuators, dt_s);
 
         // [5] Compute Forces and Moments
-        computeForcesAndMoments(&X, &actuators, &acParams, &F_tot, &M_tot);
+        computeForcesAndMoments(&X, &actuators, &acParams, &aeroData);
         
         // [6] Compute state derivative from EOM
-        computeStateDerivative(&X, &acParams, &F_tot, &M_tot, Xdot);
+        computeStateDerivative(&X, &acParams, &aeroData.F_tot, &aeroData.M_tot, Xdot);
 
         // [7] Log step
         loggerLogStep(simTime_s);
