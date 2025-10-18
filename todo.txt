@@ -1,107 +1,106 @@
-Controls
-- trim
-    - analhytical from eq
-        - Get equations fromn database?
-    - perterbations (from database)
+- Controls
+    - trim solver
+        - Analytical from aero eq
+            - Get equations from database?
+        - Perterbations (from database)
+        - Others
+    - Better PID Control
+        - make PID cascaded controls
+            - outer loops vs inner loops 
+            - apply control theory to make controls
+        - Tune PIDs
+        - Controls pos vs neg?
+        - neg control gain integral opposes correction (roll loop)
+        - Fast vs slow sensors/ lopps
+        - linearize model
+        - scheduled gains
+        - PID → LQR → MPC → ML
 
-- Aero database
-- Fix simple estimator
-- Dvelop Sensors: pitot tube and altimeter
-- EKF
-- Better PID
-- parse C cmd params properly
-    - make config examples/basic_aircraft real functionality
-- Better logging
-- Dif freq loops
-- Earth effects
-
-- Better readme
-    - Flightgear gif under intro (like https://github.com/jrsteensen/OpenHornet?tab=readme-ov-file)
-    - go thru githubs
-    - make better graphs (dark theme)/ gifs
-    - make better flightgear gif (with lines of data in bottom right pos vel clock etc)
-- Learn form githubs
-- Folder names (estimation, control, guidance, aircraft etc)
-- Complementary filter fix accel reading
-- Learn from yt
-- Port to c++?
-- Variable length arrays/ handle passing matricies / matrix functions better
-- Fix EKF
-- Go thru code and unify func naming (EKF_getx)
-- Test: - const rotation
-        - slow moment accel
-        - still blows up wtih only pure moment
-- Create unit tests
-- Change make to cmake
-- acParam name to acModel
-- Process sensors seperatly in EKF for dif refresh rates (seperate matricies)
-- Include in EKF forces and moments in F
-- Seperate aircraft control vs sim
-- Make mat mult (and others) safer so two input pointers to the same place dont corrupt (mat_mult(&A, &B, &A, N))
-- Make everthing arrays instead of structs?
-- Expand state vector?
-- PID control
-    - make PID cascaded controls
-        - outer loops vs inner loops 
-        - apply control theory to make controls
-    - Tune PIDs
-    - Controls pos vs neg?
-    - neg control gain integral opposes correction (roll loop)
-    - Fast vs slow sensors/ lopps
-    - linearize model
-    - calc trim conditions (Trim solver & steady-state analysis)
-    - scheduled gains
-    - PID → LQR → MPC
 - Sensors
-    - Make sensors (which) w valid delays/ params
+    - Improve pitot tube and altimeter
+    - Improve sensors (which) and delays/ params
     - random seed for sensors
+        - Redo sensor random wlak when using seed in montecarlo
     - sensor sample rates
+    - Start each imu sensor with some sort of bias
+
 - Actuators
-    - Make actuators real
-    - second order or first order?
-- Estimate state
-    - complementary filter
-    - ekf
-- guidance
-    - basic guidance laws -m guidance commands (loiter, waypoint, path) into references (altitude, speed, heading, attitude)
+    - Improve actuators and delays
+        - second order or first order delay
+
+- Guidance
+    - basic guidance algos 
+        - guidance commands (loiter, waypoint, path) into references (altitude, speed, heading, attitude)
     - preplanned mission commands
     - pilot input (gui)
-- naming add SNS_readSensor? etc
-- function parameter naming convention x_output?
-- Update project structure in readme
-- Redo sensor random wlak when using seed in montecarlo
-- Start each imu sensor with some sort of bias
-- Defualt datalog path so user doesnt need to inut at runtime
-- add config file to make build run command so looks like make build run --congif etc
-- clean aerodynamics function structure to be per aricraft (modular)
-- add const to docstrings?
-- Better logger/ xdot fully computed in rk4
-- add logging to pid vals
-- Remove 2 names for log enums and make it so it goes off of emun name alone
-- Add time delay to sensors
-- solidify units/ var names/ agnostic funcitons
-- different run freq loops/ modules
-- Get and Set for control vars to clean interface
-- python venv in make script be reg python call
-- quats
-- learn about lineara\irty of force functions (isnt F=C * qinf * S always non linear bc of qinf)
-- Better aaerodynamics (database from delta)
-- aerodynamics .h no small functions only big ones
-- Eurler angle kinematix matrix func
-- getInertialVelocity function for eom and gps sensor calcs
-- Test X log at end
-    - Better logging system
-- make sim controls one line - sim runs regardles of if controls are config or not
-- Add env (wind, gusts, pressure, density, temp etc)
-    - env is input to sensor reading
-- Add earth/ gorund forces
-- agg ground effect
-- unerstand why imu sensor bias random walk is * sqrt(dt)
-- Clean up:
-    - State Vector.c/h
-    - Matrix N x M functions
-    - Aircraft sensors/ sensors file / naming struct
-    - Sensors 2 array in aircraft sensors
+
+- Estamators
+    - Fix simple estimator
+    - Improve EKF
+        - Process sensors seperatly in EKF for dif refresh rates (seperate matricies)
+
+- Env
+    - Add env (wind, gusts, pressure, density, temp etc)
+        - env is input to sensor reading
+    - Earth effects
+        - Add earth/ gorund forces
+        - agg ground effect
+
+
+- Style/ Config
+    - parse C cmd params properly
+        - make config examples/basic_aircraft real functionality
+    - Folder names (estimation, control, guidance, aircraft etc)
+    - solidify units/ var names/ agnostic funcitons
+        - Go thru code and unify func naming (EKF_getx)
+    - Change make to cmake
+    - acParam name to acModel
+    - naming add SNS_readSensor? etc
+    - function parameter naming convention x_output?
+    - Defualt datalog path so user doesnt need to inut at runtime
+    - add config file to make build run command so looks like make build run --congif etc
+    - add const to docstrings?
+    - Get and Set for control vars to clean interface
+    - python venv in make script be reg python call
+    - Eurler angle kinematix matrix func
+    - getInertialVelocity function for eom and gps sensor calcs
+    - Seperate sim from aircraft
+        - make sim controls one line - sim runs regardles of if controls are config or not
+
+- Improvments
+    - Aero database
+        - clean aerodynamics function structure to be per aricraft (modular)
+    - Dif freq loops
+    - Better logging
+        - xdot fully computed in rk4
+        - add logging to pid vals
+        - Remove 2 names for log enums and make it so it goes off of emun name alone
+    - Learn form githubs, yt
+    - Port to c++?
+    - Variable length arrays/ handle passing matricies / matrix functions better
+    - Make mat mult (and others) safer so two input pointers to the same place dont corrupt (mat_mult(&A, &B, &A, N))
+    - Make everthing arrays instead of structs?
+    - Expand state vector?
+    - Update project structure in readme
+    - Better readme
+        - Flightgear gif under intro (like https://github.com/jrsteensen/OpenHornet?tab=readme-ov-file)
+        - go thru githubs
+        - make better graphs (dark theme)/ gifs
+        - make better flightgear gif (with lines of data in bottom right pos vel clock etc)
+    - quats
+    - learn about lineara\irty of force functions (isnt F=C * qinf * S always non linear bc of qinf)
+    - unerstand why imu sensor bias random walk is * sqrt(dt)
+    - Clean up:
+        - State Vector.c/h
+        - Matrix N x M functions
+        - Aircraft sensors/ sensors file / naming struct
+        - Sensors 2 array in aircraft sensors
+
+- Test: 
+    - const rotation
+    - slow moment accel
+    - still blows up wtih only pure moment
+    - Create unit tests
 
 
 END:
