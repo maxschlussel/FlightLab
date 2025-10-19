@@ -45,6 +45,7 @@
     - Earth effects
         - Add earth/ gorund forces
         - agg ground effect
+    - Rotating earth
 
 
 - Style/ Config
@@ -66,6 +67,7 @@
     - getInertialVelocity function for eom and gps sensor calcs
     - Seperate sim from aircraft
         - make sim controls one line - sim runs regardles of if controls are config or not
+    - Dynamics -> forces folder?
 
 - Improvments
     - Aero database

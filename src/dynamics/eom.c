@@ -51,7 +51,7 @@ void computeStateDerivative(const StateVector* X, const AircraftParams* acParams
     double I_inv[3][3];
     mat3_inv(acParams->I, I_inv);
     
-    // ---- wdot_b = I_inv * (M - w_b X I*w_b) ----
+    // ---- wdot_b = I_inv * (M - omega_b X I*omega_b) ----
     Vector3 wdot_b = mat3_mult_vec3(I_inv, vec3_sub(*M, vec3_cross(w_b, mat3_mult_vec3(acParams->I, w_b))));
 
     // [3] Compute Euler angle kinematics
