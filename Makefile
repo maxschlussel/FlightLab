@@ -2,7 +2,10 @@
 
 CC = gcc
 CFLAGS = -Wall -O0 -g -I. -I./src
-SRC = $(wildcard src/*/*/*/*.c) $(wildcard src/*/*/*.c) $(wildcard src/*/*.c) $(wildcard *.c)
+SRC = $(wildcard src/*.c) \
+	  $(wildcard src/*/*.c) \
+	  $(wildcard src/*/*/*.c) \
+	  $(wildcard src/*/*/*/*.c)
 
 LOG_PATH = output/data_log.csv
 EXE = build/flightlab.exe
