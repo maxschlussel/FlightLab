@@ -12,9 +12,10 @@ A modular aerospace simulation platform for aircraft dynamics, control algorithm
 | Feature | Description |
 | :--- | :--- |
 | **6-DOF** | High fidelity 6DOF flight dynamics |
-| **Control System** | Cascaded PID control system with trim solving and linearization |
+| **Control System** | Cascaded PID control system with linearization analysisand gain scheduling |
 | **Sensor Simulation** | Sensor suite simulation for testing estimators and control systems robustness |
 | **Aerodynamics** | Modular nonlinear aerodynamic databases that can be easily swapped for different models |
+| **Trim Solver** | Numerical trim state solving tool for various flight trim conditions |
 | **Monte Carlo** | Monte Carlo simulation for robustness and uncertainty analysis |
 | **Environment** | Wind, gusts, and atmospheric modeling |
 | **Modular** | Modular C-based core supporting easy development of new modules, models, and aircraft types |
