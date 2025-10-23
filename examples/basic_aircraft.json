@@ -1,0 +1,80 @@
+{
+  "aircraft": {
+    "name": "Boeing 737-800",
+    "mass": 120000.0,
+    "geometry": {
+      "chord": 6.6,
+      "tail_arm": 24.8,
+      "S": 260.0,
+      "S_tail": 64.0
+    },
+    "aero": {
+      "alpha_L0_deg": -11.5,
+      "slope_CL_Alpha": 5.5,
+      "a3": -768.5,
+      "a2": 609.2,
+      "a1": -155.2,
+      "a0": 15.212,
+      "alphaNonlinear_deg": 14.5,
+      "dEpsDa": 0.25
+    },
+    "inertia": {
+      "Ixx": 4884000.0,
+      "Iyy": 7680000.0,
+      "Izz": 11990400.0,
+      "Ixy": 0.0,
+      "Ixz": 0.0,
+      "Iyz": 0.0
+    },
+    "cg": { "x": 1.518, "y": 0.0, "z": 0.66 },
+    "ac": { "x": 0.792, "y": 0.0, "z": 0.0 },
+    "engine1": { "x": 0.0, "y": -7.94, "z": -1.9 },
+    "engine2": { "x": 0.0, "y": 7.94, "z": -1.9 }
+  },
+
+  "initial_state": {
+    "u": 125.0,
+    "v": 0.0,
+    "w": 0.0,
+    "p": 0.0,
+    "q": 0.0,
+    "r": 0.0,
+    "phi": 0.1,
+    "theta": 0.1,
+    "psi": 0.1,
+    "x": 0.0,
+    "y": 0.0,
+    "z": -1000.0
+  },
+
+  "control_system": {
+    "alt2pitchPID": { "kp": -0.0012, "ki": -0.0001, "kd": 0.0, "outMin_deg": -30.0, "outMax_deg": 20.0 },
+    "pitch2elvPID": { "kp": -0.7, "ki": -0.45, "kd": 0.0, "outMin_deg": -14.8, "outMax_deg": 20.2 },
+    "airspeed2throtPID": { "kp": 0.0015, "ki": 0.00001, "kd": 0.0, "outMin_deg": -4.2, "outMax_deg": 5.3 },
+    "heading2rollPID": { "kp": 2.5, "ki": 0.0, "kd": 0.0, "outMin_deg": -45.0, "outMax_deg": 45.0 },
+    "roll2aileronPID": { "kp": -1.1, "ki": -0.055, "kd": 0.0, "outMin_deg": -25.0, "outMax_deg": 25.0 },
+    "initial_controls": { "aileron_deg": 0.0, "elevator_deg": -5.0, "rudder_deg": 0.0, "throttle1": 0.0, "throttle2": 0.0 }
+  },
+
+  "actuators": {
+    "aileron": { "max_deg": 25.0, "min_deg": -25.0, "rate_lim_deg_s": 25.0, "tau": 0.05 },
+    "elevator": { "max_deg": 10.0, "min_deg": -25.0, "rate_lim_deg_s": 15.0, "tau": 0.05 },
+    "rudder": { "max_deg": 30.0, "min_deg": -30.0, "rate_lim_deg_s": 25.0, "tau": 0.05 },
+    "throttle": { "engine1": 0.0, "engine2": 0.0 }
+  },
+
+  "sensors": {
+    "altimeter": { "alt": 0.0 },
+    "gps": {
+      "pos": { "sigmaWalk": 0.0001, "sigmaNoise": 0.01 },
+      "vel": { "sigmaWalk": 0.0001, "sigmaNoise": 0.01 }
+    },
+    "imu": {
+      "accel": { "sigmaWalk": 0.0001, "sigmaNoise": 0.01 },
+      "gyro": { "sigmaWalk": 0.00001, "sigmaNoise": 0.001 }
+    },
+    "pitot": { "vel": 0.0 },
+    "magnetometer": { "sigmaWalk": 0.00001, "sigmaNoise": 0.001 }
+  }
+
+}
