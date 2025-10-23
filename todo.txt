@@ -1,9 +1,8 @@
+- One aircraft class
 - Controls
-    - trim solver
-        - Analytical from aero eq
-            - Get equations from database?
-        - Perterbations (from database)
-        - Others
+- EKF
+
+- Controls
     - Better PID Control
         - make PID cascaded controls
             - outer loops vs inner loops 
@@ -47,14 +46,19 @@
         - agg ground effect
     - Rotating earth
 
+- Trackers
+    - Develop dround trackers, track fusion etc.
+
 
 - Style/ Config
+    - Change matrix to double* var (row major indexing)
     - parse C cmd params properly
         - make config examples/basic_aircraft real functionality
     - Folder names (estimation, control, guidance, aircraft etc)
     - solidify units/ var names/ agnostic funcitons
         - Go thru code and unify func naming (EKF_getx)
     - Change make to cmake
+    - Trim solver standalone exe/ program with GUI
     - acParam name to acModel
     - naming add SNS_readSensor? etc
     - function parameter naming convention x_output?
@@ -68,6 +72,8 @@
     - Seperate sim from aircraft
         - make sim controls one line - sim runs regardles of if controls are config or not
     - Dynamics -> forces folder?
+    - Remove Union in guidance? too bulky switch statements everywhere?
+    - Remove extra headers in each file
 
 - Improvments
     - Aero database
@@ -90,6 +96,14 @@
         - make better graphs (dark theme)/ gifs
         - make better flightgear gif (with lines of data in bottom right pos vel clock etc)
     - quats
+    - Learn more about dif style trim solvers
+        - Analytical from aero eq
+            - Get equations from database?
+        - Perterbations (from database)
+        - Others
+        - Add ENUM for all options
+    - Trim better way to handle acParams in cost
+    - Add more trim types and costs (costs.c/h)
     - learn about lineara\irty of force functions (isnt F=C * qinf * S always non linear bc of qinf)
     - unerstand why imu sensor bias random walk is * sqrt(dt)
     - Clean up:

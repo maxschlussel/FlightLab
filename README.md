@@ -203,7 +203,7 @@ FlighLab/
 - [x] Connect with FlightGear for 3D visualization
 - [X] Develop complementary filter state estimator
 - [X] Develop Extended Kalmon filter state estimator
-- [ ] Implement trim solver/ linearization
+- [X] Implement trim solver/ linearization
 - [ ] Design cascaded PID control system
 - [ ] Develop guidance algorithms
 - [ ] Implement wind, gusts, and atmospheric modeling

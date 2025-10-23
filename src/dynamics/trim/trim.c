@@ -1,131 +1,201 @@
-#include "src/dynamics/trim/trim.h"
-#include "src/core/aircraft_params.h"
-#include "src/core/state_vector.h"
-#include "src/core/control_vector.h"
-#include "src/dynamics/aerodynamics.h"
-#include "src/dynamics/forces.h"
-#include "src/dynamics/eom.h"
-#include "src/math/utils.h"
-
-#include <math.h>
 #include <stdio.h>
-#include <string.h>
+#include <stdlib.h>
 
-#define N_STATES 12
-#define N_CONTROLS 5
-#define MAX_ITER 100
-#define TOL 1e-6
-#define LAMBDA_INIT 0.01
+#include "src/aircrafts/boeing_737.h"
+#include "src/core/control_vector.h"
+#include "src/core/state_vector.h"
+#include "src/dynamics/aerodynamics.h"
+#include "src/dynamics/eom.h"
+#include "src/dynamics/forces.h"
+#include "src/dynamics/trim/fmin_search.h"
+#include "src/dynamics/trim/trim.h"
 
 
-// Compute the residual (Xdot) for the trim condition
-void computeTrimResidual(const StateVector *X, const ControlVector *U, const AircraftParams *acParams, AeroData *aeroData, double *residual) {
-        Actuators actuators = {
-        .aileronServo  = { .pos = U->da},
-        .elevatorServo = { .pos = U->de}, 
-        .rudderServo   = { .pos = U->dr}, 
-        .throttle = {U->dthr[0], U->dthr[1]}
-        };
+// Temporary helper funcs
+double calculate_quadratic_form_trim(const double q[N_TRIM_STATES], const double H[N_TRIM_STATES][N_TRIM_STATES]);
+
+void mat_identity_trim(double A[N_TRIM_STATES][N_TRIM_STATES]);
+
+
+/**
+ * @brief Solves for the aircraft trim state using the Nelder-Mead simplex method.
+ *
+ * @param[in] Z0        Initial guess vector for the trim state.
+ * @param[in] trimRefs  Pointer to trim references struct describing the desired trim condition 
+*                       (e.g., straight flight, coordinated turn).
+ * @param[in] trimOpts  Pointer to the trim solving options structure defining post-solve actions 
+ *                      (e.g., printing results, saving to file).
+ * @param[out] Z_return Pre-allocated array where the final optimal trim state vector is stored (output).
+ */
+void solveTrim(double* Z0, TrimRefs* trimRefs, TrimSolveOptions* trimOpts, double* Z_return) {
+    // [1] Setup cost function and params
+    CostFunction costFunc = getCostFunction(trimRefs);
+    // CostFuncParams costFuncParams = {.acParams = acParams};
     
-    computeForcesAndMoments(X, &actuators, acParams, aeroData);
-    computeStateDerivative(X, acParams, &(aeroData->F_tot), &(aeroData->M_tot), residual);
+    // [2] Setup solver options and result
+    NMOptions nmOpts;
+    nm_default_options(&nmOpts);
 
-    residual[9] = 0.0; // x
-    residual[10] = 0.0; // y
-    residual[11] = 0.0; // z
+    nmOpts.TolX = 1e-10;
+    nmOpts.TolFun = 1e-10;
+    nmOpts.MaxIter = 50000;
+    nmOpts.MaxEval = 50000;
+    nmOpts.verbose = 0;
+    
+    double* result_x = (double*)malloc(N_TRIM_STATES * sizeof(double));
+    NMResult results = { .x_opt = result_x};
+
+    // [3] Perform trim solve
+    fminsearch(costFunc, Z0, N_TRIM_STATES, &nmOpts, &results);
+
+    // [4] Save/ display result
+    for (int i = 0; i < N_TRIM_STATES; i++) {
+        Z_return[i] = results.x_opt[i];
+    }
+
+    if (trimOpts->saveToFile) {
+        // Save to file
+    }
+
+    if (trimOpts->printToScreen) {
+        printf("Status: %d (0=converged). Iter %d, func evals %d\n", results.status, results.iterations, results.feval_count);
+        printf("f* = %g\n", results.f_opt);
+        printf("Minimum found at:\n");
+        for (int i = 0; i < N_TRIM_STATES; i++){
+            printf("x[%d]: %f\n", i, Z_return[i]);
+        }
+    }
+
+    // [5] Clean up/ free memory
+    free(result_x); 
+    result_x = NULL;
+    results.x_opt = NULL;
 }
 
-void computeJacobian(const StateVector *X, const ControlVector *U, const AircraftParams *acParams, AeroData *aeroData, double *J
-) {
-    const double h = 1e-6;
-    ControlVector U_perturbed = *U;
-    double residual_plus[N_STATES], residual_minus[N_STATES];
 
-    for (int i = 0; i < N_CONTROLS; i++) {
-        // Perturb control i
-        double *control_ptr = (double *)&U_perturbed + i;
-        *control_ptr += h;
-        computeTrimResidual(X, &U_perturbed, acParams, aeroData, residual_plus);
-
-        *control_ptr -= 2*h;
-        computeTrimResidual(X, &U_perturbed, acParams, aeroData, residual_minus);
-
-        // Central difference
-        for (int j = 0; j < N_STATES; j++) {
-            J[i*N_STATES + j] = (residual_plus[j] - residual_minus[j]) / (2*h);
+void mat_identity_trim(double A[N_TRIM_STATES][N_TRIM_STATES]) {
+    for (int i = 0; i < N_TRIM_STATES; i++) {
+        for (int j = 0; j < N_TRIM_STATES; j++) {
+            A[i][j] = (i == j) ? 1.0 : 0.0; 
         }
-
-        *control_ptr += h; // Restore
-    }
-}
-
-// Solve (J^T J + lambda I) delta_U = -J^T residual
-static void solveLinearSystem(
-    const double *J,
-    const double *residual,
-    double *delta_U,
-    double lambda
-) {
-    double JTJ[N_CONTROLS * N_CONTROLS] = {0};
-    double JT_res[N_CONTROLS] = {0};
-
-    // Compute J^T J
-    for (int i = 0; i < N_CONTROLS; i++) {
-        for (int j = 0; j < N_CONTROLS; j++) {
-            for (int k = 0; k < N_STATES; k++) {
-                JTJ[i*N_CONTROLS + j] += J[i*N_STATES + k] * J[j*N_STATES + k];
-            }
-        }
-        JTJ[i*N_CONTROLS + i] += lambda; // Add damping
-    }
-
-    // Compute J^T residual
-    for (int i = 0; i < N_CONTROLS; i++) {
-        for (int k = 0; k < N_STATES; k++) {
-            JT_res[i] += J[i*N_STATES + k] * residual[k];
-        }
-        JT_res[i] = -JT_res[i];
-    }
-
-    // Solve using Cholesky decomposition (simplified)
-    // For production, replace with LAPACK or similar
-    for (int i = 0; i < N_CONTROLS; i++) {
-        delta_U[i] = JT_res[i] / JTJ[i*N_CONTROLS + i];
     }
 }
 
-int solveTrimLM(const StateVector *X, ControlVector *U, const AircraftParams *acParams) {
-    double residual[N_STATES];
-    double J[N_STATES * N_CONTROLS];
-    double delta_U[N_CONTROLS];
-    double lambda = LAMBDA_INIT;
-    int iter = 0;
 
-    AeroData aeroData;
+double calculate_quadratic_form_trim(const double q[N_TRIM_STATES], const double H[N_TRIM_STATES][N_TRIM_STATES]) {
+    double total_result = 0.0;
 
+    // Sum over i (q[i] * (H*q)[i])
+    for (int i = 0; i < N_TRIM_STATES; i++) {
+        double intermediate_component = 0.0; // This stores the i-th component of (H * q)
 
-    while (iter < MAX_ITER) {
-        // Compute residual and Jacobian
-        computeTrimResidual(X, U, acParams, &aeroData, residual);
-        computeJacobian(X, U, acParams, &aeroData, J);
+        // Calculate the i-th component of the H * q vector: sum over j (H[i][j] * q[j])
+        for (int j = 0; j < N_TRIM_STATES; j++) {
+            intermediate_component += H[i][j] * q[j]; 
+        }
 
-        // Solve for delta_U
-        solveLinearSystem(J, residual, delta_U, lambda);
-
-        // Update controls
-        U->da   += delta_U[0];
-        U->de   += delta_U[1];
-        U->dr   += delta_U[2];
-        U->dthr[0]+= delta_U[3];
-        U->dthr[1]+= delta_U[4];
-
-        // Check convergence
-        double error = 0.0;
-        for (int i = 0; i < N_STATES; i++) error += fabs(residual[i]);
-        if (error < TOL) break;
-
-        iter++;
+        // Add the term q[i] * (H*q)[i] to the total result
+        total_result += q[i] * intermediate_component;
     }
+    
+    return total_result;
+}
 
-    return (iter < MAX_ITER);
+
+CostFunction getCostFunction(const TrimRefs* trimRefs) { //handleTrimMode
+    // Module in development...
+    switch (trimRefs->trimMode) {
+
+        case TRIM_STRAIGHT_LEVEL:
+            return costStraightAndLevel;
+            
+        case TRIM_CLIMB_RATE:
+            break;
+
+        case TRIM_GAMMA_ANGLE:
+            break;
+
+        case TRIM_COORD_TURN:
+            break;
+
+        case TRIM_ENGINE_OUT:
+            break;
+
+        case TRIM_CUSTOM:
+            break;
+
+        default:
+            break;
+    }
+}
+
+
+double costStraightAndLevel(const double* Z,int n){
+    // Cost R
+    // 1-9: Xdot[1-9] = 0
+    // 10:  Va - 85 = 0
+    // 11:  gamma = 0
+    // 12:  v = 0
+    // 13:  phi = 0
+    // 14:  psi = 0
+
+    StateVector X = {
+        .u = Z[0],
+        .v = Z[1],
+        .w = Z[2],
+        .p = Z[3],
+        .q = Z[4],
+        .r = Z[5],
+        .phi    = Z[6],
+        .theta  = Z[7],
+        .psi    = Z[8],
+        .x = 0,
+        .y = 0,
+        .z = 0
+    };
+
+    Actuators actuators = {
+        .aileronServo  = { .pos = Z[9]},
+        .elevatorServo = { .pos = Z[10]}, 
+        .rudderServo   = { .pos = Z[11]}, 
+        .throttle = {Z[12], Z[13]}
+    };
+
+    double Xdot[12] = {0.0};
+
+    AeroData aeroData = {{0.0}};
+    AircraftParams acParams = loadBoeing737AircraftParams();
+
+    computeForcesAndMoments(&X, &actuators, &acParams, &aeroData);
+    computeStateDerivative(&X, &acParams, &(aeroData.F_tot), &(aeroData.M_tot), Xdot);
+
+    double Va = sqrt(Z[0]*Z[0] + Z[1]*Z[1] + Z[2]*Z[2]);
+
+    double theta = Z[7];
+    double alpha = atan2(Z[2], Z[0]);
+    double gamma = theta - alpha;
+
+    double R[14] = {
+        Xdot[0],
+        Xdot[1],
+        Xdot[2],
+        Xdot[3],
+        Xdot[4],
+        Xdot[5],
+        Xdot[6],
+        Xdot[7],
+        Xdot[8],
+        (Va - 85),
+        gamma,
+        Z[1],
+        Z[6],
+        Z[8],
+    };
+
+    double H[N_TRIM_STATES][N_TRIM_STATES];
+    mat_identity_trim(H);
+
+    // F0 = R` H R
+    double F0 = calculate_quadratic_form_trim(R, H);
+    return F0;
 }

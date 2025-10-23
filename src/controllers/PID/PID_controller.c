@@ -1,5 +1,6 @@
 #include "src/controllers/PID/PID_controller.h"
 #include "src/math/utils.h"
+#include "src/dynamics/trim/trim.h"
 
 #include "src/io/logger.h"
 
@@ -58,8 +59,22 @@ void PID_computeFlightControl(const StateVector* X_est, const GuidanceRefs* guid
     PID* heading2rollPID = &(controlSystemPID->heading2rollPID);
     PID* roll2aileronPID = &(controlSystemPID->roll2aileronPID);
 
-    // solveTrimLM(X_est, &(controlSystemPID->U_cmd), acParams);
+    // // Solve trim (if necessary)
+    // double Z_return[N_TRIM_STATES];
+    // TrimRefs trimRefs = {0.0};
+    // trimRefs.trimMode = TRIM_STRAIGHT_LEVEL;
 
+    // TrimSolveOptions trimOpts = {
+    //     .saveToFile = 0,
+    //     .printToScreen = 1
+    // };
+
+    // // initial Z guess
+    // // Z = [u v w p q r phi theta psi ail elev rudd thr1 thr2]
+    // double Z0[N_TRIM_STATES] = {0.0};
+    // Z0[0] = 85.0;
+    // solveTrim(Z0, &trimRefs, &trimOpts, Z_return);
+    
     double velocity = vec3_norm(V_b);
     double Q = 0.5 * rho * pow(velocity, 2);  // Dynamic pressure
     double alpha = atan2(X_est->w, X_est->u);
@@ -110,5 +125,4 @@ void PID_computeFlightControl(const StateVector* X_est, const GuidanceRefs* guid
     logger.data[LOG_U_CMD_DR] = controlSystemPID->U_cmd.dr;
     logger.data[LOG_U_CMD_DTHR1] = controlSystemPID->U_cmd.dthr[0];
     logger.data[LOG_U_CMD_DTHR2] = controlSystemPID->U_cmd.dthr[1];
-
 }
