@@ -75,9 +75,10 @@ void mat_identity(double* A, int n) {
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             int index = i * n + j;
-            A[index] = (i == j) ? 1.0 : 0.0;        }
+            A[index] = (i == j) ? 1.0 : 0.0;        
         }
     }
+}
     
 
 /** Scale an n x n matrix. */
