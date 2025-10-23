@@ -31,12 +31,65 @@ A modular aerospace simulation platform for aircraft dynamics, control algorithm
 - Actuator and sensor output logs (servo positions, IMU readings, magnetometer, GPS, etc.)
 - User custom algorithm logs (estimators, control systems, guidance systems)
 - Interactive timeseries plots in custom plotting software
+- Trim solver reports
 - Flightgear 3D animation of flight 
 - Flight trajectory/ guidance visualization  
 
 <p align="center">
   <img src="docs/images/plots.gif" width="800" />
 </p>
+
+```txt
+============================================================
+           AIRCRAFT TRIM SOLVER REPORT
+============================================================
+Aircraft model:       Cessna172
+Configuration file:   examples/basic_aircraft.json
+Date & Time:          2025-10-23 18:42:09
+------------------------------------------------------------
+Trim Mode:            LEVEL_FLIGHT
+Solver:               fminsearch (Nelder–Mead)
+Convergence Status:   SUCCESS
+Iterations:           11906
+Final Cost:           2.310e-10
+
+------------------------------------------------------------
+Target References:
+------------------------------------------------------------
+  Airspeed_ref      : 85.0   [m/s]
+  Altitude_ref      : 1000.0 [m]
+  Climb_rate_ref    : 0.0    [m/s]
+  Turn_rate_ref     : 0.0    [rad/s]
+
+------------------------------------------------------------
+Trimmed State Variables (X_trim)
+------------------------------------------------------------
+  u   (body X vel)  : 84.99   [m/s]
+  v   (body Y vel)  : 0.0001  [m/s]
+  w   (body Z vel)  : 1.271   [m/s]
+  p   (roll rate)   : 0.0000  [rad/s]
+  q   (pitch rate)  : 0.0000  [rad/s]
+  r   (yaw rate)    : 0.0000  [rad/s]
+  phi (roll angle)  : 0.000   [deg]
+  theta (pitch ang) : 2.21    [deg]
+  psi (heading)     : 0.000   [deg]
+  x, y, z (pos)     : (0.0, 0.0, -1000.0) [m]
+
+------------------------------------------------------------
+Trimmed Control Inputs (U_trim)
+------------------------------------------------------------
+  Elevator          : -0.178 [rad]
+  Aileron           :  0.000 [rad]
+  Rudder            :  0.000 [rad]
+  Throttle          :  0.63  [0–1]
+
+------------------------------------------------------------
+Aerodynamic Forces & Moments @ Trim
+------------------------------------------------------------
+.
+.
+.
+```
 
 
 ## ⚡ Quick Start
