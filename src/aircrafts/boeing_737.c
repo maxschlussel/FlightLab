@@ -16,6 +16,8 @@
  */
 AircraftParams loadBoeing737AircraftParams(void){
     AircraftParams acParams = {
+        .name = "Boeing 737-800",
+
         .mass = 120000.0,
 
         .chord = 6.6,

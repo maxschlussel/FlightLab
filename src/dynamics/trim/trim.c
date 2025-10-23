@@ -8,6 +8,7 @@
 #include "src/dynamics/eom.h"
 #include "src/dynamics/forces.h"
 #include "src/dynamics/trim/fmin_search.h"
+#include "src/dynamics/trim/print_trim.h"
 #include "src/dynamics/trim/trim.h"
 
 
@@ -52,18 +53,49 @@ void solveTrim(double* Z0, TrimRefs* trimRefs, TrimSolveOptions* trimOpts, doubl
     for (int i = 0; i < N_TRIM_STATES; i++) {
         Z_return[i] = results.x_opt[i];
     }
+    
+    double X_trim[12] = {
+        Z_return[0], Z_return[1], Z_return[2],
+        Z_return[3], Z_return[4], Z_return[5],
+        Z_return[6], Z_return[7], Z_return[8],
+    };
+    
+    double U_trim[5] = {
+        Z_return[9], Z_return[10], Z_return[11],
+        Z_return[12], Z_return[13]
+    };
 
     if (trimOpts->saveToFile) {
         // Save to file
     }
 
+    int print_console = 1;
+
+    AeroData aeroData = {{0.0}};
+    AircraftParams acParams = loadBoeing737AircraftParams();
+
     if (trimOpts->printToScreen) {
-        printf("Status: %d (0=converged). Iter %d, func evals %d\n", results.status, results.iterations, results.feval_count);
-        printf("f* = %g\n", results.f_opt);
-        printf("Minimum found at:\n");
-        for (int i = 0; i < N_TRIM_STATES; i++){
-            printf("x[%d]: %f\n", i, Z_return[i]);
-        }
+        printTrimReport(
+            trimRefs,
+            &nmOpts,
+            &results,
+            &aeroData,
+            &acParams,
+            X_trim,
+            U_trim,
+            "examples/basic_aircraft.json",
+            NULL, // TXT output
+            NULL, // CSV output
+            print_console
+        );
+
+        
+        // printf("Status: %d (0=converged). Iter %d, func evals %d\n", results.status, results.iterations, results.feval_count);
+        // printf("f* = %g\n", results.f_opt);
+        // printf("Minimum found at:\n");
+        // for (int i = 0; i < N_TRIM_STATES; i++){
+        //     printf("x[%d]: %f\n", i, Z_return[i]);
+        // }
     }
 
     // [5] Clean up/ free memory

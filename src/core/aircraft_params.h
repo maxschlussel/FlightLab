@@ -8,6 +8,7 @@
  * Unit agnostic.
  */
 typedef struct {
+    char name[30];
     double mass;    // Total aircraft mass
     double I[3][3]; // Inertia matrix
     

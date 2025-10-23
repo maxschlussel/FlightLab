@@ -76,6 +76,7 @@
     - Remove extra headers in each file
 
 - Improvments
+    - Optimize forces and xdot
     - Aero database
         - clean aerodynamics function structure to be per aricraft (modular)
     - Dif freq loops
@@ -103,6 +104,8 @@
         - Others
         - Add ENUM for all options
     - Trim better way to handle acParams in cost
+    - Trim print mass balnce/ CG
+    - Clean up all trim funcs
     - Add more trim types and costs (costs.c/h)
     - learn about lineara\irty of force functions (isnt F=C * qinf * S always non linear bc of qinf)
     - unerstand why imu sensor bias random walk is * sqrt(dt)
