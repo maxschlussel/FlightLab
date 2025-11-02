@@ -11,7 +11,7 @@
 #include "src/core/constants.h"
 #include "src/estimators/simple_estimator.h"
 #include "src/dynamics/eom.h"
-#include "src/dynamics/forces.h"
+#include "src/dynamics/forces/forces.h"
 
 #include "src/io/logger.h"
 

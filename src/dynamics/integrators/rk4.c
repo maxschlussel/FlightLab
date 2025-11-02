@@ -1,7 +1,7 @@
 #include <string.h> 
 
 #include "src/dynamics/eom.h"
-#include "src/dynamics/forces.h"
+#include "src/dynamics/forces/forces.h"
 #include "src/dynamics/integrators/euler_integrator.h"
 #include "src/dynamics/integrators/rk4.h"
 #include "src/math/vector.h"

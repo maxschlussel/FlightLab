@@ -1,5 +1,5 @@
 #include "src/core/constants.h"
-#include "src/dynamics/gravity.h"
+#include "src/dynamics/forces/gravity.h"
 #include "src/math/dcm.h"
 #include "src/math/matrix.h"
 

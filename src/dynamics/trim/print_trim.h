@@ -1,7 +1,7 @@
 #pragma once
 
 #include "src/core/constants.h"
-#include "src/dynamics/aerodynamics.h"
+#include "src/dynamics/forces/aerodynamics.h"
 #include "src/dynamics/eom.h"
 #include "src/dynamics/trim/trim.h"
 #include "src/dynamics/trim/fmin_search.h"

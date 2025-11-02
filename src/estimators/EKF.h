@@ -2,7 +2,7 @@
 
 #include "src/core/state_vector.h"
 #include "src/sensors/aircraft_sensors.h"
-#include "src/dynamics/aerodynamics.h"
+#include "src/dynamics/forces/aerodynamics.h"
 
 #define N_EKF_STATE 12
 #define N_EKF_MEAS 15

@@ -1,6 +1,6 @@
 #include <math.h>
 
-#include "src/dynamics/aerodynamics.h"
+#include "src/dynamics/forces/aerodynamics.h"
 #include "src/core/constants.h"
 #include "src/math/dcm.h"
 #include "src/math/matrix.h"

@@ -1,7 +1,7 @@
-#include "src/dynamics/aerodynamics.h"
-#include "src/dynamics/forces.h"
-#include "src/dynamics/gravity.h"
-#include "src/dynamics/propulsion.h"
+#include "src/dynamics/forces/aerodynamics.h"
+#include "src/dynamics/forces/forces.h"
+#include "src/dynamics/forces/gravity.h"
+#include "src/dynamics/forces/propulsion.h"
 
 #include "src/io/logger.h"
 

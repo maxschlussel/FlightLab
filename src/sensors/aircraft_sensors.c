@@ -1,5 +1,5 @@
 #include "src/dynamics/eom.h"
-#include "src/dynamics/forces.h"
+#include "src/dynamics/forces/forces.h"
 #include "src/math/vector.h"
 #include "src/sensors/aircraft_sensors.h"
 

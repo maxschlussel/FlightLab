@@ -1,5 +1,5 @@
 #include "src/core/constants.h"
-#include "src/dynamics/propulsion.h"
+#include "src/dynamics/forces/propulsion.h"
 
 #include "src/io/logger.h"
 
