@@ -17,11 +17,11 @@
 
 // Module in development...
 
-EKF initEKF(const AircraftParams* acParams, const Actuators* actuators) {
+EKF initEKF(const AircraftModel* acModel, const Actuators* actuators) {
     EKF ekf = {{0.0}};
     ekf.X[0] = 80.0;
     
-    ekf.acParams = acParams;
+    ekf.acModel = acModel;
     ekf.actuators  = actuators;
 
     return ekf;
@@ -34,9 +34,9 @@ void EKF_predictState(EKF* ekf, double dt) {
     array_to_statevec(ekf->X, &X);
     
     // [1] Compute f (state derivative)
-    computeForcesAndMoments(&X, ekf->actuators, ekf->acParams, &(ekf->aeroData));
+    computeForcesAndMoments(&X, ekf->actuators, ekf->acModel, &(ekf->aeroData));
 
-    computeStateDerivative(&X, ekf->acParams, &(ekf->aeroData.F_tot), &(ekf->aeroData.M_tot), ekf->Xdot);
+    computeStateDerivative(&X, ekf->acModel, &(ekf->aeroData.F_tot), &(ekf->aeroData.M_tot), ekf->Xdot);
     
     // [2] Propogate state (simple Euler integration)
     for (int i = 0; i < N_EKF_STATE; i++) {
@@ -81,9 +81,9 @@ void EKF_computeProcessJacobianF(EKF* ekf) {
     
     // [2] Rotational dynamics: wdot_b = I_inv * (M - w_b x I*w_b)
     double I_inv[3][3];
-    mat3_inv(ekf->acParams->I, I_inv);
+    mat3_inv(ekf->acModel->I, I_inv);
     double I[3][3];
-    for (int i = 0; i < 3; i++) for (int j = 0; j < 3; j++) I[i][j] = ekf->acParams->I[i][j];
+    for (int i = 0; i < 3; i++) for (int j = 0; j < 3; j++) I[i][j] = ekf->acModel->I[i][j];
 
     // Compute d(w_b x I*w_b)/dp, dq, dr
     double dCross_dp[3] = {

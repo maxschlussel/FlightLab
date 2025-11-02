@@ -17,14 +17,14 @@
  * @param[in]  X         Pointer to the aircraft's true StateVector.
  * @param[in]  U         Pointer to the ControlVector containing commanded
  *                       control deflections.
- * @param[in]  acParams  Pointer to the AircraftParams struct with mass,
+ * @param[in]  acModel  Pointer to the AircraftModel struct with mass,
  *                       inertia, and aircraft parameters.
  * @param[out] F         Pointer to a Vector3 where the resulting aerodynamic
  *                       forces in the body frame will be stored.
  * @param[out] M         Pointer to a Vector3 where the resulting aerodynamic
  *                       moments in the body frame will be stored.
  */
- void computeAerodynamicForces(const StateVector* X, const Actuators* actuators, const AircraftParams* acParams, AeroData* aeroData){
+ void computeAerodynamicForces(const StateVector* X, const Actuators* actuators, const AircraftModel* acModel, AeroData* aeroData){
     // [0] Defne Useful Quantities
     Vector3 w_b = {X->p, X->q, X->r}; // Angular rates in body frame - omega_b
     Vector3 V_b = {X->u, X->v, X->w}; // Velocities in body frame - V_b
@@ -39,12 +39,12 @@
     double beta = asin(X->v/velocity); //?????????
 
     // [2] Compute Aerodynamic Force
-    double CL = computeCL(acParams, U_123.y, alpha);
+    double CL = computeCL(acModel, U_123.y, alpha);
     double CD = computeCd(alpha);
     double CY = computeCy(U_123.z, beta);
     Vector3 CF_stab = {-CD, CY, -CL};
 
-    double QSfactor = q_inf * acParams->S;
+    double QSfactor = q_inf * acModel->S;
 
     Vector3 F_stab = vec3_scale(CF_stab, QSfactor);
 
@@ -54,13 +54,13 @@
     Vector3 F_body = mat3_mult_vec3(R_stab_to_body, F_stab);  // Rotate to body frame
 
     // [3] Computer Aerodynamic Moment
-    Vector3 CM_aero = computeCM(acParams, alpha, beta, velocity, &w_b, &U_123);
+    Vector3 CM_aero = computeCM(acModel, alpha, beta, velocity, &w_b, &U_123);
 
-    double QSCfactor = q_inf * acParams->S * acParams->chord;
+    double QSCfactor = q_inf * acModel->S * acModel->chord;
 
     Vector3 M_ac_body = vec3_scale(CM_aero, QSCfactor);
 
-    Vector3 M_cg_body = vec3_cross(F_body, acParams->r_ac2cg);
+    Vector3 M_cg_body = vec3_cross(F_body, acModel->r_ac2cg);
 
     Vector3 M_body = vec3_add(M_ac_body, M_cg_body);
 
@@ -108,16 +108,16 @@
 /**
  * @brief Computes the total lift coefficient for the aircraft.
  *
- * @param[in] acParams  Pointer to the AircraftParams struct containing
+ * @param[in] acModel  Pointer to the AircraftModel struct containing
  *                      aircraft properties.
  * @param[in] de        Elevator deflection in radians.
  * @param[in] alpha     The angle of attack in radians.
  *
  * @return The total lift coefficient.
  */
-double computeCL(const AircraftParams* acParams, double de, double alpha){
-    double CL_wingbody = computeCL_wingbody(acParams, alpha);
-    double CL_tail     = computeCL_tail(acParams, de, alpha);  
+double computeCL(const AircraftModel* acModel, double de, double alpha){
+    double CL_wingbody = computeCL_wingbody(acModel, alpha);
+    double CL_tail     = computeCL_tail(acModel, de, alpha);  
     return CL_wingbody + CL_tail;
 }
 
@@ -130,19 +130,19 @@ double computeCL(const AircraftParams* acParams, double de, double alpha){
  * switches to a third-order polynomial for larger angles, as defined
  * by the `alphaNonlinear` parameter.
  *
- * @param[in] acParams  Pointer to the AircraftParams struct.
+ * @param[in] acModel  Pointer to the AircraftModel struct.
  * @param[in] alpha     The angle of attack in radians.
  *
  * @return The wing-body lift coefficient.
  */
-double computeCL_wingbody(const AircraftParams* acParams, double alpha){
+double computeCL_wingbody(const AircraftModel* acModel, double alpha){
     double CL_wingbody;
-    if (alpha <= acParams->alphaNonlinear){
-        CL_wingbody = acParams->slope_CL_Alpha * (alpha - acParams->alpha_L0);
+    if (alpha <= acModel->alphaNonlinear){
+        CL_wingbody = acModel->slope_CL_Alpha * (alpha - acModel->alpha_L0);
     }
     else{
-        CL_wingbody = acParams->a3 * pow(alpha, 3) + acParams->a2 * pow(alpha, 2) + 
-            acParams->a1 * alpha + acParams->a0;
+        CL_wingbody = acModel->a3 * pow(alpha, 3) + acModel->a2 * pow(alpha, 2) + 
+            acModel->a1 * alpha + acModel->a0;
     }
     return CL_wingbody;
 }
@@ -154,32 +154,32 @@ double computeCL_wingbody(const AircraftParams* acParams, double alpha){
  * This function calculates the downwash angle at the tail as a linear
  * function of the angle of attack.
  *
- * @param[in] acParams  Pointer to the AircraftParams struct.
+ * @param[in] acModel  Pointer to the AircraftModel struct.
  * @param[in] alpha     The angle of attack in radians.
  *
  * @return The downwash angle in radians.
  */
-double computeEpsilonDownwash(const AircraftParams* acParams, double alpha){
-    return acParams->dEpsDa * (alpha - acParams->alpha_L0);  // Downwash
+double computeEpsilonDownwash(const AircraftModel* acModel, double alpha){
+    return acModel->dEpsDa * (alpha - acModel->alpha_L0);  // Downwash
 }
 
 
 /**
  * @brief Computes the lift coefficient for the horizontal tail.
  *
- * @param[in] acParams  Pointer to the `AircraftParams` struct with aircraft properties.
+ * @param[in] acModel  Pointer to the `AircraftModel` struct with aircraft properties.
  * @param[in] U         Pointer to the `ControlVector` with control surface deflections.
  * @param[in] alpha     The aircraft's angle of attack in radians.
  *
  * @return The lift coefficient of the tail.
  */
-double computeCL_tail(const AircraftParams* acParams, double de, double alpha){
-    double eps = computeEpsilonDownwash(acParams, alpha);
+double computeCL_tail(const AircraftModel* acModel, double de, double alpha){
+    double eps = computeEpsilonDownwash(acModel, alpha);
 
     double alpha_tail = alpha - eps + de;   // Omitted for simplicity
-                                            // + 1.3 * X.q * acParams->l_t / velocity;
+                                            // + 1.3 * X.q * acModel->l_t / velocity;
 
-    return 3.1 * (acParams->S_tail / acParams->S) * alpha_tail;
+    return 3.1 * (acModel->S_tail / acModel->S) * alpha_tail;
 }
 
 
@@ -216,7 +216,7 @@ double computeCy(double dr, double beta){
  * model that depends on angle of attack, sideslip, angular rates, and
  * control surface deflections.
  *
- * @param[in] acParams      Pointer to the `AircraftParams` struct.
+ * @param[in] acModel      Pointer to the `AircraftModel` struct.
  * @param[in] alpha         The angle of attack in radians.
  * @param[in] beta          The sideslip angle in radians.
  * @param[in] velocity      The magnitude of the body-frame velocity.
@@ -228,29 +228,29 @@ double computeCy(double dr, double beta){
  * - y: Pitch moment coefficient Cm
  * - z: Yaw moment coefficient Cn
  */
-Vector3 computeCM(const AircraftParams* acParams, double alpha, double beta, double velocity, Vector3* w_b, Vector3* U_123){
-    double eps = computeEpsilonDownwash(acParams, alpha);
+Vector3 computeCM(const AircraftModel* acModel, double alpha, double beta, double velocity, Vector3* w_b, Vector3* U_123){
+    double eps = computeEpsilonDownwash(acModel, alpha);
 
     double eta[3] = {
         -1.4 * beta,
-        -0.59 - 3.1 * acParams->S_tail * acParams->l_t * (alpha - eps) / (acParams->S * acParams->chord),
+        -0.59 - 3.1 * acModel->S_tail * acModel->l_t * (alpha - eps) / (acModel->S * acModel->chord),
         (1 - alpha * rad2deg / 15) * beta
     };
 
     double dcm_dx_temp[3][3] = {
         {-11, 0, 5},
-        {0, -4.03 * acParams->S_tail * pow(acParams->l_t, 2)/ (acParams->S * pow(acParams->chord, 2)), 0},
+        {0, -4.03 * acModel->S_tail * pow(acModel->l_t, 2)/ (acModel->S * pow(acModel->chord, 2)), 0},
         {1.7, 0, -11.5}
     };
 
     double dcm_dx[3][3];
-    mat3_scale(dcm_dx_temp, acParams->chord/velocity, dcm_dx);
+    mat3_scale(dcm_dx_temp, acModel->chord/velocity, dcm_dx);
 
     Vector3 term2 = mat3_mult_vec3(dcm_dx, *w_b);
         
     double dcm_du[3][3] = {
         {-0.6, 0, 0.22},
-        {0, -3.1 * acParams->S_tail * acParams->l_t / (acParams->S * acParams->chord), 0},
+        {0, -3.1 * acModel->S_tail * acModel->l_t / (acModel->S * acModel->chord), 0},
         {0, 0, -0.63}
     };
 

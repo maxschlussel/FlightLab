@@ -49,18 +49,18 @@ typedef struct {
     double velocity;        // Total velocity
 } AeroData;
 
-void computeAerodynamicForces(const StateVector* X, const Actuators* actuators, const AircraftParams* acParams, AeroData* aeroData);
+void computeAerodynamicForces(const StateVector* X, const Actuators* actuators, const AircraftModel* acModel, AeroData* aeroData);
 
-double computeCL(const AircraftParams* acParams, double de, double alpha);
+double computeCL(const AircraftModel* acModel, double de, double alpha);
 
-double computeCL_wingbody(const AircraftParams* acParamms, double alpha);
+double computeCL_wingbody(const AircraftModel* acParamms, double alpha);
 
-double computeCL_tail(const AircraftParams* acParams, double de, double alpha);
+double computeCL_tail(const AircraftModel* acModel, double de, double alpha);
 
 double computeCd(double alpha);
 
 double computeCy(double dr, double beta);
 
-Vector3 computeCM(const AircraftParams* acParams, double alpha, double beta, double velocity, Vector3* w_b, Vector3* u_123);
+Vector3 computeCM(const AircraftModel* acModel, double alpha, double beta, double velocity, Vector3* w_b, Vector3* u_123);
 
-double computeEpsilonDownwash(const AircraftParams* acParams, double alpha);
+double computeEpsilonDownwash(const AircraftModel* acModel, double alpha);

@@ -40,7 +40,7 @@ int main(int argc, char* argv[]){
     double tFinal_s = 200.0;  // [s]
 
     // ---- Initialize models ----
-    AircraftParams acParams = loadBoeing737AircraftParams();
+    AircraftModel acModel = loadBoeing737AircraftParams();
     
     StateVector X = initStateVectorBasicCruise();  // Load I.C.
     StateVector X_est = X;
@@ -52,11 +52,11 @@ int main(int argc, char* argv[]){
     GuidanceRefs guidanceRefs = initGuidanceNone();
     
     Sensors sensors = initSensors();
-    SensorInput sensorInput = {&X, &actuators, &acParams, dt_s};
+    SensorInput sensorInput = {&X, &actuators, &acModel, dt_s};
     
-    AeroData aeroData = {0.0};
+    AeroData aeroData = {{0.0}};
 
-    EKF ekf = initEKF(&acParams, &actuators);
+    EKF ekf = initEKF(&acModel, &actuators);
     
     double Xdot[12] = {0.0};
 
@@ -77,21 +77,21 @@ int main(int argc, char* argv[]){
         updateGuidanceRefs(&guidanceRefs);
 
         // [4] Compute and actuate flight controls
-        PID_computeFlightControl(&X, &guidanceRefs, &acParams, &actuators, dt_s, &controlSystemPID, dt_s);  // X_est
+        PID_computeFlightControl(&X, &guidanceRefs, &acModel, &actuators, dt_s, &controlSystemPID, dt_s);  // X_est
         
         driveActuators(&controlSystemPID.U_cmd, &actuators, dt_s);
 
         // [5] Compute Forces and Moments
-        computeForcesAndMoments(&X, &actuators, &acParams, &aeroData);
+        computeForcesAndMoments(&X, &actuators, &acModel, &aeroData);
         
         // [6] Compute state derivative from EOM
-        computeStateDerivative(&X, &acParams, &aeroData.F_tot, &aeroData.M_tot, Xdot);
+        computeStateDerivative(&X, &acModel, &aeroData.F_tot, &aeroData.M_tot, Xdot);
 
         // [7] Log step
         loggerLogStep(simTime_s);
 
         // [8] Integrate one step   
-        integrateRK4Step(&X, &actuators, &acParams, Xdot, dt_s);  // actuators
+        integrateRK4Step(&X, &actuators, &acModel, Xdot, dt_s);  // actuators
         // integrateEulerStep(&X, Xdot, dt_s);
 
         // [9] Step time

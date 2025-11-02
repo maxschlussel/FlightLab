@@ -15,7 +15,7 @@ void printTrimReport(
     const NMOptions* opts,
     const NMResult* result,
     const AeroData* aeroData,
-    const AircraftParams* acParams,
+    const AircraftModel* acModel,
     const double* X_trim,
     const double* U_trim,
     const char* scenarioFile,
@@ -57,7 +57,7 @@ void printTrimReport(
             "Tolerance (TolX):     %.3e\n"
             "Tolerance (TolFun):   %.3e\n"
             "\n",
-            acParams->name,
+            acModel->name,
             scenarioFile,
             timeStr,
             getTrimModeString(refs->trimMode),

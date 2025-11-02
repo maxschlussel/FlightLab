@@ -15,17 +15,17 @@
  *
  * @param[in]  X         Pointer to the aircraft state vector.
  * @param[in]  U_cmd     Pointer to the control vector.
- * @param[in]  acParams  Pointer to the aircraft parameter struct.
+ * @param[in]  acModel  Pointer to the aircraft parameter struct.
  * @param[out] F_tot     Pointer to the total force vector in the body frame.
  * @param[out] M_tot     Pointer to the total moment vector in the body frame.
  */
-void computeForcesAndMoments(const StateVector* X, const Actuators* actuators, const AircraftParams* acParams, AeroData* aeroData){
+void computeForcesAndMoments(const StateVector* X, const Actuators* actuators, const AircraftModel* acModel, AeroData* aeroData){
     
-    computeAerodynamicForces(X, actuators, acParams, aeroData);
+    computeAerodynamicForces(X, actuators, acModel, aeroData);
 
-    computePropulsionForces(actuators, acParams, &aeroData->F_prop_net, &aeroData->M_prop_net);
+    computePropulsionForces(actuators, acModel, &aeroData->F_prop_net, &aeroData->M_prop_net);
     
-    computeGravityForces(X, acParams, &aeroData->F_grav_net);
+    computeGravityForces(X, acModel, &aeroData->F_grav_net);
     
     // Sum forces
     aeroData->F_tot = vec3_add(aeroData->F_aero_net, vec3_add(aeroData->F_prop_net, aeroData->F_grav_net) );

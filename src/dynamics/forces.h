@@ -6,4 +6,4 @@
 #include "src/dynamics/aerodynamics.h"
 #include "src/math/vector.h"
 
-void computeForcesAndMoments(const StateVector* X, const Actuators* actuators, const AircraftParams* acParams, AeroData* aerodata);
+void computeForcesAndMoments(const StateVector* X, const Actuators* actuators, const AircraftModel* acModel, AeroData* aerodata);

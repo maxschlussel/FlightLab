@@ -38,12 +38,12 @@
  * ## Parameters
  * @param[in,out] X        Pointer to current aircraft state vector (updated in-place).
  * @param[in]     U_cmd    Pointer to current control vector.
- * @param[in]     acParams Pointer to aircraft parameters struct.
+ * @param[in]     acModel Pointer to aircraft parameters struct.
  * @param[in]     Xdot     Current state derivative at f(X, t).
  * @param[in]     dt_s     Simulation timestep [s].
  */
 
-void integrateRK4Step(StateVector* X, const Actuators* actuators, const AircraftParams* acParams, 
+void integrateRK4Step(StateVector* X, const Actuators* actuators, const AircraftModel* acModel, 
                       const double Xdot[12], double dt_s){
 
     AeroData aeroData = {0.0};
@@ -56,22 +56,22 @@ void integrateRK4Step(StateVector* X, const Actuators* actuators, const Aircraft
     StateVector X2 = *X;
     double k2[12];
     integrateEulerStep(&X2, k1, dt_s/2);
-    computeForcesAndMoments(&X2, actuators, acParams, &aeroData);
-    computeStateDerivative(&X2, acParams, &aeroData.F_tot, &aeroData.M_tot, k2);
+    computeForcesAndMoments(&X2, actuators, acModel, &aeroData);
+    computeStateDerivative(&X2, acModel, &aeroData.F_tot, &aeroData.M_tot, k2);
 
     // [3] Compute k3 = f( X_n + (dt/2)*k2 )
     StateVector X3 = *X;
     double k3[12];
     integrateEulerStep(&X3, k2, dt_s/2);
-    computeForcesAndMoments(&X3, actuators, acParams, &aeroData);
-    computeStateDerivative(&X3, acParams, &aeroData.F_tot, &aeroData.M_tot, k3);
+    computeForcesAndMoments(&X3, actuators, acModel, &aeroData);
+    computeStateDerivative(&X3, acModel, &aeroData.F_tot, &aeroData.M_tot, k3);
 
     // [4] Compute k4 = f( X_n + dt*k3 )
     StateVector X4 = *X;    // intermediate state y_n + h * k3
     double k4[12];          // derivative of state = f(X4)
     integrateEulerStep(&X4, k3, dt_s);
-    computeForcesAndMoments(&X4, actuators, acParams, &aeroData);
-    computeStateDerivative(&X4, acParams, &aeroData.F_tot, &aeroData.M_tot, k4);
+    computeForcesAndMoments(&X4, actuators, acModel, &aeroData);
+    computeStateDerivative(&X4, acModel, &aeroData.F_tot, &aeroData.M_tot, k4);
 
     // X += (dt_s / 6) * (k1 + 2*k2 + 2*k3 + k4);
     double k_tot[12];

@@ -28,12 +28,12 @@ typedef struct {
 
     AeroData aeroData;
     
-    const AircraftParams* acParams; // Pointer to aircraft parameters
+    const AircraftModel* acModel; // Pointer to aircraft parameters
     const Sensors* sensors;         // Pointer to current sensor readings
     const Actuators* actuators;         // Pointer to current sensor readings
 
 } EKF;
 
-EKF initEKF(const AircraftParams* acParams, const Actuators* actuators);
+EKF initEKF(const AircraftModel* acModel, const Actuators* actuators);
 
 void estimateStateEKF(EKF* ekf, Sensors* sensors, double dt);

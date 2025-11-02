@@ -18,7 +18,7 @@ void printTrimReport(
     const NMOptions* opts,
     const NMResult* result,
     const AeroData* aeroData,
-    const AircraftParams* acParams,
+    const AircraftModel* acModel,
     const double* X_trim,
     const double* U_trim,
     const char* scenarioFile,

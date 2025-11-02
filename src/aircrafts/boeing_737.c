@@ -9,13 +9,13 @@
  * @brief Load and initialize the aircraft parameters for Boeing 737 model.
  *
  * This function sets up and returns an initialized instance of 
- * the AircraftParams structure, including geometry, mass 
+ * the AircraftModel structure, including geometry, mass 
  * properties, and aerodynamic reference values. 
  * 
- * @return AircraftParams Initialized aircraft parameter struct.
+ * @return AircraftModel Initialized aircraft parameter struct.
  */
-AircraftParams loadBoeing737AircraftParams(void){
-    AircraftParams acParams = {
+AircraftModel loadBoeing737AircraftParams(void){
+    AircraftModel acModel = {
         .name = "Boeing 737-800",
 
         .mass = 120000.0,
@@ -47,34 +47,34 @@ AircraftParams loadBoeing737AircraftParams(void){
     };
     
     double I_scaled[3][3];
-    mat3_scale(I, acParams.mass, I_scaled);
+    mat3_scale(I, acModel.mass, I_scaled);
 
-    memcpy(acParams.I, I_scaled, sizeof(I_scaled));
+    memcpy(acModel.I, I_scaled, sizeof(I_scaled));
 
     // Set cg
-    acParams.cg.x = 0.23 * acParams.chord;
-    acParams.cg.y = 0;
-    acParams.cg.z = 0.1 * acParams.chord;
+    acModel.cg.x = 0.23 * acModel.chord;
+    acModel.cg.y = 0;
+    acModel.cg.z = 0.1 * acModel.chord;
 
     // Set ac
-    acParams.ac.x = 0.12 * acParams.chord;
-    acParams.ac.y = 0.0;
-    acParams.ac.z = 0.0;
+    acModel.ac.x = 0.12 * acModel.chord;
+    acModel.ac.y = 0.0;
+    acModel.ac.z = 0.0;
     
     // Calculate r_ac2cg
-    acParams.r_ac2cg.x = acParams.cg.x - acParams.ac.x;
-    acParams.r_ac2cg.y = acParams.cg.y - acParams.ac.y;
-    acParams.r_ac2cg.z = acParams.cg.z - acParams.ac.z;
+    acModel.r_ac2cg.x = acModel.cg.x - acModel.ac.x;
+    acModel.r_ac2cg.y = acModel.cg.y - acModel.ac.y;
+    acModel.r_ac2cg.z = acModel.cg.z - acModel.ac.z;
     
     // Calculate r_engineOne2cg
-    acParams.r_engineOne2cg.x = acParams.cg.x - acParams.engineOneThrustPoint.x;
-    acParams.r_engineOne2cg.y = -(acParams.cg.y - acParams.engineOneThrustPoint.y);
-    acParams.r_engineOne2cg.z = acParams.cg.z - acParams.engineOneThrustPoint.z;
+    acModel.r_engineOne2cg.x = acModel.cg.x - acModel.engineOneThrustPoint.x;
+    acModel.r_engineOne2cg.y = -(acModel.cg.y - acModel.engineOneThrustPoint.y);
+    acModel.r_engineOne2cg.z = acModel.cg.z - acModel.engineOneThrustPoint.z;
     
     // Calculate r_engineTwo2cg
-    acParams.r_engineTwo2cg.x = acParams.cg.x - acParams.engineTwoThrustPoint.x;
-    acParams.r_engineTwo2cg.y = -(acParams.cg.y - acParams.engineTwoThrustPoint.y);
-    acParams.r_engineTwo2cg.z = acParams.cg.z - acParams.engineTwoThrustPoint.z;
+    acModel.r_engineTwo2cg.x = acModel.cg.x - acModel.engineTwoThrustPoint.x;
+    acModel.r_engineTwo2cg.y = -(acModel.cg.y - acModel.engineTwoThrustPoint.y);
+    acModel.r_engineTwo2cg.z = acModel.cg.z - acModel.engineTwoThrustPoint.z;
 
-    return acParams;
+    return acModel;
 }

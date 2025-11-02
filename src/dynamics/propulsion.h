@@ -5,4 +5,4 @@
 #include "src/math/vector.h"
 
 
-void computePropulsionForces(const Actuators* actuators, const AircraftParams* acParams, Vector3* F, Vector3* M);
+void computePropulsionForces(const Actuators* actuators, const AircraftModel* acModel, Vector3* F, Vector3* M);

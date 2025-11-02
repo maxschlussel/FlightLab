@@ -35,4 +35,4 @@ typedef struct {
     Vector3 r_ac2cg;        // Distance from ac to cg
     Vector3 r_engineOne2cg;    // Distance from engine one thrust point to cg
     Vector3 r_engineTwo2cg;    // Distance from engine two thrust point to cg
-} AircraftParams;
+} AircraftModel;

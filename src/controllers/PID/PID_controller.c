@@ -24,14 +24,14 @@
  * @param[in]     guidanceRefs      A pointer to the GuidanceRefs struct, containing
  *                                  the desired reference values for altitude,
  *                                  airspeed, and heading.
- * @param[in]     acParams          A pointer to the AircraftParams struct, containing
+ * @param[in]     acModel          A pointer to the AircraftModel struct, containing
  *                                  physical properties of the aircraft.
  * @param[in,out] controlSystemPID  A pointer to the ControlSystemPID struct, which
  *                                  contains the PID controllers and will be updated
  *                                  with the new actuator commands.
  * @param[in]     dt_s              The time step in seconds since the last update.
  */
-void PID_computeFlightControl(const StateVector* X_est, const GuidanceRefs* guidanceRefs, const AircraftParams* acParams, 
+void PID_computeFlightControl(const StateVector* X_est, const GuidanceRefs* guidanceRefs, const AircraftModel* acModel, 
                              Actuators* actuators, double dt, ControlSystemPID* controlSystemPID, double dt_s) {
     // Development in progress...
 

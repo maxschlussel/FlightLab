@@ -18,7 +18,7 @@
  * and forces/moments.
  *
  * @param[in]  X            Pointer to current StateVector (u, v, w, p, q, r, phi, theta, psi, x, y, z).
- * @param[in]  acParams     Pointer to aircraft struct containing mass and inertial properties of the
+ * @param[in]  acModel     Pointer to aircraft struct containing mass and inertial properties of the
  *                          aircraft.
  * @param[in]  F            Pointer to Vector3 containing the forces on the aircraft [N].
  * @param[in]  M            Pointer to Vector3 containing the moments on the aircraft [N-m].
@@ -36,7 +36,7 @@
  *                          - [10] y_dot   : inertial y-position derivative (m/s)
  *                          - [11] z_dot   : inertial z-position derivative (m/s)
  */
-void computeStateDerivative(const StateVector* X, const AircraftParams* acParams, const Vector3* F, const Vector3* M, double* Xdot){
+void computeStateDerivative(const StateVector* X, const AircraftModel* acModel, const Vector3* F, const Vector3* M, double* Xdot){
 
     // [0] Define useful params
     Vector3 w_b = {X->p, X->q, X->r}; // Angular rates in body frame - omega_b
@@ -45,14 +45,14 @@ void computeStateDerivative(const StateVector* X, const AircraftParams* acParams
 
     // [1] Compute translationsal EOM:
     // ---- Vdot_b = 1/m * F - omega_b X V_b ----
-    Vector3 Vdot_b = vec3_sub(vec3_scale(*F, 1/acParams->mass), vec3_cross(w_b, V_b));
+    Vector3 Vdot_b = vec3_sub(vec3_scale(*F, 1/acModel->mass), vec3_cross(w_b, V_b));
 
     // [2] Compute rotational EOM:
     double I_inv[3][3];
-    mat3_inv(acParams->I, I_inv);
+    mat3_inv(acModel->I, I_inv);
     
     // ---- wdot_b = I_inv * (M - omega_b X I*omega_b) ----
-    Vector3 wdot_b = mat3_mult_vec3(I_inv, vec3_sub(*M, vec3_cross(w_b, mat3_mult_vec3(acParams->I, w_b))));
+    Vector3 wdot_b = mat3_mult_vec3(I_inv, vec3_sub(*M, vec3_cross(w_b, mat3_mult_vec3(acModel->I, w_b))));
 
     // [3] Compute Euler angle kinematics
     double H[3][3] = {

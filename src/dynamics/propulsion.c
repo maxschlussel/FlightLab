@@ -12,24 +12,24 @@
  *
  * @param[in]  X          Pointer to the current state vector.
  * @param[in]  U          Pointer to the control vector, providing throttle settings.
- * @param[in]  acParams   Pointer to the aircraft parameters struct.
+ * @param[in]  acModel   Pointer to the aircraft parameters struct.
  * @param[out] F          Pointer to a `Vector3` where the total propulsion force
  *                        vector in the body frame will be stored.
  * @param[out] M          Pointer to a `Vector3` where the total propulsion moment
  *                        vector in the body frame will be stored.
  */
-void computePropulsionForces(const Actuators* actuators, const AircraftParams* acParams, Vector3* F, Vector3* M){
+void computePropulsionForces(const Actuators* actuators, const AircraftModel* acModel, Vector3* F, Vector3* M){
 
-    double Fthrottle1 = actuators->throttle[0] * acParams->mass * g;
-    double Fthrottle2 = actuators->throttle[1] * acParams->mass * g;
+    double Fthrottle1 = actuators->throttle[0] * acModel->mass * g;
+    double Fthrottle2 = actuators->throttle[1] * acModel->mass * g;
 
     Vector3 FengineOne = {Fthrottle1, 0, 0};
     Vector3 FengineTwo = {Fthrottle2, 0, 0};
 
     *F = vec3_add(FengineOne, FengineTwo);
 
-    Vector3 MomentEngineOne_b = vec3_cross(acParams->r_engineOne2cg, FengineOne);
-    Vector3 MomentEngineTwo_b = vec3_cross(acParams->r_engineTwo2cg, FengineTwo);
+    Vector3 MomentEngineOne_b = vec3_cross(acModel->r_engineOne2cg, FengineOne);
+    Vector3 MomentEngineTwo_b = vec3_cross(acModel->r_engineTwo2cg, FengineTwo);
 
     *M = vec3_add(MomentEngineOne_b, MomentEngineTwo_b);
 

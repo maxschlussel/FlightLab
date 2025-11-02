@@ -5,4 +5,4 @@
 #include "src/math/vector.h"
 
 
-void computeGravityForces(const StateVector* X, const AircraftParams* ac_parapms, Vector3* F);
+void computeGravityForces(const StateVector* X, const AircraftModel* ac_parapms, Vector3* F);

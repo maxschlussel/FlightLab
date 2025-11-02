@@ -31,7 +31,7 @@ void mat_identity_trim(double A[N_TRIM_STATES][N_TRIM_STATES]);
 void solveTrim(double* Z0, TrimRefs* trimRefs, TrimSolveOptions* trimOpts, double* Z_return) {
     // [1] Setup cost function and params
     CostFunction costFunc = getCostFunction(trimRefs);
-    // CostFuncParams costFuncParams = {.acParams = acParams};
+    // CostFuncParams costFuncParams = {.acModel = acModel};
     
     // [2] Setup solver options and result
     NMOptions nmOpts;
@@ -72,7 +72,7 @@ void solveTrim(double* Z0, TrimRefs* trimRefs, TrimSolveOptions* trimOpts, doubl
     int print_console = 1;
 
     AeroData aeroData = {{0.0}};
-    AircraftParams acParams = loadBoeing737AircraftParams();
+    AircraftModel acModel = loadBoeing737AircraftParams();
 
     if (trimOpts->printToScreen) {
         printTrimReport(
@@ -80,7 +80,7 @@ void solveTrim(double* Z0, TrimRefs* trimRefs, TrimSolveOptions* trimOpts, doubl
             &nmOpts,
             &results,
             &aeroData,
-            &acParams,
+            &acModel,
             X_trim,
             U_trim,
             "examples/basic_aircraft.json",
@@ -196,10 +196,10 @@ double costStraightAndLevel(const double* Z,int n){
     double Xdot[12] = {0.0};
 
     AeroData aeroData = {{0.0}};
-    AircraftParams acParams = loadBoeing737AircraftParams();
+    AircraftModel acModel = loadBoeing737AircraftParams();
 
-    computeForcesAndMoments(&X, &actuators, &acParams, &aeroData);
-    computeStateDerivative(&X, &acParams, &(aeroData.F_tot), &(aeroData.M_tot), Xdot);
+    computeForcesAndMoments(&X, &actuators, &acModel, &aeroData);
+    computeStateDerivative(&X, &acModel, &(aeroData.F_tot), &(aeroData.M_tot), Xdot);
 
     double Va = sqrt(Z[0]*Z[0] + Z[1]*Z[1] + Z[2]*Z[2]);
 

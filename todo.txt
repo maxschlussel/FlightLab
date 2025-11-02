@@ -1,4 +1,3 @@
-- One aircraft class
 - Controls
 - EKF
 
@@ -59,7 +58,6 @@
         - Go thru code and unify func naming (EKF_getx)
     - Change make to cmake
     - Trim solver standalone exe/ program with GUI
-    - acParam name to acModel
     - naming add SNS_readSensor? etc
     - function parameter naming convention x_output?
     - Defualt datalog path so user doesnt need to inut at runtime
@@ -76,6 +74,7 @@
     - Remove extra headers in each file
 
 - Improvments
+    - One aircraft class
     - Optimize forces and xdot
     - Aero database
         - clean aerodynamics function structure to be per aricraft (modular)
@@ -97,13 +96,14 @@
         - make better graphs (dark theme)/ gifs
         - make better flightgear gif (with lines of data in bottom right pos vel clock etc)
     - quats
+    - Multithreading
     - Learn more about dif style trim solvers
         - Analytical from aero eq
             - Get equations from database?
         - Perterbations (from database)
         - Others
         - Add ENUM for all options
-    - Trim better way to handle acParams in cost
+    - Trim better way to handle acModel in cost
     - Trim print mass balnce/ CG
     - Clean up all trim funcs
     - Add more trim types and costs (costs.c/h)

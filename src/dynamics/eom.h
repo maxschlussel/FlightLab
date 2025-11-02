@@ -5,4 +5,4 @@
 #include "src/math/vector.h"
 
 
-void computeStateDerivative(const StateVector* X, const AircraftParams* ac, const Vector3* F, const Vector3* M, double* Xdot);
+void computeStateDerivative(const StateVector* X, const AircraftModel* ac, const Vector3* F, const Vector3* M, double* Xdot);

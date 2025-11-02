@@ -34,12 +34,12 @@ typedef struct {
  * @param X         State vector at current time t.
  * @param actuators Flight controls actuators from previous loop, t-1. Not yet updated 
  *                  for current loop at time t.
- * @param acParams  Aircraft parameters.
+ * @param acModel  Aircraft parameters.
  */
 typedef struct {
     const StateVector* X;
     const Actuators* actuators;
-    const AircraftParams* acParams;
+    const AircraftModel* acModel;
     double dt;
 } SensorInput;
 
