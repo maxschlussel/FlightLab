@@ -69,7 +69,6 @@
     - getInertialVelocity function for eom and gps sensor calcs
     - Seperate sim from aircraft
         - make sim controls one line - sim runs regardles of if controls are config or not
-    - Dynamics -> forces folder?
     - Remove Union in guidance? too bulky switch statements everywhere?
     - Remove extra headers in each file
 
